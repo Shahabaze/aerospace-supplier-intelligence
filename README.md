@@ -6,8 +6,6 @@ An AI-enabled aerospace procurement and supply chain intelligence platform desig
   <strong>Independent Technology Portfolio Project | Aerospace | Procurement | AI | Supply Chain Analytics</strong>
 </p>
 
----
-
 1. Project Overview
 
 The Aerospace Supplier Intelligence Platform is an independent, browser-based technology project designed to demonstrate how artificial intelligence, data analytics and digital technologies can improve aerospace procurement and supply chain decision-making.
@@ -88,7 +86,7 @@ Natural-language procurement queries, data-driven explanations and recommendatio
 
 5. Proposed Technology Stack
 
-The following technologies are under evaluation and will be validated before final adoption.
+The following technologies are proposed for initial development. Final adoption will depend on technical feasibility, security, integration capabilities and free-tier limitations.
 
 Technology
 
@@ -96,11 +94,11 @@ Intended Purpose
 
 Google AI Studio
 
-Browser-based application development assistance
+Browser-based AI-assisted application development
 
 Gemini API
 
-AI-powered procurement analysis and chatbot
+AI-powered procurement analysis and chatbot functionality
 
 HTML
 
@@ -124,7 +122,7 @@ Source code, documentation and version control
 
 ChatGPT
 
-Project architecture, technical guidance and quality assurance
+Project architecture, development guidance and quality assurance
 
 Claude
 
@@ -149,6 +147,8 @@ Hosting and Deployment Layer: Browser-accessible application deployment.
 The final architecture will be determined following technical feasibility, security and cost validation.
 
 7. Repository Structure
+
+The GitHub repository follows a modular structure to separate documentation, application source code, datasets, testing and visual resources.
 
 aerospace-supplier-intelligence/
 │
@@ -175,6 +175,8 @@ aerospace-supplier-intelligence/
 
 8. Development Roadmap
 
+The project will follow a phased development and validation approach.
+
 Phase
 
 Description
@@ -185,13 +187,13 @@ Phase 0
 
 Project foundation and documentation
 
-In Progress
+Completed
 
 Phase 1
 
-Requirements, architecture and data design
+Requirements, architecture validation and data design
 
-Planned
+Upcoming
 
 Phase 2
 
@@ -221,7 +223,7 @@ Each phase will require review and validation before progressing to the next sta
 
 9. Project Documentation
 
-The following documents maintain project governance and technical traceability:
+The following documents maintain project governance, technical traceability and development discipline.
 
 Project Charter – Project objectives, scope and governance.
 
@@ -251,6 +253,8 @@ API credentials will be protected through appropriate secure configuration and w
 
 AI-generated recommendations will be validated against available application data wherever possible. The assistant must not invent supplier performance results or procurement figures.
 
+All supplier risk assessments and analytical outputs will clearly distinguish between actual dataset values, rule-based calculations and AI-generated interpretations.
+
 11. Development Governance
 
 The project follows a structured development and validation approach.
@@ -276,6 +280,8 @@ GitHub
 Authoritative repository, version control and approved documentation
 
 All significant changes will be documented and reviewed before acceptance.
+
+GitHub will serve as the central source of truth for approved project documentation and application code.
 
 12. Current Project Status
 
@@ -311,6 +317,8 @@ Upcoming Milestones
 
 Validate the proposed technology architecture.
 
+Finalize the initial application technology stack.
+
 Define the aerospace procurement data model.
 
 Design synthetic supplier and purchase order datasets.
@@ -321,7 +329,7 @@ Develop the first interactive procurement dashboard.
 
 Integrate and validate AI functionality.
 
-Note: Planned features are not yet implemented. Development status will be updated as each milestone is completed and validated.
+Project Status Note: The application modules and AI capabilities described in this document are planned features, not completed functionality. Development status will be updated as each milestone is implemented, tested and validated.
 
 13. Project Vision
 
@@ -333,6 +341,6 @@ Project Classification: Independent Professional Technology Portfolio Project
 
 Data Classification: Synthetic Demonstration Data
 
-Document Version: 1.0
+Document Version: 1.1
 
 Repository: aerospace-supplier-intelligence
