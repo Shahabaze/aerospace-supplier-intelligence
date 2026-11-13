@@ -171,10 +171,11 @@ A feature is described as tested only when a test has actually been run and its 
 - KPI Dictionary v2.1.
 - Repository audit (2026-11-13): all 17 data-model controls pass on the source data.
 - Architecture v2.0 and Decision Log v2.0.
+- Data layer: CSV loader, schema typing (blank stays blank) and all 17 Data Model validation controls, with browser tests ([Stage 2 test report](tests/reports/stage-02-data-layer.md)).
 
-**In progress**
+**Next**
 
-- Data layer and validation controls.
+- KPI engine and browser-based KPI tests.
 
 The live dashboard link and screenshots will be added once the first module is deployed and verified.
 

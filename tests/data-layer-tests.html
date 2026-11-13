@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Running – Data layer tests</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="test-page.css">
+</head>
+<body>
+  <header>
+    <h1>Data Layer Tests</h1>
+    <p>Aerospace Supplier Intelligence Platform · CSV loading, type conversion, blank handling, the 17 Data Model v2.0 controls, supplementary checks and approved data-quality notices.</p>
+    <p class="note">Synthetic demonstration data. These tests read the CSV files in <code>data/</code> and never change them.</p>
+  </header>
+  <main id="results"><p>Running tests…</p></main>
+  <script src="../src/vendor/papaparse-5.7.1.min.js"></script>
+  <script type="module" src="data-layer-tests.js"></script>
+</body>
+</html>

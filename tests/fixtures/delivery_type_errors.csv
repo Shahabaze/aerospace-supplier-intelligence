@@ -1,0 +1,6 @@
+delivery_id,po_id,po_line_id,supplier_id,material_id,shipment_date,promised_delivery_date,actual_delivery_date,shipped_qty,received_qty,accepted_qty,rejected_qty,unit_of_measure,delivery_status,delivery_variance_days,on_time_flag,carrier,tracking_reference
+FX-001,PO-X,POL-X,SUP-001,MAT-001,2025-12-04,2025-12-10,2025-12-17,17,17,17,0,EA,Delivered,7,0,Carrier A,TRK-1
+FX-002,PO-X,POL-X,SUP-001,MAT-001,2025-12-07,2025-12-10,,4,0,0,0,EA,In Transit,,,Carrier B,TRK-2
+FX-003,PO-X,POL-X,SUP-001,MAT-001,2025/12/08,2026-02-30,2025-12-12,abc,5,5,0,EA,Delivered,2,2,Carrier C,TRK-3
+FX-004,PO-X,POL-X,SUP-001,MAT-001,2025-12-09,2025-12-10,2025-12-10,3,,3,0,EA,Delivered,0,1,Carrier D,TRK-4
+FX-005,PO-X,POL-X,SUP-001,MAT-001,2025-12-09,2025-12-10,2025-12-10,3,3,3,0,EA,Delivered,0,1,Carrier E,TRK-5,EXTRA

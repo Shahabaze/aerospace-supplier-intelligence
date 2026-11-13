@@ -1,0 +1,2 @@
+material_id,material_description,material_category,commodity,supplier_id,unit_of_measure,standard_cost_usd,lead_time_days,safety_stock_qty,reorder_point_qty,criticality,material_status
+MAT-001,Precision CNC Machined Housing,Machined Components,Precision Machined Components,SUP-001,EA,2850,45,20,35,Critical,Active
