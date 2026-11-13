@@ -173,9 +173,11 @@ A feature is described as tested only when a test has actually been run and its 
 - Architecture v2.0 and Decision Log v2.1.
 - Data layer: CSV loader, schema typing (blank stays blank) and all 17 Data Model validation controls, with browser tests ([Stage 2 test report](tests/reports/stage-02-data-layer.md)).
 
+- KPI engine implementing KPI Dictionary v2.2, verified against independently calculated values ([Stage 3 test report](tests/reports/stage-03-kpi-engine.md)).
+
 **Next**
 
-- KPI engine and browser-based KPI tests.
+- Executive Dashboard (application shell, theme and Priority 1 KPIs).
 
 The live dashboard link and screenshots will be added once the first module is deployed and verified.
 

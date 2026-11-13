@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Running – KPI engine tests</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="test-page.css">
+</head>
+<body>
+  <header>
+    <h1>KPI Engine Tests</h1>
+    <p>Aerospace Supplier Intelligence Platform · KPI calculations checked against KPI Dictionary v2.2 and independently calculated expected values, plus governance rule tests.</p>
+    <p class="note">Synthetic demonstration data. These tests read the CSV files in <code>data/</code> and never change them.</p>
+  </header>
+  <main id="results"><p>Running tests…</p></main>
+  <script src="../src/vendor/papaparse-5.7.1.min.js"></script>
+  <script type="module" src="kpi-tests.js"></script>
+</body>
+</html>

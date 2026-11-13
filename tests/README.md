@@ -14,7 +14,7 @@ The test pages run in an ordinary web browser and show pass or fail for each che
 | Path | Purpose |
 |---|---|
 | `data-layer-tests.html` | Tests for CSV loading, type conversion, blank handling and the 17 validation controls |
-| `kpi-tests.html` | Tests for the KPI engine against expected values (added in the KPI stage) |
+| `kpi-tests.html` | Tests for the KPI engine against independently calculated expected values (`kpi-expected-values.js`) and governance rules |
 | `fixtures/` | Small, deliberately faulty CSV files used to prove each control detects errors. The real data files are never altered |
 | `reports/` | Test report for each development stage |
 
