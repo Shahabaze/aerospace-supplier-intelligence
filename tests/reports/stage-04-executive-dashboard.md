@@ -122,19 +122,42 @@ All four were caught. The throwaway copy was discarded.
 3. **Late delivery events headline** uses the snapshot-period basis to match the OTD headline; the full-dataset figure is shown underneath.
 4. **Fonts (DEC-024)** were added as a new self-hosted dependency (about 120 KB, SIL OFL 1.1) and are recorded for Project Owner review.
 
+## 7A. Successful-Load Verification (added after Project Owner review)
+
+Run separately from the missing-file test, using the normal address with **no** `?data=` parameter. Every CSV request was recorded at network level.
+
+| Check | A: repository root | B: GitHub Pages project-site layout |
+|---|---|---|
+| Address | `/index.html` | `/aerospace-supplier-intelligence/` |
+| CSV requests | `/data/<file>.csv`, all six | `/aerospace-supplier-intelligence/data/<file>.csv`, all six |
+| HTTP status | 200 for all six | 200 for all six |
+| Bytes served match `origin/main` (SHA-256) | 6 / 6 | 6 / 6 |
+| Rows loaded | 25 / 25 / 100 / 91 / 25 / 73 | 25 / 25 / 100 / 91 / 25 / 73 |
+| App state | ready, no error panel | ready, no error panel |
+| Validation | 17 of 17 controls passed | 17 of 17 controls passed |
+| Headline values | 39.7%, 38, $8.86M, $11.48M, 0.17%, $2.63M | identical |
+| Console errors | none | none |
+
+Layout B serves the repository inside a sub-folder, in the same way GitHub Pages will publish it at `https://shahabaze.github.io/aerospace-supplier-intelligence/`. The application uses relative paths (`data/…`), so it loads correctly in both cases. This is a local simulation; the live site itself will be checked in Stage 8.
+
+The automated dashboard test page also covers this separately: its first test opens the application normally and requires the ready state, and the missing-file test runs in its own frame with `?data=tests/no-such-folder/`.
+
+Screenshot of the loaded dashboard from layout B: `executive-loaded-pages-path-1440.png`.
+
 ## 8. Screenshots
 
 Stored in `tests/reports/screenshots/stage-04/`:
 
 | File | Shows |
 |---|---|
+| `executive-loaded-pages-path-1440.png` | Full Executive Dashboard, all six CSV files loaded, GitHub Pages folder layout |
 | `executive-desktop-1440.png` | Full Executive Dashboard, desktop |
 | `executive-laptop-1024.png` | Laptop width |
 | `executive-tablet-834.png` | Tablet width, wrapped tabs, 2-column KPIs |
 | `executive-mobile-390.png`, `executive-mobile-360.png` | Phone widths, single column |
 | `data-quality-expanded-1280.png` | Data-quality warnings expanded with event and material tables |
 | `suppliers-desktop-1440.png`, `assistant-mobile-390.png` | Planned-module pages |
-| `load-error-1280.png` | Error page when data files are missing |
+| `load-error-1280.png` | **Deliberate test:** error page when data files are missing (`?data=tests/no-such-folder/`). Not the normal state. |
 
 ## 9. Full Test List (dashboard-tests.html)
 

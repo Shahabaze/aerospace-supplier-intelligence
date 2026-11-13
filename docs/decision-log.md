@@ -43,7 +43,7 @@ Earlier decisions are never deleted. When a decision is replaced, its status cha
 | DEC-021 | Adopt a five-module application scope (see section 7.4) | Aligns modules with the KPIs the current data supports | Approved |
 | DEC-022 | Start AI assistant work only after the core dashboard is completed and validated; any AI API must be called through a secure backend, never from browser code | Protects API keys and keeps AI output grounded in validated KPIs | Approved |
 | DEC-023 | Supplier Concentration (KPI 6.4) uses Net Active PO Line Value in both numerator and denominator | Cancelled value is not active commitment and must not inflate a supplier's share (consistent with DEC-019) | Approved |
-| DEC-024 | Self-host the Barlow and Barlow Semi Condensed web fonts (SIL Open Font License 1.1) in `src/vendor/fonts/` | Consistent professional typography with tabular figures, no external font service, free licence | Approved (Stage 4 build, for Project Owner review) |
+| DEC-024 | Self-host the Barlow and Barlow Semi Condensed web fonts (SIL Open Font License 1.1) in `src/vendor/fonts/`, with licence files `OFL-LICENSE-Barlow.txt` and `OFL-LICENSE-Barlow-Semi-Condensed.txt` | Consistent professional typography with tabular figures, no external font service, free licence | Approved (Project Owner, 2026-11-13) |
 
 ## 3. Technology Decisions Pending Validation
 
@@ -167,6 +167,19 @@ Supplier Concentration (%) = (Supplier's Net Active PO Line Value ÷ Total Net A
 - The same exclusion applies to numerator and denominator.
 - Recorded in KPI Dictionary Version 2.2.
 - Effect on current data: SUP-007 changes from 25.38% (gross) to 27.75% (net active); SUP-008 from 22.34% to 24.42%.
+
+### 7.6 DEC-024 – Self-hosted fonts
+
+**Decision (Project Owner, 2026-11-13):** approved on condition that the font licence is included in the repository and documented here.
+
+| Item | Detail |
+|---|---|
+| Fonts | Barlow 400, 500, 600 and Barlow Semi Condensed 500, 600 (Latin subset, WOFF2, about 120 KB) |
+| Location | `src/vendor/fonts/` |
+| Licence | SIL Open Font License 1.1, free to use, embed and redistribute |
+| Licence files | `src/vendor/fonts/OFL-LICENSE-Barlow.txt`, `src/vendor/fonts/OFL-LICENSE-Barlow-Semi-Condensed.txt` |
+| Source | npm packages `@fontsource/barlow@5.3.0` and `@fontsource/barlow-semi-condensed@5.3.0`, files unmodified |
+| Integrity | SHA-256 hashes listed in `src/vendor/fonts/README.md` |
 
 ---
 
