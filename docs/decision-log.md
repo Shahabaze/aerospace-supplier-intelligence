@@ -1,7 +1,7 @@
 # Project Decision Log
 ## Aerospace Supplier Intelligence Platform
 
-**Document Version:** 2.2  
+**Document Version:** 2.3  
 **Project Stage:** Phase 2 – Application Development  
 **Repository:** aerospace-supplier-intelligence  
 **Last Updated:** 2026-11-13
@@ -44,6 +44,7 @@ Earlier decisions are never deleted. When a decision is replaced, its status cha
 | DEC-022 | Start AI assistant work only after the core dashboard is completed and validated; any AI API must be called through a secure backend, never from browser code | Protects API keys and keeps AI output grounded in validated KPIs | Approved |
 | DEC-023 | Supplier Concentration (KPI 6.4) uses Net Active PO Line Value in both numerator and denominator | Cancelled value is not active commitment and must not inflate a supplier's share (consistent with DEC-019) | Approved |
 | DEC-024 | Self-host the Barlow and Barlow Semi Condensed web fonts (SIL Open Font License 1.1) in `src/vendor/fonts/`, with licence files `OFL-LICENSE-Barlow.txt` and `OFL-LICENSE-Barlow-Semi-Condensed.txt` | Consistent professional typography with tabular figures, no external font service, free licence | Approved (Project Owner, 2026-11-13) |
+| DEC-025 | Label supplier-level rates by sample size: no records = "No data" (rate blank); fewer than 3 records = "limited" (rate shown with n); 3 or more = sufficient. Threshold configurable (`minimumSampleForRate`) | Supplier rates often rest on 1–2 events; users must see how much evidence is behind each figure. Display rule only, no KPI formula changes | Proposed (Stage 5 build, for Project Owner review) |
 
 ## 3. Technology Decisions Pending Validation
 
@@ -181,7 +182,25 @@ Supplier Concentration (%) = (Supplier's Net Active PO Line Value ÷ Total Net A
 | Source | npm packages `@fontsource/barlow@5.3.0` and `@fontsource/barlow-semi-condensed@5.3.0`, files unmodified |
 | Integrity | SHA-256 hashes listed in `src/vendor/fonts/README.md` |
 
+### 7.7 DEC-025 – Sample-size labels for supplier-level rates (proposed)
+
+**Why:** in the current data, 4 suppliers have no delivered events in the snapshot period and 11 have only 1 or 2. Critical suppliers hold 52.6% of net active PO line value but account for 4 of 63 delivered events in the period. A rate such as "100% OTD" from one event must not look as reliable as a rate from six events.
+
+**Rule:**
+
+| Records behind the rate | Label | What is shown |
+|---|---|---|
+| 0 | No data | The rate is left blank (never 0%) |
+| 1 to 2 | Limited sample | The rate, with an amber "n = …" tag |
+| 3 or more | Sufficient | The rate |
+
+- Delivery rates count delivered events on the selected basis; rejection rate counts inspection records.
+- The threshold is a setting (`minimumSampleForRate` in `src/js/config.js`, default 3).
+- This is a display rule. It does not change any KPI formula, and no supplier is excluded from any total.
+
+**Status:** proposed during Stage 5; requires Project Owner approval.
+
 ---
 
-**Document Status:** Decision Register – Version 2.2  
+**Document Status:** Decision Register – Version 2.3  
 **Approval Authority:** Project Owner

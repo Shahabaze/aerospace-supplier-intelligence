@@ -376,12 +376,29 @@ export function certificationStatusDistribution(d) {
 }
 
 /**
+ * Sample-size label for a supplier-level rate (display rule DEC-025, not a KPI formula).
+ *   'none'       – no qualifying records; the rate is blank
+ *   'limited'    – fewer than minSample records; the rate is shown but flagged
+ *   'sufficient' – minSample records or more
+ */
+export const DEFAULT_MIN_SAMPLE = 3;
+export function sampleSufficiency(n, minSample = DEFAULT_MIN_SAMPLE) {
+  if (!n) return 'none';
+  return n < minSample ? 'limited' : 'sufficient';
+}
+
+/**
  * KPI 8.4 – Supplier delivery and quality profile.
  * Each source is aggregated separately per supplier, then combined (no row-level joins).
  * Indicators are shown individually; no composite risk score is produced (KPI 8.5).
  */
-export function supplierProfiles(d, { asOfDate }) {
-  const blank = () => ({ delFull: 0, onTimeFull: 0, lateFull: 0, varSumFull: 0, varNFull: 0, delSnap: 0, onTimeSnap: 0, inspected: 0, rejected: 0, inspections: 0, nonconformances: 0, openCorrectiveActions: 0 });
+export function supplierProfiles(d, { asOfDate, minSample = DEFAULT_MIN_SAMPLE }) {
+  const blank = () => ({
+    delFull: 0, onTimeFull: 0, lateFull: 0, varSumFull: 0, varNFull: 0,
+    delSnap: 0, onTimeSnap: 0, lateSnap: 0, varSumSnap: 0, varNSnap: 0, inTransit: 0,
+    inspected: 0, rejected: 0, inspections: 0, nonconformances: 0, openCorrectiveActions: 0,
+    caRequired: 0, caStatus: {}, poLines: 0, openPoLines: 0, overduePoLines: 0, netActiveValue: 0,
+  });
   const agg = new Map(d.suppliers.map((s) => [s.supplier_id, blank()]));
   const get = (id) => {
     if (!agg.has(id)) agg.set(id, blank());
@@ -401,6 +418,24 @@ export function supplierProfiles(d, { asOfDate }) {
     if (r.actual_delivery_date !== null && r.actual_delivery_date <= asOfDate) {
       a.delSnap++;
       if (r.on_time_flag === 1) a.onTimeSnap++;
+      if (r.on_time_flag === 0) a.lateSnap++;
+      if (r.delivery_variance_days !== null) {
+        a.varSumSnap += r.delivery_variance_days;
+        a.varNSnap++;
+      }
+    }
+  }
+  for (const r of d.delivery_transactions) if (r.delivery_status === 'In Transit') get(r.supplier_id).inTransit++;
+
+  // PO lines (one pass over purchase_orders; values aggregated before any join)
+  const totalNet = sum(d.purchase_orders, netActiveLineValue);
+  for (const r of d.purchase_orders) {
+    const a = get(r.supplier_id);
+    a.poLines++;
+    a.netActiveValue += netActiveLineValue(r);
+    if (r.open_qty > 0) {
+      a.openPoLines++;
+      if (r.promised_delivery_date !== null && r.promised_delivery_date < asOfDate) a.overduePoLines++;
     }
   }
 
@@ -409,6 +444,10 @@ export function supplierProfiles(d, { asOfDate }) {
     const a = get(r.supplier_id);
     if (r.quality_result === 'Nonconformance') a.nonconformances++;
     if (isOpenCorrectiveAction(r)) a.openCorrectiveActions++;
+    if (r.corrective_action_required === 'Yes') {
+      a.caRequired++;
+      a.caStatus[r.corrective_action_status] = (a.caStatus[r.corrective_action_status] || 0) + 1;
+    }
     if (typeof r.inspected_qty === 'number' && r.inspected_qty > 0) {
       a.inspections++;
       a.inspected += r.inspected_qty;
@@ -440,6 +479,19 @@ export function supplierProfiles(d, { asOfDate }) {
       rejectionRatePct: pct(a.rejected, a.inspected),
       nonconformances: a.nonconformances,
       openCorrectiveActions: a.openCorrectiveActions,
+      lateEventsSnapshot: a.lateSnap,
+      avgVarianceDaysSnapshot: a.varNSnap ? a.varSumSnap / a.varNSnap : null,
+      inTransitEvents: a.inTransit,
+      correctiveActionsRequired: a.caRequired,
+      correctiveActionStatus: a.caStatus,
+      poLines: a.poLines,
+      openPoLines: a.openPoLines,
+      overdueOpenPoLines: a.overduePoLines,
+      netActiveValue: a.netActiveValue,
+      netActiveSharePct: pct(a.netActiveValue, totalNet),
+      deliverySampleSnapshot: sampleSufficiency(a.delSnap, minSample),
+      deliverySampleFull: sampleSufficiency(a.delFull, minSample),
+      inspectionSample: sampleSufficiency(a.inspections, minSample),
     };
   });
   items.sort((x, y) => x.supplier_id.localeCompare(y.supplier_id));
@@ -453,8 +505,186 @@ export function supplierProfiles(d, { asOfDate }) {
     asOfDate,
     status: LIMITED,
     limitation: 'Indicators are shown individually. No composite risk score (KPI Dictionary 8.5). A blank rate means no qualifying records, not zero.',
+    minSample,
     items,
   });
+}
+
+/**
+ * Returns the data with every transactional dataset limited to one supplier.
+ * Master data is kept whole. Used to apply the standard KPI functions to a single supplier,
+ * so supplier-level figures use exactly the same formulas as portfolio figures.
+ */
+export function scopeToSupplier(d, supplierId) {
+  const only = (rows) => rows.filter((r) => r.supplier_id === supplierId);
+  return {
+    ...d,
+    purchase_orders: only(d.purchase_orders),
+    delivery_transactions: only(d.delivery_transactions),
+    supplier_quality: only(d.supplier_quality),
+    inventory_snapshot: only(d.inventory_snapshot),
+  };
+}
+
+/**
+ * Detailed view of one supplier: standard KPI functions applied to the supplier's own records,
+ * plus the underlying event and inspection records for inspection by the user.
+ */
+export function supplierDetail(d, supplierId, { asOfDate }) {
+  const master = d.suppliers.find((s) => s.supplier_id === supplierId) || null;
+  if (!master) return null;
+  const sd = scopeToSupplier(d, supplierId);
+  const opts = { asOfDate };
+  const totalNet = sum(d.purchase_orders, netActiveLineValue);
+  const netActive = netActivePoLineValue(sd);
+  const materials = new Map(d.materials.map((m) => [m.material_id, m.material_description]));
+  return {
+    supplier: master,
+    delivery: {
+      otdSnapshot: deliveryEventOtd(sd, { ...opts, basis: 'snapshot' }),
+      otdFull: deliveryEventOtd(sd, { ...opts, basis: 'full' }),
+      lateSnapshot: lateDeliveryEventCount(sd, { ...opts, basis: 'snapshot' }),
+      lateFull: lateDeliveryEventCount(sd, { ...opts, basis: 'full' }),
+      varianceSnapshot: averageDeliveryVariance(sd, { ...opts, basis: 'snapshot' }),
+      varianceFull: averageDeliveryVariance(sd, { ...opts, basis: 'full' }),
+      overdueOpenPoLines: overdueOpenPoLines(sd, opts),
+    },
+    quality: {
+      rejectionRate: inspectionRejectionRate(sd),
+      nonconformances: nonconformanceInspectionCount(sd),
+      openCorrectiveActions: openCorrectiveActionCount(sd),
+    },
+    procurement: {
+      netActive,
+      gross: grossPoLineValue(sd),
+      openCommitment: openPoCommitmentValue(sd),
+      sharePct: pct(netActive.value, totalNet),
+    },
+    events: sd.delivery_transactions
+      .map((r) => ({
+        delivery_id: r.delivery_id,
+        po_line_id: r.po_line_id,
+        material_id: r.material_id,
+        material_description: materials.get(r.material_id) ?? null,
+        delivery_status: r.delivery_status,
+        shipment_date: r.shipment_date,
+        promised_delivery_date: r.promised_delivery_date,
+        actual_delivery_date: r.actual_delivery_date,
+        delivery_variance_days: r.delivery_variance_days,
+        on_time_flag: r.on_time_flag,
+        received_qty: r.received_qty,
+        rejected_qty: r.rejected_qty,
+        unit_of_measure: r.unit_of_measure,
+        inSnapshotPeriod: r.delivery_status === 'Delivered' ? r.actual_delivery_date !== null && r.actual_delivery_date <= asOfDate : r.shipment_date <= asOfDate,
+      }))
+      .sort((a, b) => (a.actual_delivery_date ?? a.shipment_date).localeCompare(b.actual_delivery_date ?? b.shipment_date)),
+    inspections: sd.supplier_quality
+      .map((r) => ({
+        inspection_id: r.inspection_id,
+        delivery_id: r.delivery_id,
+        inspection_date: r.inspection_date,
+        inspection_type: r.inspection_type,
+        inspected_qty: r.inspected_qty,
+        rejected_qty: r.rejected_qty,
+        quality_result: r.quality_result,
+        defect_category: r.defect_category,
+        severity: r.severity,
+        ncr_id: r.ncr_id,
+        corrective_action_required: r.corrective_action_required,
+        corrective_action_status: r.corrective_action_status,
+        root_cause_category: r.root_cause_category,
+        corrective_action_closure_days: r.corrective_action_closure_days,
+      }))
+      .sort((a, b) => a.inspection_date.localeCompare(b.inspection_date)),
+  };
+}
+
+/**
+ * Pooled delivery and quality results by a supplier-master attribute (default: criticality).
+ * Rates are pooled (Σ numerators ÷ Σ denominators), never averages of supplier rates.
+ * Supplier attributes come from suppliers.csv only.
+ */
+export function supplierSegments(d, { asOfDate, field = 'criticality', order = ['Critical', 'High', 'Medium', 'Low'] }) {
+  const attr = new Map(d.suppliers.map((s) => [s.supplier_id, s[field]]));
+  const seg = new Map();
+  const get = (k) => {
+    if (!seg.has(k)) seg.set(k, { segment: k, suppliers: 0, suppliersWithSnapshotEvents: new Set(), snapOn: 0, snapN: 0, fullOn: 0, fullN: 0, inspected: 0, rejected: 0, nonconformances: 0, openCorrectiveActions: 0, netActiveValue: 0 });
+    return seg.get(k);
+  };
+  for (const s of d.suppliers) get(s[field]).suppliers++;
+  for (const r of deliveredEvents(d.delivery_transactions)) {
+    const g = get(attr.get(r.supplier_id) ?? 'Unknown');
+    g.fullN++;
+    if (r.on_time_flag === 1) g.fullOn++;
+    if (r.actual_delivery_date !== null && r.actual_delivery_date <= asOfDate) {
+      g.snapN++;
+      if (r.on_time_flag === 1) g.snapOn++;
+      g.suppliersWithSnapshotEvents.add(r.supplier_id);
+    }
+  }
+  for (const r of d.supplier_quality) {
+    const g = get(attr.get(r.supplier_id) ?? 'Unknown');
+    if (r.quality_result === 'Nonconformance') g.nonconformances++;
+    if (isOpenCorrectiveAction(r)) g.openCorrectiveActions++;
+    if (typeof r.inspected_qty === 'number' && r.inspected_qty > 0) {
+      g.inspected += r.inspected_qty;
+      g.rejected += r.rejected_qty;
+    }
+  }
+  const totalNet = sum(d.purchase_orders, netActiveLineValue);
+  for (const r of d.purchase_orders) get(attr.get(r.supplier_id) ?? 'Unknown').netActiveValue += netActiveLineValue(r);
+
+  const rank = (k) => (order.includes(k) ? order.indexOf(k) : order.length);
+  const items = [...seg.values()]
+    .sort((a, b) => rank(a.segment) - rank(b.segment) || String(a.segment).localeCompare(String(b.segment)))
+    .map((g) => ({
+      segment: g.segment,
+      suppliers: g.suppliers,
+      suppliersWithSnapshotEvents: g.suppliersWithSnapshotEvents.size,
+      deliveredEventsSnapshot: g.snapN,
+      otdSnapshotPct: pct(g.snapOn, g.snapN),
+      deliveredEventsFull: g.fullN,
+      otdFullPct: pct(g.fullOn, g.fullN),
+      inspectedQty: g.inspected,
+      rejectedQty: g.rejected,
+      rejectionRatePct: pct(g.rejected, g.inspected),
+      nonconformances: g.nonconformances,
+      openCorrectiveActions: g.openCorrectiveActions,
+      netActiveValue: g.netActiveValue,
+      netActiveSharePct: pct(g.netActiveValue, totalNet),
+    }));
+  return kpi({
+    kpiId: '8.4',
+    label: `Delivery and quality by supplier ${field.replace(/_/g, ' ')}`,
+    value: null,
+    n: d.suppliers.length,
+    basis: `Pooled by ${field} from suppliers.csv; rates are Σ numerator ÷ Σ denominator`,
+    asOfDate,
+    status: LIMITED,
+    limitation: 'Pooled segment results. Small segments rest on few events; check the event counts.',
+    items,
+  });
+}
+
+/** All corrective-action records (KPI 5.4 / 5.5 source records), oldest inspection first. */
+export function correctiveActionRegister(d) {
+  const names = new Map(d.suppliers.map((s) => [s.supplier_id, s.supplier_name]));
+  return d.supplier_quality
+    .filter((r) => r.corrective_action_required === 'Yes')
+    .map((r) => ({
+      inspection_id: r.inspection_id,
+      supplier_id: r.supplier_id,
+      supplier_name: names.get(r.supplier_id) ?? null,
+      inspection_date: r.inspection_date,
+      ncr_id: r.ncr_id,
+      defect_category: r.defect_category,
+      severity: r.severity,
+      root_cause_category: r.root_cause_category,
+      corrective_action_status: r.corrective_action_status,
+      corrective_action_closure_days: r.corrective_action_closure_days,
+      isOpen: isOpenCorrectiveAction(r),
+    }))
+    .sort((a, b) => a.inspection_date.localeCompare(b.inspection_date));
 }
 
 /* ======================================================================
@@ -481,7 +711,7 @@ export const NOT_SUPPORTED_KPIS = Object.freeze([
  * @param {object} d – typed rows by dataset name (rowsOf(loadResult))
  * @param {object} options – { asOfDate }
  */
-export function computeAllKpis(d, { asOfDate }) {
+export function computeAllKpis(d, { asOfDate, minSample = DEFAULT_MIN_SAMPLE }) {
   const opts = { asOfDate };
   const commitment = supplierCommitment(d);
   return {
@@ -525,7 +755,9 @@ export function computeAllKpis(d, { asOfDate }) {
       critical: criticalSupplierCount(d),
       qualification: qualificationStatusDistribution(d),
       certification: certificationStatusDistribution(d),
-      profiles: supplierProfiles(d, opts),
+      profiles: supplierProfiles(d, { ...opts, minSample }),
+      byCriticality: supplierSegments(d, opts),
+      correctiveActions: correctiveActionRegister(d),
     },
     notSupported: NOT_SUPPORTED_KPIS,
   };

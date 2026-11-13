@@ -12,7 +12,7 @@ import { SCHEMA, DATASET_NAMES } from '../src/js/schema.js';
 import { loadAllDatasets, rowsOf } from '../src/js/data-loader.js';
 import { runValidation } from '../src/js/validation.js';
 import * as K from '../src/js/kpis.js';
-import { EXPECTED as E } from './kpi-expected-values.js';
+import { EXPECTED as E, EXPECTED_SUPPLIERS as ES } from './kpi-expected-values.js';
 
 const Papa = window.Papa;
 const DATA_PATH = '../data/';
@@ -237,6 +237,122 @@ test('Suppliers', '8.4 Supplier totals reconcile to overall KPIs', async () => {
 test('Suppliers', 'No composite risk score is produced', async () => {
   const keys = Object.keys(all.suppliers.profiles.items[0]);
   assert(!keys.some((k) => /risk.?score|score/i.test(k)), keys.join(','));
+});
+
+/* ======================================================================
+ * Stage 5 – supplier-level analysis
+ * ==================================================================== */
+
+const close = (a, b, tol = 1e-9) => (a === null || b === null ? a === b : Math.abs(a - b) <= tol);
+
+test('Suppliers (Stage 5)', 'Profiles: snapshot late events, snapshot variance, in-transit, PO lines, open and overdue lines, net active value match for all 25', async () => {
+  const bad = [];
+  for (const p of all.suppliers.profiles.items) {
+    const e = ES.per_supplier[p.supplier_id];
+    if (p.lateEventsSnapshot !== e.late_snap) bad.push(`${p.supplier_id} late_snap`);
+    if (!close(p.avgVarianceDaysSnapshot, e.var_snap)) bad.push(`${p.supplier_id} var_snap ${p.avgVarianceDaysSnapshot} vs ${e.var_snap}`);
+    if (p.inTransitEvents !== e.in_transit) bad.push(`${p.supplier_id} in_transit`);
+    if (p.poLines !== e.po_lines || p.openPoLines !== e.open_lines || p.overdueOpenPoLines !== e.overdue) bad.push(`${p.supplier_id} PO lines`);
+    if (!close(p.netActiveValue, e.net_active, CENT)) bad.push(`${p.supplier_id} net active`);
+    if (p.inspections !== e.inspections) bad.push(`${p.supplier_id} inspections`);
+    if (p.correctiveActionsRequired !== e.ca_required || JSON.stringify(p.correctiveActionStatus) !== JSON.stringify(e.ca_status)) bad.push(`${p.supplier_id} CA`);
+  }
+  assertEqual(bad, []);
+});
+
+test('Suppliers (Stage 5)', 'Profile share of net active value equals KPI 6.4 concentration for every supplier', async () => {
+  for (const p of all.suppliers.profiles.items) {
+    assertClose(p.netActiveSharePct, conc(all, p.supplier_id).concentrationPct, 1e-9, p.supplier_id);
+  }
+});
+
+test('Suppliers (Stage 5)', 'Profile overdue lines total equals KPI 4.4 (51)', async () => {
+  assertEqual(all.suppliers.profiles.items.reduce((s, p) => s + p.overdueOpenPoLines, 0), 51);
+});
+
+test('Suppliers (Stage 5)', 'Sample labels (DEC-025, minimum 3): 4 no data, 11 limited, 10 sufficient on the snapshot basis', async () => {
+  const by = (s) => all.suppliers.profiles.items.filter((p) => p.deliverySampleSnapshot === s).map((p) => p.supplier_id);
+  assertEqual(by('none'), ['SUP-004', 'SUP-009', 'SUP-012', 'SUP-018']);
+  assertEqual(by('limited'), ['SUP-001', 'SUP-002', 'SUP-007', 'SUP-008', 'SUP-011', 'SUP-015', 'SUP-016', 'SUP-020', 'SUP-021', 'SUP-022', 'SUP-024']);
+  assertEqual(by('sufficient').length, 10);
+  assertEqual([K.sampleSufficiency(0), K.sampleSufficiency(2), K.sampleSufficiency(3), K.sampleSufficiency(2, 2)], ['none', 'limited', 'sufficient', 'sufficient']);
+});
+
+test('Suppliers (Stage 5)', 'Sample threshold is configurable and changes labels only, not rates', async () => {
+  const k5 = K.supplierProfiles(d, { asOfDate: AS_OF, minSample: 5 });
+  const p3 = all.suppliers.profiles.items;
+  assertEqual(k5.items.map((p) => p.otdSnapshotPct), p3.map((p) => p.otdSnapshotPct));
+  assert(k5.items.filter((p) => p.deliverySampleSnapshot === 'limited').length > 11, 'more suppliers should be limited at 5');
+});
+
+test('Suppliers (Stage 5)', 'Criticality segments: pooled OTD, inspected units, rejections, nonconformances, open CAs and net active share', async () => {
+  for (const g of all.suppliers.byCriticality.items) {
+    const e = ES.segments[g.segment];
+    assertEqual([g.suppliers, g.suppliersWithSnapshotEvents, g.deliveredEventsSnapshot, g.deliveredEventsFull, g.inspectedQty, g.rejectedQty, g.nonconformances, g.openCorrectiveActions],
+      [e.suppliers, e.with_snap_events, e.snap_n, e.full_n, e.insp, e.rej, e.nc, e.open_ca], g.segment);
+    assert(close(g.otdSnapshotPct, e.snap_n ? (e.snap_on / e.snap_n) * 100 : null), `${g.segment} snapshot OTD`);
+    assert(close(g.otdFullPct, e.full_n ? (e.full_on / e.full_n) * 100 : null), `${g.segment} full OTD`);
+    assertClose(g.netActiveSharePct, e.net_share, 1e-9, `${g.segment} share`);
+  }
+  assertEqual(all.suppliers.byCriticality.items.map((g) => g.segment), ['Critical', 'High', 'Medium', 'Low']);
+});
+
+test('Suppliers (Stage 5)', 'Segment OTD is pooled, not an average of supplier OTDs (High: 44.7%)', async () => {
+  const high = all.suppliers.byCriticality.items.find((g) => g.segment === 'High');
+  const rates = all.suppliers.profiles.items.filter((p) => p.criticality === 'High' && p.otdSnapshotPct !== null).map((p) => p.otdSnapshotPct);
+  const mean = rates.reduce((s, v) => s + v, 0) / rates.length;
+  assertEqual(high.otdSnapshotPct.toFixed(1), '44.7');
+  assert(Math.abs(mean - high.otdSnapshotPct) > 0.5, `mean of supplier rates ${mean} should differ from pooled`);
+});
+
+test('Suppliers (Stage 5)', 'Segment totals reconcile to portfolio KPIs', async () => {
+  const s = (f) => all.suppliers.byCriticality.items.reduce((t, g) => t + g[f], 0);
+  assertEqual([s('suppliers'), s('deliveredEventsSnapshot'), s('deliveredEventsFull'), s('inspectedQty'), s('rejectedQty'), s('nonconformances'), s('openCorrectiveActions')], [25, 63, 73, 2997, 5, 4, 3]);
+  assertClose(s('netActiveSharePct'), 100, 1e-9);
+});
+
+test('Suppliers (Stage 5)', 'Segments use suppliers.csv criticality, not supplier_quality.supplier_criticality', async () => {
+  const m = withChanges(d, 'supplier_quality', { where: () => true, set: { supplier_criticality: 'Low' } });
+  const k = K.supplierSegments(m, { asOfDate: AS_OF });
+  assertEqual(k.items.find((g) => g.segment === 'Low').inspectedQty, ES.segments.Low.insp);
+});
+
+test('Suppliers (Stage 5)', 'Corrective-action register lists the 4 required actions with status and closure days', async () => {
+  const reg = all.suppliers.correctiveActions;
+  assertEqual(reg.map((r) => [r.inspection_id, r.supplier_id, r.corrective_action_status, r.corrective_action_closure_days]),
+    ES.ca_register.map((r) => [r.inspection_id, r.supplier_id, r.corrective_action_status, r.corrective_action_closure_days === '' ? null : Number(r.corrective_action_closure_days)]));
+  assertEqual(reg.filter((r) => r.isOpen).length, 3);
+});
+
+test('Suppliers (Stage 5)', 'supplierDetail uses the standard KPI functions: matches the profile for every supplier', async () => {
+  const bad = [];
+  for (const p of all.suppliers.profiles.items) {
+    const det = K.supplierDetail(d, p.supplier_id, { asOfDate: AS_OF });
+    const pairs = [
+      [det.delivery.otdSnapshot.value, p.otdSnapshotPct], [det.delivery.otdFull.value, p.otdFullPct],
+      [det.delivery.lateSnapshot.value, p.lateEventsSnapshot], [det.delivery.lateFull.value, p.lateEventsFull],
+      [det.delivery.varianceSnapshot.value, p.avgVarianceDaysSnapshot], [det.delivery.varianceFull.value, p.avgVarianceDaysFull],
+      [det.delivery.overdueOpenPoLines.value, p.overdueOpenPoLines], [det.quality.rejectionRate.value, p.rejectionRatePct],
+      [det.quality.nonconformances.value, p.nonconformances], [det.quality.openCorrectiveActions.value, p.openCorrectiveActions],
+      [det.procurement.sharePct, p.netActiveSharePct],
+    ];
+    pairs.forEach(([a, b], i) => { if (!close(a, b, 1e-9)) bad.push(`${p.supplier_id} #${i}: ${a} vs ${b}`); });
+    if (det.events.length !== p.deliveredEventsFull + p.inTransitEvents) bad.push(`${p.supplier_id} events list`);
+    if (det.supplier.criticality !== p.criticality) bad.push(`${p.supplier_id} criticality`);
+  }
+  assertEqual(bad, []);
+});
+
+test('Suppliers (Stage 5)', 'scopeToSupplier keeps only that supplier\'s transactions and leaves the input unchanged', async () => {
+  const before = d.delivery_transactions.length;
+  const sd = K.scopeToSupplier(d, 'SUP-013');
+  assert(sd.delivery_transactions.every((r) => r.supplier_id === 'SUP-013') && sd.purchase_orders.every((r) => r.supplier_id === 'SUP-013'));
+  assertEqual(sd.suppliers.length, 25, 'master data kept');
+  assertEqual(d.delivery_transactions.length, before);
+});
+
+test('Suppliers (Stage 5)', 'Unknown supplier returns null detail', async () => {
+  assertEqual(K.supplierDetail(d, 'SUP-999', { asOfDate: AS_OF }), null);
 });
 
 /* ======================================================================

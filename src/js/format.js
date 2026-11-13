@@ -40,9 +40,10 @@ export function integer(v) {
 export function signedDays(v, digits = 1) {
   if (isMissing(v)) return NA;
   const s = v.toFixed(digits);
-  if (v > 0) return `+${s} days`;
-  if (v < 0) return `${s.replace('-', '−')} days`;
-  return `${s} days`;
+  const unit = s.replace('-', '') === '1' ? 'day' : 'days';
+  if (v > 0) return `+${s} ${unit}`;
+  if (v < 0) return `${s.replace('-', '−')} ${unit}`;
+  return `${s} ${unit}`;
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

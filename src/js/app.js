@@ -15,6 +15,7 @@ import { computeAllKpis } from './kpis.js';
 import { MODULES, DEFAULT_MODULE, moduleById } from './modules.js';
 import { renderExecutive } from './views/executive.js';
 import { renderPlaceholder } from './views/placeholder.js';
+import { renderSuppliers } from './views/suppliers.js';
 import { destroyAllCharts } from './charts.js';
 import { esc, date } from './format.js';
 
@@ -40,10 +41,27 @@ function dataBasePath() {
 
 /* ---------- navigation ---------- */
 
+function hashParts() {
+  return location.hash.replace(/^#\/?/, '').split(/[/?]/);
+}
+
 function currentModuleId() {
-  const id = location.hash.replace(/^#\/?/, '').split(/[/?]/)[0];
+  const id = hashParts()[0];
   return moduleById(id) ? id : DEFAULT_MODULE;
 }
+
+/** Second part of the address, e.g. the supplier ID in #/suppliers/SUP-007. */
+function currentParam() {
+  const p = hashParts()[1];
+  return p ? decodeURIComponent(p) : null;
+}
+
+const VIEWS = {
+  executive: (m) => renderExecutive(main, m),
+  suppliers: (m) => renderSuppliers(main, m, { selectedId: currentParam() }),
+};
+
+let lastModule = null;
 
 function renderNav() {
   nav.innerHTML = MODULES.map(
@@ -62,6 +80,8 @@ function route() {
   const id = currentModuleId();
   const mod = moduleById(id);
   markActive(id);
+  const sameModule = id === lastModule;
+  lastModule = id;
   destroyAllCharts();
   document.title = `${mod.name} – Aerospace Supplier Intelligence`;
   main.dataset.module = id;
@@ -70,13 +90,14 @@ function route() {
     renderPlaceholder(main, mod);
   } else if (model) {
     try {
-      renderExecutive(main, model);
+      VIEWS[id](model);
     } catch (err) {
       showError('The dashboard could not be displayed', [`Display error: ${err.message}`], ['Reload the page. If the problem continues, report it with the message above.']);
       return;
     }
   }
-  if (!firstRender) main.querySelector('#page-title')?.focus();
+  // Move focus to the page heading when the module changes (not when a supplier is selected).
+  if (!firstRender && !sameModule) main.querySelector('#page-title')?.focus();
   firstRender = false;
 }
 
@@ -137,7 +158,7 @@ async function start() {
   let kpis;
   try {
     validation = runValidation(load, { asOfDate: CONFIG.reportingAsOfDate });
-    kpis = computeAllKpis(rowsOf(load), { asOfDate: CONFIG.reportingAsOfDate });
+    kpis = computeAllKpis(rowsOf(load), { asOfDate: CONFIG.reportingAsOfDate, minSample: CONFIG.minimumSampleForRate });
   } catch (err) {
     showError('The KPIs could not be calculated', [err.message], ['The source data loaded but could not be processed. Check the validation results in the browser tests (tests/data-layer-tests.html).']);
     return;

@@ -13,17 +13,8 @@ export const MODULES = Object.freeze([
   {
     id: 'suppliers',
     name: 'Supplier performance',
-    available: false,
-    stageLabel: 'Stage 5',
-    status: 'Planned for development Stage 5',
-    summary: 'Delivery and quality performance for each supplier, with their qualification and certification status.',
-    planned: [
-      'Delivery Event OTD by supplier, on the snapshot-period and full-dataset bases',
-      'Late delivery events and average delivery variance',
-      'Inspection rejection rate, nonconformance inspections and open corrective actions',
-      'Supplier criticality, qualification and certification status',
-      'Individual risk indicators. No composite risk score is calculated.',
-    ],
+    available: true,
+    stageLabel: null,
   },
   {
     id: 'procurement',

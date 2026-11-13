@@ -12,6 +12,13 @@ export const CONFIG = Object.freeze({
   /** Reporting period start, from Data Model v2.0. */
   reportingPeriodStart: '2025-11-01',
 
+  /**
+   * Minimum number of records for a supplier-level rate to be labelled "sufficient" (DEC-025).
+   * Below this the rate is still shown, with its sample size, and labelled "limited".
+   * Zero records: the rate is blank and labelled "no data". Display rule only; no KPI formula changes.
+   */
+  minimumSampleForRate: 3,
+
   /** Reporting currency. */
   currency: 'USD',
 

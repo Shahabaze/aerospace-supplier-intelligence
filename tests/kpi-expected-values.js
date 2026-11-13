@@ -502,3 +502,443 @@ export const EXPECTED = Object.freeze({
     }
   }
 });
+
+/**
+ * Stage 5 additions (supplier-level analysis), calculated by the same independent script.
+ * Snapshot basis = delivered on or before 2026-10-31.
+ */
+export const EXPECTED_SUPPLIERS = Object.freeze({
+  "per_supplier": {
+    "SUP-001": {
+      "late_snap": 1,
+      "var_snap": 3,
+      "overdue": 3,
+      "open_lines": 3,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 2,
+      "inspections": 2,
+      "net_active": 341715
+    },
+    "SUP-002": {
+      "late_snap": 1,
+      "var_snap": 2,
+      "overdue": 3,
+      "open_lines": 3,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 1,
+      "inspections": 1,
+      "net_active": 1663065
+    },
+    "SUP-003": {
+      "late_snap": 5,
+      "var_snap": 5.5,
+      "overdue": 3,
+      "open_lines": 3,
+      "po_lines": 4,
+      "ca_required": 1,
+      "ca_status": {
+        "Closed": 1
+      },
+      "in_transit": 1,
+      "inspections": 6,
+      "net_active": 49224
+    },
+    "SUP-004": {
+      "late_snap": 0,
+      "var_snap": null,
+      "overdue": 2,
+      "open_lines": 3,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 1,
+      "inspections": 0,
+      "net_active": 377270
+    },
+    "SUP-005": {
+      "late_snap": 3,
+      "var_snap": 4.833333333333333,
+      "overdue": 0,
+      "open_lines": 0,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 0,
+      "inspections": 6,
+      "net_active": 15669.5
+    },
+    "SUP-006": {
+      "late_snap": 2,
+      "var_snap": -0.2,
+      "overdue": 1,
+      "open_lines": 1,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 0,
+      "inspections": 5,
+      "net_active": 127455
+    },
+    "SUP-007": {
+      "late_snap": 0,
+      "var_snap": 0,
+      "overdue": 3,
+      "open_lines": 4,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 0,
+      "inspections": 1,
+      "net_active": 3184775
+    },
+    "SUP-008": {
+      "late_snap": 1,
+      "var_snap": 7,
+      "overdue": 2,
+      "open_lines": 3,
+      "po_lines": 4,
+      "ca_required": 1,
+      "ca_status": {
+        "In Progress": 1
+      },
+      "in_transit": 0,
+      "inspections": 1,
+      "net_active": 2803320
+    },
+    "SUP-009": {
+      "late_snap": 0,
+      "var_snap": null,
+      "overdue": 1,
+      "open_lines": 2,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 1,
+      "inspections": 0,
+      "net_active": 30464
+    },
+    "SUP-010": {
+      "late_snap": 1,
+      "var_snap": -0.6666666666666666,
+      "overdue": 1,
+      "open_lines": 1,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 1,
+      "inspections": 5,
+      "net_active": 260325
+    },
+    "SUP-011": {
+      "late_snap": 1,
+      "var_snap": -1,
+      "overdue": 2,
+      "open_lines": 2,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 0,
+      "inspections": 2,
+      "net_active": 6707
+    },
+    "SUP-012": {
+      "late_snap": 0,
+      "var_snap": null,
+      "overdue": 2,
+      "open_lines": 3,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 1,
+      "inspections": 0,
+      "net_active": 846400
+    },
+    "SUP-013": {
+      "late_snap": 2,
+      "var_snap": 2.75,
+      "overdue": 1,
+      "open_lines": 2,
+      "po_lines": 4,
+      "ca_required": 1,
+      "ca_status": {
+        "Pending Supplier Response": 1
+      },
+      "in_transit": 1,
+      "inspections": 6,
+      "net_active": 56625
+    },
+    "SUP-014": {
+      "late_snap": 3,
+      "var_snap": 1.25,
+      "overdue": 4,
+      "open_lines": 4,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 1,
+      "inspections": 4,
+      "net_active": 76052.5
+    },
+    "SUP-015": {
+      "late_snap": 2,
+      "var_snap": 7,
+      "overdue": 2,
+      "open_lines": 2,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 1,
+      "inspections": 2,
+      "net_active": 50832
+    },
+    "SUP-016": {
+      "late_snap": 1,
+      "var_snap": 3,
+      "overdue": 2,
+      "open_lines": 2,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 0,
+      "inspections": 4,
+      "net_active": 719750
+    },
+    "SUP-017": {
+      "late_snap": 3,
+      "var_snap": 2.4,
+      "overdue": 1,
+      "open_lines": 2,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 2,
+      "inspections": 5,
+      "net_active": 180922.5
+    },
+    "SUP-018": {
+      "late_snap": 0,
+      "var_snap": null,
+      "overdue": 3,
+      "open_lines": 3,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 1,
+      "inspections": 2,
+      "net_active": 10115
+    },
+    "SUP-019": {
+      "late_snap": 1,
+      "var_snap": 0.5,
+      "overdue": 2,
+      "open_lines": 2,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 0,
+      "inspections": 4,
+      "net_active": 49400
+    },
+    "SUP-020": {
+      "late_snap": 1,
+      "var_snap": 0.5,
+      "overdue": 1,
+      "open_lines": 2,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 0,
+      "inspections": 2,
+      "net_active": 252802.5
+    },
+    "SUP-021": {
+      "late_snap": 2,
+      "var_snap": 10,
+      "overdue": 1,
+      "open_lines": 2,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 0,
+      "inspections": 2,
+      "net_active": 2524.2
+    },
+    "SUP-022": {
+      "late_snap": 2,
+      "var_snap": 1.5,
+      "overdue": 3,
+      "open_lines": 3,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 1,
+      "inspections": 2,
+      "net_active": 184436
+    },
+    "SUP-023": {
+      "late_snap": 3,
+      "var_snap": 4,
+      "overdue": 3,
+      "open_lines": 4,
+      "po_lines": 4,
+      "ca_required": 1,
+      "ca_status": {
+        "In Progress": 1
+      },
+      "in_transit": 1,
+      "inspections": 6,
+      "net_active": 149910
+    },
+    "SUP-024": {
+      "late_snap": 0,
+      "var_snap": -1,
+      "overdue": 3,
+      "open_lines": 4,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 1,
+      "inspections": 2,
+      "net_active": 32760
+    },
+    "SUP-025": {
+      "late_snap": 3,
+      "var_snap": 4.333333333333333,
+      "overdue": 2,
+      "open_lines": 3,
+      "po_lines": 4,
+      "ca_required": 0,
+      "ca_status": {},
+      "in_transit": 1,
+      "inspections": 3,
+      "net_active": 5490
+    }
+  },
+  "segments": {
+    "Critical": {
+      "suppliers": 4,
+      "with_snap_events": 3,
+      "snap_on": 2,
+      "snap_n": 4,
+      "full_on": 2,
+      "full_n": 4,
+      "insp": 138,
+      "rej": 0,
+      "nc": 0,
+      "open_ca": 0,
+      "net_share": 52.58712460345476
+    },
+    "High": {
+      "suppliers": 11,
+      "with_snap_events": 9,
+      "snap_on": 17,
+      "snap_n": 38,
+      "full_on": 20,
+      "full_n": 45,
+      "insp": 2143,
+      "rej": 4,
+      "nc": 3,
+      "open_ca": 2,
+      "net_share": 19.344970554649844
+    },
+    "Medium": {
+      "suppliers": 8,
+      "with_snap_events": 7,
+      "snap_on": 5,
+      "snap_n": 17,
+      "full_on": 5,
+      "full_n": 19,
+      "insp": 611,
+      "rej": 1,
+      "nc": 1,
+      "open_ca": 1,
+      "net_share": 27.734658898862012
+    },
+    "Low": {
+      "suppliers": 2,
+      "with_snap_events": 2,
+      "snap_on": 1,
+      "snap_n": 4,
+      "full_on": 1,
+      "full_n": 5,
+      "insp": 105,
+      "rej": 0,
+      "nc": 0,
+      "open_ca": 0,
+      "net_share": 0.33324594303339644
+    }
+  },
+  "ca_register": [
+    {
+      "inspection_id": "QI-0007",
+      "supplier_id": "SUP-008",
+      "ncr_id": "NCR-0007",
+      "corrective_action_status": "In Progress",
+      "root_cause_category": "Documentation control failure",
+      "corrective_action_closure_days": "",
+      "severity": "Major",
+      "defect_category": "Documentation"
+    },
+    {
+      "inspection_id": "QI-0020",
+      "supplier_id": "SUP-003",
+      "ncr_id": "NCR-0020",
+      "corrective_action_status": "Closed",
+      "root_cause_category": "Handling or packaging weakness",
+      "corrective_action_closure_days": "41",
+      "severity": "Major",
+      "defect_category": "Handling"
+    },
+    {
+      "inspection_id": "QI-0026",
+      "supplier_id": "SUP-013",
+      "ncr_id": "NCR-0026",
+      "corrective_action_status": "Pending Supplier Response",
+      "root_cause_category": "Inspection escape",
+      "corrective_action_closure_days": "",
+      "severity": "Major",
+      "defect_category": "Dimensional"
+    },
+    {
+      "inspection_id": "QI-0055",
+      "supplier_id": "SUP-023",
+      "ncr_id": "NCR-0055",
+      "corrective_action_status": "In Progress",
+      "root_cause_category": "Handling or packaging weakness",
+      "corrective_action_closure_days": "",
+      "severity": "Major",
+      "defect_category": "Documentation"
+    }
+  ],
+  "snap_events_count": {
+    "SUP-001": 2,
+    "SUP-002": 1,
+    "SUP-003": 6,
+    "SUP-004": 0,
+    "SUP-005": 6,
+    "SUP-006": 5,
+    "SUP-007": 1,
+    "SUP-008": 1,
+    "SUP-009": 0,
+    "SUP-010": 3,
+    "SUP-011": 2,
+    "SUP-012": 0,
+    "SUP-013": 4,
+    "SUP-014": 4,
+    "SUP-015": 2,
+    "SUP-016": 2,
+    "SUP-017": 5,
+    "SUP-018": 0,
+    "SUP-019": 4,
+    "SUP-020": 2,
+    "SUP-021": 2,
+    "SUP-022": 2,
+    "SUP-023": 5,
+    "SUP-024": 1,
+    "SUP-025": 3
+  }
+});
