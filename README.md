@@ -3,8 +3,10 @@ Aerospace Supplier Intelligence Platform
 An AI-enabled aerospace procurement and supply chain intelligence platform designed to transform supplier, procurement and inventory data into actionable business insights.
 
 <p align="center">
-  **Independent Technology Portfolio Project | Aerospace | Procurement | AI | Supply Chain Analytics**
+  <strong>Independent Technology Portfolio Project | Aerospace | Procurement | AI | Supply Chain Analytics</strong>
 </p>
+
+---
 
 1. Project Overview
 
