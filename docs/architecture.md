@@ -1,275 +1,178 @@
 # Technical Architecture
 ## Aerospace Supplier Intelligence Platform
 
-**Document Version:** 1.0  
-**Project Stage:** Phase 0 – Initial Architecture Proposal  
-**Status:** Proposed – Pending Technical Validation
+**Document Version:** 2.0  
+**Project Stage:** Phase 2 – Application Development  
+**Status:** Approved Architecture (Project Owner approval, 2026-11-13)  
+**Supersedes:** Version 1.0 (Initial Architecture Proposal)  
+**Related Decisions:** DEC-013 to DEC-022 in `docs/decision-log.md`
 
 ---
 
 ## 1. Architecture Overview
 
-The Aerospace Supplier Intelligence Platform will be developed as a browser-based web application.
+The platform is a **static web application**: plain HTML, CSS and JavaScript files that run entirely in the visitor's browser.
 
-The proposed architecture separates the application into five logical layers:
+- **No build step, no framework, no server and no Python.** The files in the repository are exactly the files the browser runs.
+- **Hosting:** GitHub Pages, serving the `main` branch from the repository root (DEC-015).
+- **Data:** the six CSV files in `data/`, loaded by the browser each time the page opens (DEC-014). KPIs are calculated live from these files and are never hardcoded.
+- **Governing documents:** `docs/data-model.md` (v2.0) defines datasets, fields and validation controls. `docs/kpi-dictionary.md` (v2.1) defines every KPI formula.
 
-1. User Interface Layer
-2. Application Logic Layer
-3. Data Management Layer
-4. AI Intelligence Layer
-5. Hosting and Deployment Layer
+In plain language: when someone opens the website, their browser downloads the six CSV files, checks them, calculates the KPIs and draws the dashboard. Nothing is sent anywhere else.
 
-The architecture will prioritize simplicity, modularity, security and low-cost development.
+## 2. Logical Layers
 
-## 2. High-Level Architecture
+```text
+┌───────────────────────────────────────────────────────────────┐
+│ 1. Presentation layer   index.html · src/css · src/js/views    │  Dashboards, charts, labels, warnings
+├───────────────────────────────────────────────────────────────┤
+│ 2. KPI layer            src/js/kpis.js                         │  One function per KPI Dictionary ID
+├───────────────────────────────────────────────────────────────┤
+│ 3. Validation layer     src/js/validation.js                   │  17 Data Model controls + data-quality notices
+├───────────────────────────────────────────────────────────────┤
+│ 4. Data layer           src/js/data-loader.js · schema.js      │  Load CSVs, convert types, keep blanks as null
+├───────────────────────────────────────────────────────────────┤
+│ 5. Source data          data/*.csv  (read-only)                │  Six approved CSV files
+└───────────────────────────────────────────────────────────────┘
+          (Future) 6. AI layer – secure backend, see section 8
+```
 
-### User Interface Layer
+Each layer only uses the layer beneath it. Calculations never happen in the presentation layer, so every displayed number can be traced to a KPI function and its dictionary ID.
 
-Purpose: Provide a professional interactive dashboard accessible through a web browser.
+## 3. Repository Structure
 
-Planned capabilities:
-- Executive procurement dashboard.
-- Supplier performance dashboard.
-- Supplier risk dashboard.
-- Procurement spend analytics.
-- Inventory intelligence.
-- AI procurement assistant.
+```text
+aerospace-supplier-intelligence/
+├── index.html                 Application entry point (GitHub Pages serves this)
+├── .nojekyll                  Tells GitHub Pages to serve files unchanged
+├── data/                      Six source CSV files (read-only) + README
+├── docs/                      Governance documents
+├── src/
+│   ├── css/app.css            Theme and responsive layout
+│   ├── js/
+│   │   ├── config.js          Data file paths, reporting as-of date, labels
+│   │   ├── schema.js          Field types and keys from Data Model v2.0
+│   │   ├── data-loader.js     Loads and types the six CSV files
+│   │   ├── validation.js      17 integrity controls and data-quality notices
+│   │   ├── kpis.js            KPI Dictionary implementations
+│   │   ├── charts.js          Chart.js helpers
+│   │   ├── views/             One file per dashboard module
+│   │   └── app.js             Start-up, navigation and error display
+│   └── vendor/                Pinned Chart.js and Papa Parse + licence files
+├── tests/
+│   ├── data-layer-tests.html  Browser test page for the data layer
+│   ├── kpi-tests.html         Browser test page for the KPI engine
+│   ├── fixtures/              Small deliberately faulty CSV files for negative tests
+│   └── reports/               Test report for each development stage
+└── assets/                    Screenshots and images
+```
 
-### Application Logic Layer
+Files are added stage by stage; not all of them exist yet. See `README.md` for current status.
 
-Purpose: Process user interactions, calculate KPIs and manage communication between application modules.
+## 4. Data Layer
 
-Planned responsibilities:
-- Data processing.
-- KPI calculations.
-- Dashboard filtering.
-- Supplier scorecard calculations.
-- Chart and visualization management.
-- AI request handling.
+**Loading.** `data-loader.js` fetches the six CSV files listed in `config.js` and parses them with Papa Parse.
 
-### Data Management Layer
+**Typing.** Papa Parse's automatic type conversion is switched off. Every value is read as text, then converted using the field types in `schema.js`, which mirror Data Model v2.0 (DEC-020):
 
-Proposed initial technology: Google Sheets.
-
-Purpose: Store and organize synthetic aerospace procurement datasets.
-
-Planned datasets:
-- Supplier Master.
-- Purchase Orders.
-- Delivery Records.
-- Supplier Performance.
-- Procurement Spend.
-- Inventory Records.
-- Supplier Risk Indicators.
-
-The final data storage approach will be validated during development.
-
-### AI Intelligence Layer
-
-Proposed technology: Gemini API.
-
-Purpose: Enable AI-assisted procurement analysis.
-
-Planned capabilities:
-- Natural-language procurement queries.
-- Supplier performance explanations.
-- Delivery risk analysis.
-- Procurement trend summaries.
-- Inventory risk insights.
-- Management-level recommendations.
-
-AI-generated recommendations must be traceable to available data wherever possible.
-
-AI functionality will only be considered operational after integration and testing.
-
-### Hosting and Deployment Layer
-
-Purpose: Make the application accessible through a browser.
-
-Potential platforms will be evaluated based on:
-- Free-tier availability.
-- Ease of deployment.
-- Security.
-- GitHub integration.
-- Application performance.
-- Hosting limitations.
-
-The final hosting provider remains undecided.
-
----
-
-## 3. Proposed Technology Components
-
-| Component | Proposed Technology | Status |
+| Data Model type | Conversion | Blank value |
 |---|---|---|
-| Frontend development | HTML, CSS, JavaScript | Proposed |
-| Development assistance | Google AI Studio | Proposed |
-| AI engine | Gemini API | Proposed |
-| Initial data storage | Google Sheets | Proposed |
-| Version control | GitHub | Approved |
-| AI development partner | Claude | Approved |
-| Architecture and QA | ChatGPT | Approved |
-| Hosting | To be evaluated | Open |
+| String | Kept as text | `null` |
+| Date | Checked against `YYYY-MM-DD`, kept as text for exact comparison | `null` |
+| Decimal / Integer | Converted to a number; anything non-numeric is reported as an error | `null` (never 0) |
+| Nullable Integer/Boolean (`on_time_flag`) | `1` / `0` | `null` |
 
-All proposed components require technical validation before final adoption.
+**Errors.** A missing file, a missing column or a value that cannot be converted is reported on screen and in the validation results. The application does not guess.
 
-## 4. Application Module Architecture
+**Source protection.** The application only reads the CSV files. It cannot write to them.
 
-### Module 1 – Executive Procurement Dashboard
+## 5. Validation Layer
 
-Primary purpose: Provide management-level visibility into procurement operations.
+`validation.js` implements all 17 controls in Data Model v2.0 section 8. Each control returns a structured result:
 
-Planned KPIs:
-- Total procurement spend.
-- Overall supplier OTD.
-- Active supplier count.
-- Open purchase orders.
-- Overdue purchase orders.
-- High-risk suppliers.
-- Inventory shortage indicators.
+```text
+{ id, title, status: "pass" | "warn" | "fail", checked, failures: [ { dataset, key, detail } ] }
+```
 
-### Module 2 – Supplier Performance Analytics
+It also produces **data-quality notices** for approved, documented conditions that are not control failures. For example, DEC-017 lists the 12 delivery events outside the 2026-10-31 snapshot period. Results are shown in a Data Quality panel so reviewers can see that the data was checked before any KPI is shown.
 
-Primary purpose: Monitor supplier delivery performance.
+## 6. KPI Layer
 
-Planned capabilities:
-- Supplier OTD percentage.
-- Delivery reliability trends.
-- Supplier scorecards.
-- Late delivery analysis.
-- Supplier comparison.
-- Performance trend monitoring.
+`kpis.js` contains pure functions. Each one takes typed data and returns a result. None of them touch the screen. Each result includes:
 
-### Module 3 – Supplier Risk Intelligence
+```text
+{ kpiId, label, value, unit, numerator, denominator, n, basis, asOfDate, status, limitation }
+```
 
-Primary purpose: Identify supplier-related risks.
+Rules applied by the KPI layer, all taken from the governing documents:
 
-Planned risk dimensions:
-- Delivery performance risk.
-- Financial risk indicators.
-- Quality performance risk.
-- Lead-time risk.
-- Supply continuity risk.
-- Dependency and concentration risk.
+- Respect source grain; aggregate PO values from `purchase_orders.csv` only, before any join.
+- Delivery Event OTD on two labelled bases (DEC-017); never labelled OTIF or PO-line OTD.
+- Inventory KPIs exclude `unit_of_measure = SERVICE` and use available stock (DEC-018).
+- PO value shown as gross, cancelled and net active (DEC-019).
+- Supplier criticality from `suppliers.csv` only.
+- Rejection rate = Σ rejected ÷ Σ inspected, never an average of percentages.
+- KPIs marked "Not supported" in the dictionary are shown as not supported, with the reason, never estimated.
+- No composite supplier risk score (KPI Dictionary 8.5).
 
-Initial risk assessments will use synthetic data and transparent rules.
+## 7. Presentation Layer and Modules
 
-### Module 4 – Procurement Spend Analytics
+The application has five modules (DEC-021):
 
-Primary purpose: Understand procurement expenditure.
+| # | Module | Content | Phase |
+|---|---|---|---|
+| 1 | Executive Dashboard | Priority 1 KPIs (KPI Dictionary section 10) | 2 |
+| 2 | Supplier Performance | Priority 2 KPIs, supplier profile and risk indicators shown individually | 2 |
+| 3 | Procurement Intelligence | Priority 3 KPIs | 2 |
+| 4 | Inventory Intelligence | Priority 4 KPIs (physical materials only) | 2 |
+| 5 | AI Procurement Assistant | Natural-language questions grounded in validated KPI results | 3 (future) |
 
-Planned capabilities:
-- Supplier-wise spend.
-- Category-wise spend.
-- Monthly spend trends.
-- Purchase order analysis.
-- Spend concentration.
-- Cost variance indicators.
+Presentation rules:
 
-### Module 5 – Inventory and Supply Chain Intelligence
+- Every KPI tile shows its exact label, value, denominator or record count, as-of date or basis, and a short limitation note.
+- A permanent banner states that all data is synthetic.
+- A Data Quality panel shows validation results and approved notices.
+- A "Not supported by current data" panel lists unsupported KPIs and the reason for each.
+- Responsive layout for desktop and mobile; charts include text labels and do not rely on colour alone.
 
-Primary purpose: Monitor inventory health and material availability.
+**Libraries (DEC-016).** Chart.js and Papa Parse are stored as pinned local copies in `src/vendor/`, with their MIT licence files. The site works without any third-party CDN.
 
-Planned capabilities:
-- Inventory on hand.
-- Safety stock monitoring.
-- Reorder indicators.
-- Stock shortage identification.
-- Excess inventory identification.
-- Material lead-time monitoring.
+## 8. AI Layer (Future – DEC-022)
 
-### Module 6 – AI Procurement Assistant
+The AI Procurement Assistant is not part of the current build. When it starts:
 
-Primary purpose: Allow users to interact with procurement information using natural language.
+- The browser sends questions to a **secure backend** (for example, a serverless function). Only the backend holds the AI API key. No key ever appears in browser code or in this repository.
+- The backend receives validated KPI results from the KPI layer as context, so answers are grounded in calculated figures.
+- AI responses must distinguish source values, rule-based calculations and AI interpretation, and must not invent supplier performance results.
 
-Example questions:
-- Which suppliers have the lowest OTD?
-- Which suppliers have the highest delivery risk?
-- What is the monthly procurement spend?
-- Which materials are below safety stock?
-- Which suppliers require management intervention?
+The provider, backend platform and free-tier limits will be decided and recorded in the decision log before work begins.
 
-The assistant must use available application data and must not invent supplier performance results.
+## 9. Testing Approach
 
----
+- **Browser-based tests.** Test pages in `tests/` run in an ordinary browser and show pass or fail for each check. No Python or command-line tools are needed to run them.
+- **Expected values** come from an independent calculation recorded during the repository audit, and are checked against the JavaScript results.
+- **Negative tests** use small, deliberately faulty CSV files in `tests/fixtures/` to prove that each control detects the problem it is meant to detect. The real data files are never altered.
+- **Stage reports.** Each development stage has a test report in `tests/reports/` stating what was tested, how, and the result.
 
-## 5. Data Flow
+## 10. Local Preview and Deployment
 
-Proposed application data flow:
+- Browsers block a page opened directly from disk (a `file://` address) from loading CSV files. Previews therefore use a local web server during development, and the live site uses GitHub Pages.
+- Deployment: GitHub Pages → Source: `main` branch, `/ (root)` folder.
 
-1. Synthetic procurement datasets are created.
-2. Data is stored in the selected data source.
-3. The application retrieves the required information.
-4. Application logic validates and processes the data.
-5. KPI calculations generate analytical outputs.
-6. Dashboards display the results.
-7. The AI layer receives relevant contextual data when requested.
-8. AI-generated insights are presented to the user.
-9. Results are validated against the underlying dataset.
+## 11. Security
 
-## 6. Security Architecture
+- The application holds no credentials and calls no paid service.
+- `.gitignore` excludes `.env` files; no secrets may be committed.
+- Only synthetic data is used.
+- Third-party code is limited to two pinned, open-source libraries.
 
-Security requirements:
+## 12. Change Control
 
-- Never expose API keys in public frontend code.
-- Do not commit credentials to GitHub.
-- Use appropriate server-side API protection where required.
-- Use synthetic datasets only.
-- Validate user inputs.
-- Avoid unnecessary exposure of sensitive information.
-- Review deployment and access permissions.
-
-A public GitHub repository must not contain confidential information or credentials.
-
-## 7. Development Architecture Principles
-
-- Modular application structure.
-- Browser-based development.
-- No mandatory Python dependency.
-- Reusable application components.
-- Clear separation between data and presentation.
-- Consistent KPI calculation logic.
-- Secure API communication.
-- Documented technical decisions.
-- Incremental testing and validation.
-
-## 8. Architecture Validation Requirements
-
-Before finalizing the architecture, the following must be evaluated:
-
-1. Can Google AI Studio generate the required browser-based application?
-2. Can the generated application be maintained through GitHub?
-3. How will Gemini API requests be protected?
-4. How will Google Sheets data be accessed securely?
-5. What hosting platform supports the application within the free budget?
-6. Can all six modules operate using the proposed architecture?
-7. Can the application support AI-generated insights without compromising data accuracy?
-
-## 9. Future Architecture Enhancements
-
-Potential future capabilities:
-
-- Advanced supplier intelligence.
-- Automated supplier risk scoring.
-- Predictive delivery risk indicators.
-- Demand forecasting.
-- Procurement recommendation engine.
-- Supplier concentration analysis.
-- Advanced inventory optimization.
-- Additional data source integrations.
-
-These enhancements are outside the initial implementation commitment.
+Changes to this architecture must be recorded in `docs/decision-log.md` before implementation.
 
 ---
 
-## 10. Architecture Approval
-
-**Current Status:** Initial Architecture Proposal
-
-**Approval Condition:** Technical feasibility, security and free-tier limitations must be evaluated before implementation.
-
-**Document Owner:** Project Owner
-
-**Architecture Review:** ChatGPT and Claude
-
+**Document Status:** Approved Architecture – Version 2.0  
+**Document Owner:** Project Owner  
+**Architecture Review:** ChatGPT and Claude  
 **Repository:** aerospace-supplier-intelligence

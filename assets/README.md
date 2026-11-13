@@ -1,13 +1,11 @@
 # Assets Directory
 
-This directory stores visual resources used by the Aerospace Supplier Intelligence Platform.
+Visual resources for the Aerospace Supplier Intelligence Platform.
 
 ## Planned Assets
 
-- Application screenshots
-- Dashboard screenshots
+- Dashboard screenshots (desktop and mobile)
 - Architecture diagrams
-- Project branding and logos
 - Portfolio demonstration images
 
 ## Guidelines
@@ -15,6 +13,5 @@ This directory stores visual resources used by the Aerospace Supplier Intelligen
 - Use original or appropriately licensed assets.
 - Do not include confidential company materials.
 - Optimize images for web performance.
-- Maintain consistent visual presentation.
 
-**Status:** Initial Setup – No assets added.
+**Status:** No assets added yet. Screenshots will be added after the first module is deployed and verified.

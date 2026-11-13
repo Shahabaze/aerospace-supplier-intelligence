@@ -1,20 +1,22 @@
 # Aerospace Supplier Intelligence Platform
 
-**An AI-enabled aerospace procurement and supply chain intelligence platform designed to transform supplier, procurement and inventory data into actionable business insights.**
+**A browser-based aerospace procurement and supplier intelligence dashboard that turns supplier, purchase order, delivery, quality and inventory data into traceable, decision-ready KPIs.**
 
 <p align="center">
-  <strong>Independent Technology Portfolio Project | Aerospace | Procurement | AI | Supply Chain Analytics</strong>
+  <strong>Independent Technology Portfolio Project | Aerospace | Procurement | Supplier Performance | Supply Chain Analytics</strong>
 </p>
+
+> **All data in this repository is synthetic.** Supplier names, figures and results are invented for demonstration and do not describe any real company or supplier.
 
 ---
 
 ## 1. Project Overview
 
-The Aerospace Supplier Intelligence Platform is an independent, browser-based technology project designed to demonstrate how artificial intelligence, data analytics and digital technologies can improve aerospace procurement and supply chain decision-making.
+The Aerospace Supplier Intelligence Platform demonstrates how aerospace procurement domain knowledge, disciplined KPI governance and modern web technology can be combined into a practical supplier intelligence tool.
 
-The platform aims to bring procurement intelligence, supplier performance monitoring, risk assessment, expenditure analysis and inventory visibility into a unified interactive application.
+The application runs entirely in a web browser. It loads six synthetic procurement datasets, validates them against a documented data model, and calculates every KPI live from the source files using documented formulas.
 
-By combining aerospace procurement domain knowledge with AI-assisted analytics, the project will demonstrate practical digital solutions for aerospace, aviation, MRO and manufacturing supply chains.
+An AI Procurement Assistant is planned for a later phase, once the core dashboard is complete and validated.
 
 ## 2. Business Problem
 
@@ -23,125 +25,119 @@ Aerospace procurement operations involve complex supplier networks, long materia
 Fragmented procurement information can make it difficult to:
 
 - Identify suppliers with declining delivery performance.
-- Monitor supplier On-Time Delivery (OTD).
+- Monitor supplier delivery performance against promised dates.
 - Identify potential supply disruptions.
-- Understand procurement expenditure and supplier concentration.
+- Understand PO commitments and supplier concentration.
 - Detect material shortages and excess inventory.
 - Prioritize suppliers requiring management intervention.
 - Convert operational data into actionable management insights.
 
-This platform aims to address these challenges through integrated dashboards, analytical models and AI-assisted procurement intelligence.
+## 3. What Makes This Project Different
 
-## 3. Project Objectives
+- **KPI governance first.** Every KPI is defined in [`docs/kpi-dictionary.md`](docs/kpi-dictionary.md) before it is built, including its formula, grain, filters and limitations.
+- **Validated data.** All 17 integrity controls in [`docs/data-model.md`](docs/data-model.md) are run in the browser before KPIs are shown.
+- **Honest measures.** Delivery-event OTD is never presented as OTIF. PO commitment is never presented as invoiced spend. Unsupported KPIs are labelled as unsupported rather than estimated.
+- **Traceable.** Each figure on screen shows its basis, denominator and as-of date.
 
-- Develop an interactive executive procurement dashboard.
-- Monitor supplier delivery performance and OTD.
-- Create supplier performance scorecards.
-- Identify and monitor supplier risk indicators.
-- Analyze procurement expenditure and cost trends.
-- Monitor inventory health and material availability.
-- Integrate an AI-powered procurement assistant.
-- Demonstrate practical applications of AI in aerospace supply chain management.
+## 4. Application Modules
 
-## 4. Planned Application Modules
+| # | Module | Primary Capabilities | Status |
+|---|---|---|---|
+| 1 | Executive Dashboard | Gross, cancelled and net active PO line value; open PO commitment; Delivery Event OTD; inspection rejection rate; on-hand inventory value; critical supplier count | In development |
+| 2 | Supplier Performance | Supplier delivery-event OTD, late events, delivery variance, rejection rate, nonconformances, corrective actions, qualification, certification and individual risk indicators | Planned |
+| 3 | Procurement Intelligence | Supplier PO commitment, commitment concentration, open PO exposure, overdue open PO lines | Planned |
+| 4 | Inventory Intelligence | Inventory value, available stock, below reorder point, safety stock breaches, days of supply, excess inventory | Planned |
+| 5 | AI Procurement Assistant | Natural-language questions grounded in validated KPI results, via a secure backend | Future phase |
 
-| Module | Primary Capabilities |
+There is no composite supplier risk score. The current data does not support one (KPI Dictionary 8.5).
+
+## 5. Technology Stack
+
+| Technology | Purpose |
 |---|---|
-| Executive Procurement Dashboard | Procurement KPIs, operational overview and management insights |
-| Supplier Performance Analytics | OTD, delivery reliability, supplier scorecards and trend analysis |
-| Supplier Risk Intelligence | Delivery, quality, financial and supply continuity risk indicators |
-| Procurement Spend Analytics | Supplier-wise spend, category analysis, expenditure trends and cost variance |
-| Inventory Intelligence | Stock health, safety stock, shortages, excess inventory and lead-time monitoring |
-| AI Procurement Assistant | Natural-language procurement queries, data-driven explanations and recommendations |
-
-## 5. Proposed Technology Stack
-
-The following technologies are proposed for initial development. Final adoption will depend on technical feasibility, security, integration capabilities and free-tier limitations.
-
-| Technology | Intended Purpose |
-|---|---|
-| Google AI Studio | Browser-based AI-assisted application development |
-| Gemini API | AI-powered procurement analysis and chatbot functionality |
-| HTML | Application structure |
-| CSS | Interface design and styling |
-| JavaScript | Application functionality and data processing |
-| Google Sheets | Initial synthetic data management |
+| HTML5, CSS3, vanilla JavaScript | Application structure, styling and logic, with no framework and no build step |
+| [Papa Parse](https://www.papaparse.com/) (pinned local copy, MIT) | CSV parsing in the browser |
+| [Chart.js](https://www.chartjs.org/) (pinned local copy, MIT) | Charts |
+| GitHub Pages | Free hosting from the `main` branch |
 | GitHub | Source code, documentation and version control |
-| ChatGPT | Project architecture, development guidance and quality assurance |
-| Claude | Independent implementation assistance and code review |
+| ChatGPT | Project architecture and independent quality review |
+| Claude | Implementation and code review |
 
-**Development philosophy:** Browser-based development, no mandatory Python dependency and free-tier tools wherever practical.
+No Python, no server and no paid services are required. See [`docs/architecture.md`](docs/architecture.md).
 
-## 6. Technical Architecture
+## 6. Data
 
-The proposed application architecture consists of five logical layers:
+Six synthetic CSV datasets in [`data/`](data/), defined by Data Model v2.0:
 
-1. **User Interface Layer:** Interactive dashboards, charts, filters and chatbot interface.
-2. **Application Logic Layer:** KPI calculations, data processing and application functionality.
-3. **Data Management Layer:** Synthetic procurement, supplier, delivery and inventory datasets.
-4. **AI Intelligence Layer:** AI-assisted procurement analysis using contextual application data.
-5. **Hosting and Deployment Layer:** Browser-accessible application deployment.
+| File | Records | Grain |
+|---|---:|---|
+| `suppliers.csv` | 25 | One supplier |
+| `materials.csv` | 25 | One material |
+| `purchase_orders.csv` | 100 | One PO line |
+| `delivery_transactions.csv` | 91 | One delivery event |
+| `inventory_snapshot.csv` | 25 | One material at snapshot date 2026-10-31 |
+| `supplier_quality.csv` | 73 | One inspection event |
 
-The final architecture will be determined following technical feasibility, security and cost validation.
+Reporting period: 2025-11-01 to 2026-10-31. Currency: USD.
 
 ## 7. Repository Structure
 
-The GitHub repository follows a modular structure to separate documentation, application source code, datasets, testing and visual resources.
-
 ```text
 aerospace-supplier-intelligence/
-│
-├── assets/
-│   └── README.md
-│
-├── data/
-│   └── README.md
-│
+├── index.html                 Application entry point (added during development)
+├── data/                      Six source CSV files (read-only)
 ├── docs/
 │   ├── project-charter.md
-│   ├── architecture.md
-│   ├── decision-log.md
-│   └── development-roadmap.md
-│
-├── src/
-│   └── README.md
-│
-├── tests/
-│   └── README.md
-│
+│   ├── architecture.md        v2.0 – approved architecture
+│   ├── decision-log.md        v2.0 – decision register
+│   ├── development-roadmap.md
+│   ├── data-model.md          v2.0 – implemented data model
+│   └── kpi-dictionary.md      v2.1 – KPI definitions
+├── src/                       Application code (CSS, JavaScript, pinned libraries)
+├── tests/                     Browser-based test pages, fixtures and stage test reports
+├── assets/                    Screenshots and images
 ├── .gitignore
 └── README.md
 ```
 
 ## 8. Development Roadmap
 
-The project will follow a phased development and validation approach.
-
 | Phase | Description | Status |
 |---|---|---|
 | Phase 0 | Project foundation and documentation | Completed |
-| Phase 1 | Requirements, architecture validation and data design | Upcoming |
-| Phase 2 | Dashboard and application development | Planned |
-| Phase 3 | AI integration and procurement assistant | Planned |
-| Phase 4 | Testing, validation and security | Planned |
+| Phase 1 | Requirements, architecture validation and data design | Completed (Data Model v2.0, KPI Dictionary v2.1, Architecture v2.0) |
+| Phase 2 | Dashboard and application development | In progress |
+| Phase 3 | AI integration and procurement assistant | Planned – after Phase 2 validation |
+| Phase 4 | Testing, validation and security | Ongoing per stage; final review planned |
 | Phase 5 | Deployment and portfolio preparation | Planned |
 
-Each phase will require review and validation before progressing to the next stage.
+### Phase 2 build sequence
+
+1. Decision log and documentation updates
+2. Data layer: loader, schema handling and all 17 validation controls
+3. KPI engine and browser-based KPI tests
+4. Executive Dashboard
+5. Supplier Performance
+6. Procurement Intelligence
+7. Inventory Intelligence
+8. GitHub Pages deployment and live-site verification
+
+Each stage is committed separately with a test report in `tests/reports/`.
 
 ## 9. Project Documentation
 
-The following documents maintain project governance, technical traceability and development discipline.
+- [Project Charter](docs/project-charter.md) – Objectives, scope and governance.
+- [Technical Architecture](docs/architecture.md) – Approved application architecture (v2.0).
+- [Decision Log](docs/decision-log.md) – Approved decisions and rationale (v2.0).
+- [Development Roadmap](docs/development-roadmap.md) – Phases and milestones.
+- [Data Model](docs/data-model.md) – Datasets, fields, keys and validation controls (v2.0).
+- [KPI Dictionary](docs/kpi-dictionary.md) – KPI definitions, formulas and limitations (v2.1).
 
-- [Project Charter](docs/project-charter.md) – Project objectives, scope and governance.
-- [Technical Architecture](docs/architecture.md) – Proposed application architecture and technology components.
-- [Development Roadmap](docs/development-roadmap.md) – Phases, milestones and development activities.
-- [Decision Log](docs/decision-log.md) – Approved decisions, proposed changes and technical rationale.
+Where the charter or roadmap differ from later approved decisions (technology stack, five-module scope), the decision log takes precedence.
 
 ## 10. Data and Security
 
-The initial application will use synthetic aerospace procurement datasets created specifically for demonstration and analytical purposes.
-
-The project will not use or publish:
+The project does not use or publish:
 
 - Confidential aerospace supplier information.
 - Proprietary company procurement records.
@@ -149,74 +145,46 @@ The project will not use or publish:
 - Personal or sensitive business information.
 - API keys, passwords or authentication credentials.
 
-API credentials will be protected through appropriate secure configuration and will never be committed to the public repository.
+The future AI assistant will call any AI service only through a secure backend. API keys will never appear in browser code or in this repository.
 
-AI-generated recommendations will be validated against available application data wherever possible. The assistant must not invent supplier performance results or procurement figures.
-
-All supplier risk assessments and analytical outputs will clearly distinguish between actual dataset values, rule-based calculations and AI-generated interpretations.
+AI-generated content will clearly distinguish dataset values, rule-based calculations and AI interpretation, and must not invent supplier performance results.
 
 ## 11. Development Governance
 
-The project follows a structured development and validation approach.
-
 | Role | Responsibility |
 |---|---|
-| Project Owner | Project decisions, technical actions and final approval |
-| ChatGPT | Project architecture, development guidance and quality review |
-| Claude | Implementation assistance, independent code review and technical improvement |
-| GitHub | Authoritative repository, version control and approved documentation |
+| Project Owner | Project decisions and final approval |
+| ChatGPT | Project architecture and independent quality review |
+| Claude | Implementation, testing and code review |
+| GitHub | Authoritative repository and version control |
 
-All significant changes will be documented and reviewed before acceptance.
-
-GitHub will serve as the central source of truth for approved project documentation and application code.
+A feature is described as tested only when a test has actually been run and its result recorded.
 
 ## 12. Current Project Status
 
-**Project:** Aerospace Supplier Intelligence Platform
+**Current Phase:** Phase 2 – Application Development  
+**Development Budget:** Zero cost
 
-**Project Type:** Independent Technology Portfolio Project
+**Completed**
 
-**Repository:** Public GitHub Repository
+- Data Model v2.0 and six synthetic CSV datasets.
+- KPI Dictionary v2.1.
+- Repository audit (2026-11-13): all 17 data-model controls pass on the source data.
+- Architecture v2.0 and Decision Log v2.0.
 
-**Current Phase:** Phase 0 – Project Foundation
+**In progress**
 
-**Development Budget:** Zero-cost target for initial development.
+- Data layer and validation controls.
 
-### Foundation Completed
-
-- Public GitHub repository established.
-- Initial project README created.
-- Project Charter documented.
-- Technical Architecture proposal documented.
-- Project Decision Log established.
-- Development Roadmap documented.
-- Repository directory structure established.
-- `.gitignore` configured.
-
-### Upcoming Milestones
-
-- Validate the proposed technology architecture.
-- Finalize the initial application technology stack.
-- Define the aerospace procurement data model.
-- Design synthetic supplier and purchase order datasets.
-- Establish KPI definitions and calculation rules.
-- Develop the first interactive procurement dashboard.
-- Integrate and validate AI functionality.
-
-**Project Status Note:** The application modules and AI capabilities described in this document are planned features, not completed functionality. Development status will be updated as each milestone is implemented, tested and validated.
+The live dashboard link and screenshots will be added once the first module is deployed and verified.
 
 ## 13. Project Vision
 
-To demonstrate how aerospace procurement professionals can combine industry expertise, artificial intelligence and data analytics to develop practical digital supplier intelligence and supply chain decision-support solutions.
-
-The long-term objective is to build a professional, interactive portfolio project that demonstrates both aerospace procurement expertise and the ability to apply modern digital technologies to real-world supply chain challenges.
+To demonstrate how aerospace procurement professionals can combine industry expertise, data governance and modern digital technology to build practical supplier intelligence and supply chain decision-support tools.
 
 ---
 
-**Project Classification:** Independent Professional Technology Portfolio Project
-
-**Data Classification:** Synthetic Demonstration Data
-
-**Document Version:** 1.1
-
+**Project Classification:** Independent Professional Technology Portfolio Project  
+**Data Classification:** Synthetic Demonstration Data  
+**Document Version:** 1.2  
 **Repository:** aerospace-supplier-intelligence

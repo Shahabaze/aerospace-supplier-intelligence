@@ -2,8 +2,8 @@
 
 # KPI Dictionary
 
-**Document Version:** 2.0  
-**Project Phase:** Phase 1 – KPI Definition  
+**Document Version:** 2.1  
+**Project Phase:** Phase 1 – KPI Definition (2.1 clarifications approved 2026-11-13)  
 **Reporting Currency:** USD  
 **Dataset Classification:** Synthetic Demonstration Data  
 **Industry Scope:** Aerospace OEM and Supplier Ecosystem  
@@ -89,6 +89,21 @@ Delivery Event OTD (%) =
 **Status:** Calculable with limitation.
 
 **Important Limitation:** This is delivery-event OTD, not complete PO-line OTD, OTIF or supplier schedule adherence. A PO line can have multiple partial deliveries.
+
+**Version 2.1 Clarification – Reporting Bases (DEC-017):**
+
+The source file contains delivered events with `actual_delivery_date` after the 2026-10-31 snapshot date. Delivery Event OTD is therefore reported on two clearly labelled bases. The source data is not modified or silently filtered.
+
+| Basis | Population | Current Dataset Reference |
+|---|---|---|
+| Snapshot-period Delivery Event OTD (as of 2026-10-31) | Delivered events with a valid on-time flag and `actual_delivery_date` on or before the reporting as-of date | 39.68% (25 / 63) |
+| Full-dataset Delivery Event OTD | All delivered events with a valid on-time flag, regardless of date | 38.36% (28 / 73) |
+
+Rules:
+- Both figures must show their basis label, numerator and denominator.
+- The reporting as-of date is configurable and defaults to 2026-10-31.
+- Events outside the snapshot period must be identified in a visible data-quality warning.
+- Neither basis is OTIF or PO-line OTD.
 
 ### 4.2 Late Delivery Event Count
 
@@ -339,6 +354,24 @@ Sum of `line_total_usd`
 **Status:** Calculable.
 
 **Important Limitation:** This is PO committed value, not actual invoiced spend, paid spend or accounting expenditure.
+
+**Version 2.1 Clarification – Gross, Cancelled and Net Active PO Line Value (DEC-019):**
+
+`line_total_usd` equals `ordered_qty × unit_price_usd`, including any quantity later cancelled. The value calculated by 6.1 is therefore **gross** PO line value and includes cancelled value. It must be displayed as **Gross PO Line Value**, never as active commitment.
+
+Three measures are displayed together:
+
+| Measure | Formula | Current Dataset Reference |
+|---|---|---|
+| 6.1 Gross PO Line Value | Sum of `line_total_usd` | $12,550,378.20 |
+| 6.1.1 Cancelled PO Line Value | Sum of (`cancelled_qty` × `unit_price_usd`) | $1,072,369.00 (17 fully cancelled lines) |
+| 6.1.2 Net Active PO Line Value | Gross PO Line Value − Cancelled PO Line Value | $11,478,009.20 |
+
+Rules:
+- All three use `purchase_orders.csv` at PO-line grain, with each line counted once.
+- Net Active PO Line Value includes received and open quantities; it excludes cancelled quantities only.
+- None of these measures represents invoiced, paid or accounting spend.
+- Where this document refers to "Total PO committed value" (6.3, 6.4, 6.5 and section 10), it means 6.1 Gross PO Line Value, unless a later approved decision changes that definition.
 
 ### 6.2 Open PO Commitment Value
 
@@ -702,7 +735,7 @@ Before implementation, define:
 
 | KPI | Source Dataset | Status |
 |---|---|---|
-| Delivery Event OTD | `delivery_transactions.csv` | Calculable with limitation |
+| Delivery Event OTD (snapshot-period and full-dataset bases) | `delivery_transactions.csv` | Calculable with limitation |
 | Late Delivery Event Count | `delivery_transactions.csv` | Calculable |
 | Average Delivery Variance | `delivery_transactions.csv` | Calculable |
 | Overdue Open PO Line Count | `purchase_orders.csv` | Calculable with limitation |
@@ -715,7 +748,9 @@ Before implementation, define:
 | Average Corrective Action Closure Duration | `supplier_quality.csv` | Calculable with limitation |
 | CAPA On-Time Closure Rate | `supplier_quality.csv` | Not supported |
 | Defects Per Million Units | `supplier_quality.csv` | Calculable |
-| Total PO Committed Value | `purchase_orders.csv` | Calculable |
+| Gross PO Line Value (6.1) | `purchase_orders.csv` | Calculable |
+| Cancelled PO Line Value (6.1.1) | `purchase_orders.csv` | Calculable |
+| Net Active PO Line Value (6.1.2) | `purchase_orders.csv` | Calculable |
 | Open PO Commitment Value | `purchase_orders.csv` | Calculable |
 | Supplier PO Commitment Value | PO and supplier data | Calculable |
 | Supplier Spend Concentration | PO and supplier data | Calculable |
@@ -743,9 +778,9 @@ The following implementation sequence is recommended.
 
 ### Priority 1 – Core Executive Dashboard
 
-- Total PO committed value.
+- Gross, cancelled and net active PO line value.
 - Open PO commitment value.
-- Delivery Event OTD.
+- Delivery Event OTD (snapshot-period and full-dataset bases).
 - Inspection rejection rate.
 - Total on-hand inventory value.
 - Critical supplier count.
@@ -825,6 +860,16 @@ These are future enhancements and must not be represented as existing capabiliti
 
 ## 13. Change Control
 
+### Version History
+
+| Version | Date | Change | Decision |
+|---|---|---|---|
+| 2.0 | Before 2026-11-13 | Implemented KPI definition baseline | – |
+| 2.1 | 2026-11-13 | Clarified Delivery Event OTD reporting bases (4.1) | DEC-017 |
+| 2.1 | 2026-11-13 | Defined Gross, Cancelled and Net Active PO Line Value (6.1, 6.1.1, 6.1.2) | DEC-019 |
+
+Version 2.1 adds clarifications only. No other KPI formula, filter or grain was changed.
+
 This document is the Phase 1 KPI definition baseline for the six implemented CSV datasets.
 
 Any change to KPI names, definitions, formulas, thresholds, filters, reporting grain or source datasets must be recorded in `docs/decision-log.md`.
@@ -837,7 +882,7 @@ All implemented dashboard KPIs must remain traceable to this document.
 
 **Project:** Aerospace Supplier Intelligence Platform  
 **Document:** KPI Dictionary  
-**Version:** 2.0  
-**Status:** Phase 1 KPI Definition Baseline  
+**Version:** 2.1  
+**Status:** Phase 1 KPI Definition Baseline with approved 2.1 clarifications  
 **Data Classification:** Synthetic Demonstration Data  
 **Reporting Currency:** USD
