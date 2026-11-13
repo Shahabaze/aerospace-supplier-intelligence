@@ -1,0 +1,26 @@
+supplier_id,supplier_name,country,supplier_category,commodity,supplier_tier,supplier_status,qualification_status,criticality,certification_status,onboarding_date
+SUP-001,Asterion Aero Components,United States,Manufacturer,Precision Machined Components,Tier 1,Active,Qualified,Critical,Current,2019-03-14
+SUP-002,Northstar Turbine Works,United Kingdom,Manufacturer,Engine Components,Tier 1,Active,Qualified,Critical,Current,2018-07-22
+SUP-003,Meridian Aerospace Materials,Germany,Manufacturer,Raw Materials,Tier 2,Active,Qualified,High,Current,2020-01-10
+SUP-004,BluePeak Avionics Supply,France,Manufacturer,Avionics,Tier 1,Active,Qualified,High,Current,2021-05-06
+SUP-005,Crestline Fastener Technologies,United States,Manufacturer,Aerospace Fasteners,Tier 2,Active,Qualified,High,Current,2017-11-18
+SUP-006,Redwood Composite Solutions,Canada,Manufacturer,Composite Materials,Tier 2,Active,Qualified,High,Current,2022-02-09
+SUP-007,Helios Landing Systems,Italy,Manufacturer,Landing Gear Components,Tier 1,Active,Qualified,Critical,Current,2016-09-30
+SUP-008,Vector Thermal Products,Japan,Manufacturer,Thermal Management,Tier 2,Active,Qualified,Medium,Current,2020-08-12
+SUP-009,Silverline Precision Castings,India,Manufacturer,Castings and Forgings,Tier 2,Active,Qualified,High,Current,2019-12-03
+SUP-010,Orion Fluid Control,Netherlands,Manufacturer,Hydraulic Components,Tier 1,Active,Qualified,High,Expiring,2018-04-25
+SUP-011,Summit Aerospace Distribution,Singapore,Distributor,Electrical Components,Tier 2,Active,Qualified,Medium,Current,2021-10-19
+SUP-012,Pinnacle Motion Technologies,Sweden,Manufacturer,Actuation Systems,Tier 1,Active,Qualified,Critical,Current,2015-06-11
+SUP-013,TerraNova Alloy Products,United States,Manufacturer,Raw Materials,Tier 2,Active,Conditional,High,Under Review,2023-01-17
+SUP-014,AeroForge Industrial Supply,Spain,Distributor,Aerospace Fasteners,Tier 2,Active,Qualified,Medium,Current,2020-03-28
+SUP-015,Quantum Cabin Systems,Poland,Manufacturer,Cabin Components,Tier 2,Active,Qualified,Medium,Current,2022-07-04
+SUP-016,Eastwind Sensor Technologies,South Korea,Manufacturer,Sensors and Instrumentation,Tier 1,Active,Qualified,High,Current,2017-02-16
+SUP-017,Ironwood Structural Products,Australia,Manufacturer,Structural Components,Tier 2,Active,Qualified,High,Current,2019-08-21
+SUP-018,Clearwater Aerospace Services,Ireland,Service Provider,Special Process Services,Tier 2,Active,Qualified,Medium,Current,2021-01-13
+SUP-019,Falcon Ridge Materials,United Arab Emirates,Distributor,Raw Materials,Tier 2,Active,Conditional,Medium,Under Review,2024-02-05
+SUP-020,Atlas Bearing and Motion,Switzerland,Manufacturer,Bearings,Tier 1,Active,Qualified,High,Current,2016-12-08
+SUP-021,NovaShield Surface Engineering,Czech Republic,Service Provider,Surface Treatment,Tier 2,Active,Qualified,Medium,Expiring,2020-11-02
+SUP-022,Westbridge Electrical Assemblies,Mexico,Manufacturer,Electrical Assemblies,Tier 2,Active,Qualified,Medium,Current,2023-05-15
+SUP-023,Granite Peak Forging,Brazil,Manufacturer,Castings and Forgings,Tier 2,Under Review,Conditional,High,Under Review,2022-09-26
+SUP-024,Lighthouse Polymer Technologies,Malaysia,Manufacturer,Polymer Components,Tier 2,Active,Qualified,Low,Current,2021-06-07
+SUP-025,Evergreen Aerospace Logistics,Singapore,Service Provider,Logistics and Packaging,Tier 2,Active,Qualified,Low,Not Applicable,2024-04-18
