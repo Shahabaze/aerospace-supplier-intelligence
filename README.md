@@ -43,7 +43,7 @@ Fragmented procurement information can make it difficult to:
 
 | # | Module | Primary Capabilities | Status |
 |---|---|---|---|
-| 1 | Executive Dashboard | Gross, cancelled and net active PO line value; open PO commitment; Delivery Event OTD; inspection rejection rate; on-hand inventory value; critical supplier count | In development |
+| 1 | Executive Dashboard | Delivery Event OTD (snapshot and full-dataset bases), late delivery events, open PO commitment, net active PO line value (with gross and cancelled), inspection rejection rate, on-hand inventory value; data-quality warnings; supplier concentration; unsupported-KPI register | Built – awaiting Project Owner review |
 | 2 | Supplier Performance | Supplier delivery-event OTD, late events, delivery variance, rejection rate, nonconformances, corrective actions, qualification, certification and individual risk indicators | Planned |
 | 3 | Procurement Intelligence | Supplier PO commitment, commitment concentration, open PO exposure, overdue open PO lines | Planned |
 | 4 | Inventory Intelligence | Inventory value, available stock, below reorder point, safety stock breaches, days of supply, excess inventory | Planned |
@@ -58,6 +58,7 @@ There is no composite supplier risk score. The current data does not support one
 | HTML5, CSS3, vanilla JavaScript | Application structure, styling and logic, with no framework and no build step |
 | [Papa Parse](https://www.papaparse.com/) (pinned local copy, MIT) | CSV parsing in the browser |
 | [Chart.js](https://www.chartjs.org/) (pinned local copy, MIT) | Charts |
+| Barlow and Barlow Semi Condensed (self-hosted, SIL OFL 1.1) | Typography |
 | GitHub Pages | Free hosting from the `main` branch |
 | GitHub | Source code, documentation and version control |
 | ChatGPT | Project architecture and independent quality review |
@@ -84,12 +85,12 @@ Reporting period: 2025-11-01 to 2026-10-31. Currency: USD.
 
 ```text
 aerospace-supplier-intelligence/
-├── index.html                 Application entry point (added during development)
+├── index.html                 Application entry point
 ├── data/                      Six source CSV files (read-only)
 ├── docs/
 │   ├── project-charter.md
 │   ├── architecture.md        v2.0 – approved architecture
-│   ├── decision-log.md        v2.1 – decision register
+│   ├── decision-log.md        v2.2 – decision register
 │   ├── development-roadmap.md
 │   ├── data-model.md          v2.0 – implemented data model
 │   └── kpi-dictionary.md      v2.2 – KPI definitions
@@ -128,7 +129,7 @@ Each stage is committed separately with a test report in `tests/reports/`.
 
 - [Project Charter](docs/project-charter.md) – Objectives, scope and governance.
 - [Technical Architecture](docs/architecture.md) – Approved application architecture (v2.0).
-- [Decision Log](docs/decision-log.md) – Approved decisions and rationale (v2.1).
+- [Decision Log](docs/decision-log.md) – Approved decisions and rationale (v2.2).
 - [Development Roadmap](docs/development-roadmap.md) – Phases and milestones.
 - [Data Model](docs/data-model.md) – Datasets, fields, keys and validation controls (v2.0).
 - [KPI Dictionary](docs/kpi-dictionary.md) – KPI definitions, formulas and limitations (v2.2).
@@ -170,14 +171,16 @@ A feature is described as tested only when a test has actually been run and its 
 - Data Model v2.0 and six synthetic CSV datasets.
 - KPI Dictionary v2.2.
 - Repository audit (2026-11-13): all 17 data-model controls pass on the source data.
-- Architecture v2.0 and Decision Log v2.1.
+- Architecture v2.0 and Decision Log v2.2.
 - Data layer: CSV loader, schema typing (blank stays blank) and all 17 Data Model validation controls, with browser tests ([Stage 2 test report](tests/reports/stage-02-data-layer.md)).
 
 - KPI engine implementing KPI Dictionary v2.2, verified against independently calculated values ([Stage 3 test report](tests/reports/stage-03-kpi-engine.md)).
 
+- Executive Dashboard and application shell ([Stage 4 test report](tests/reports/stage-04-executive-dashboard.md)).
+
 **Next**
 
-- Executive Dashboard (application shell, theme and Priority 1 KPIs).
+- Project Owner review of the Executive Dashboard, then Supplier Performance (Stage 5).
 
 The live dashboard link and screenshots will be added once the first module is deployed and verified.
 

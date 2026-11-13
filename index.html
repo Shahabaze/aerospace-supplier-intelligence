@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" data-app-state="loading">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Executive dashboard – Aerospace Supplier Intelligence</title>
+  <meta name="description" content="Aerospace procurement and supplier intelligence dashboard built on synthetic data: delivery-event OTD, PO commitment, inspection quality and inventory position, calculated in the browser from validated CSV files.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2313263c'/%3E%3Cpath d='M6 18l20-8-6 14-3-5z' fill='%239fc0e6'/%3E%3C/svg%3E">
+  <link rel="preload" href="src/vendor/fonts/barlow-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="src/vendor/fonts/barlow-semi-condensed-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="src/css/app.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="wordmark" href="#/executive">Aerospace Supplier <span>Intelligence</span></a>
+      <span class="synthetic-flag">Synthetic demonstration data</span>
+    </div>
+    <nav class="module-nav" aria-label="Modules">
+      <ul id="module-nav-list"></ul>
+    </nav>
+  </header>
+
+  <main id="main" tabindex="-1" aria-live="polite">
+    <noscript>
+      <section class="state state--error">
+        <h1>JavaScript is required</h1>
+        <p>This dashboard calculates its figures in your browser. Turn on JavaScript and reload the page.</p>
+      </section>
+    </noscript>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p>All suppliers, materials and figures are synthetic and invented for demonstration. They do not describe any real company or supplier.</p>
+      <p>Snapshot <span id="footer-asof">31 Oct 2026</span>. Definitions: <a href="https://github.com/Shahabaze/aerospace-supplier-intelligence/blob/main/docs/kpi-dictionary.md">KPI Dictionary v2.2</a>, <a href="https://github.com/Shahabaze/aerospace-supplier-intelligence/blob/main/docs/data-model.md">Data Model v2.0</a>, <a href="https://github.com/Shahabaze/aerospace-supplier-intelligence/blob/main/docs/decision-log.md">Decision Log</a>.</p>
+    </div>
+  </footer>
+
+  <script src="src/vendor/papaparse-5.7.1.min.js"></script>
+  <script src="src/vendor/chart-4.6.1.umd.min.js"></script>
+  <script type="module" src="src/js/app.js"></script>
+</body>
+</html>

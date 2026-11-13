@@ -1,7 +1,7 @@
 # Project Decision Log
 ## Aerospace Supplier Intelligence Platform
 
-**Document Version:** 2.1  
+**Document Version:** 2.2  
 **Project Stage:** Phase 2 – Application Development  
 **Repository:** aerospace-supplier-intelligence  
 **Last Updated:** 2026-11-13
@@ -43,6 +43,7 @@ Earlier decisions are never deleted. When a decision is replaced, its status cha
 | DEC-021 | Adopt a five-module application scope (see section 7.4) | Aligns modules with the KPIs the current data supports | Approved |
 | DEC-022 | Start AI assistant work only after the core dashboard is completed and validated; any AI API must be called through a secure backend, never from browser code | Protects API keys and keeps AI output grounded in validated KPIs | Approved |
 | DEC-023 | Supplier Concentration (KPI 6.4) uses Net Active PO Line Value in both numerator and denominator | Cancelled value is not active commitment and must not inflate a supplier's share (consistent with DEC-019) | Approved |
+| DEC-024 | Self-host the Barlow and Barlow Semi Condensed web fonts (SIL Open Font License 1.1) in `src/vendor/fonts/` | Consistent professional typography with tabular figures, no external font service, free licence | Approved (Stage 4 build, for Project Owner review) |
 
 ## 3. Technology Decisions Pending Validation
 
@@ -169,5 +170,5 @@ Supplier Concentration (%) = (Supplier's Net Active PO Line Value ÷ Total Net A
 
 ---
 
-**Document Status:** Decision Register – Version 2.1  
+**Document Status:** Decision Register – Version 2.2  
 **Approval Authority:** Project Owner

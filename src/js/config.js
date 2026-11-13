@@ -21,6 +21,9 @@ export const CONFIG = Object.freeze({
   /** Classification shown on every page. */
   dataClassification: 'Synthetic Demonstration Data',
 
+  /** Public repository, used for links to the governing documents. */
+  repositoryUrl: 'https://github.com/Shahabaze/aerospace-supplier-intelligence',
+
   /** Governing document versions, shown in the application footer. */
   documentVersions: Object.freeze({
     dataModel: '2.0',

@@ -1,0 +1,76 @@
+/**
+ * The five approved application modules (DEC-021).
+ * `available: false` modules show a "planned" page with no figures.
+ */
+
+export const MODULES = Object.freeze([
+  {
+    id: 'executive',
+    name: 'Executive dashboard',
+    available: true,
+    stageLabel: null,
+  },
+  {
+    id: 'suppliers',
+    name: 'Supplier performance',
+    available: false,
+    stageLabel: 'Stage 5',
+    status: 'Planned for development Stage 5',
+    summary: 'Delivery and quality performance for each supplier, with their qualification and certification status.',
+    planned: [
+      'Delivery Event OTD by supplier, on the snapshot-period and full-dataset bases',
+      'Late delivery events and average delivery variance',
+      'Inspection rejection rate, nonconformance inspections and open corrective actions',
+      'Supplier criticality, qualification and certification status',
+      'Individual risk indicators. No composite risk score is calculated.',
+    ],
+  },
+  {
+    id: 'procurement',
+    name: 'Procurement intelligence',
+    available: false,
+    stageLabel: 'Stage 6',
+    status: 'Planned for development Stage 6',
+    summary: 'Where PO value sits, how concentrated it is, and which open commitments are overdue.',
+    planned: [
+      'Gross, cancelled and net active PO line value by supplier',
+      'Supplier concentration on net active PO line value',
+      'Open PO commitment value and exposure',
+      'Overdue open PO lines against the recorded promise date',
+      'Average PO line value',
+    ],
+  },
+  {
+    id: 'inventory',
+    name: 'Inventory intelligence',
+    available: false,
+    stageLabel: 'Stage 7',
+    status: 'Planned for development Stage 7',
+    summary: 'Point-in-time stock health for physical materials at the 31 October 2026 snapshot.',
+    planned: [
+      'On-hand and available inventory value (SERVICE materials excluded)',
+      'Materials below reorder point and safety stock, on the available-stock basis',
+      'Days of supply and excess inventory value',
+      'Supplied inventory status, labelled as on-hand based',
+    ],
+  },
+  {
+    id: 'assistant',
+    name: 'AI procurement assistant',
+    available: false,
+    stageLabel: 'Future phase',
+    status: 'Future phase, after the core dashboard is validated',
+    summary: 'Plain-language questions about suppliers, purchase orders and inventory, answered from the validated KPI results.',
+    planned: [
+      'Questions such as "Which critical suppliers have the lowest delivery-event OTD?"',
+      'Answers that separate source figures, rule-based calculations and AI interpretation',
+      'Requests sent through a secure backend. No AI service or API key is used in this website.',
+    ],
+  },
+]);
+
+export const DEFAULT_MODULE = 'executive';
+
+export function moduleById(id) {
+  return MODULES.find((m) => m.id === id) || null;
+}

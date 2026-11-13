@@ -56,12 +56,15 @@ aerospace-supplier-intelligence/
 │   │   ├── validation.js      17 integrity controls and data-quality notices
 │   │   ├── kpis.js            KPI Dictionary implementations
 │   │   ├── charts.js          Chart.js helpers
-│   │   ├── views/             One file per dashboard module
+│   │   ├── format.js          Display formatting only (blank shown as "Not available")
+│   │   ├── modules.js         The five approved modules and their status
+│   │   ├── views/             One file per dashboard module (executive.js, placeholder.js)
 │   │   └── app.js             Start-up, navigation and error display
-│   └── vendor/                Pinned Chart.js and Papa Parse + licence files
+│   └── vendor/                Pinned Chart.js, Papa Parse and fonts + licence files
 ├── tests/
 │   ├── data-layer-tests.html  Browser test page for the data layer
 │   ├── kpi-tests.html         Browser test page for the KPI engine
+│   ├── dashboard-tests.html   Browser test page for the dashboard screens
 │   ├── fixtures/              Small deliberately faulty CSV files for negative tests
 │   └── reports/               Test report for each development stage
 └── assets/                    Screenshots and images
@@ -135,7 +138,7 @@ Presentation rules:
 - A "Not supported by current data" panel lists unsupported KPIs and the reason for each.
 - Responsive layout for desktop and mobile; charts include text labels and do not rely on colour alone.
 
-**Libraries (DEC-016).** Chart.js and Papa Parse are stored as pinned local copies in `src/vendor/`, with their MIT licence files. The site works without any third-party CDN.
+**Libraries (DEC-016).** Chart.js and Papa Parse are stored as pinned local copies in `src/vendor/`, with their MIT licence files. The site works without any third-party CDN. Fonts (Barlow, Barlow Semi Condensed, SIL OFL 1.1) are self-hosted in `src/vendor/fonts/` (DEC-024).
 
 ## 8. AI Layer (Future – DEC-022)
 
