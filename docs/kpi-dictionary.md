@@ -2,8 +2,8 @@
 
 # KPI Dictionary
 
-**Document Version:** 2.1  
-**Project Phase:** Phase 1 – KPI Definition (2.1 clarifications approved 2026-11-13)  
+**Document Version:** 2.2  
+**Project Phase:** Phase 1 – KPI Definition (2.1 and 2.2 clarifications approved 2026-11-13)  
 **Reporting Currency:** USD  
 **Dataset Classification:** Synthetic Demonstration Data  
 **Industry Scope:** Aerospace OEM and Supplier Ecosystem  
@@ -371,7 +371,7 @@ Rules:
 - All three use `purchase_orders.csv` at PO-line grain, with each line counted once.
 - Net Active PO Line Value includes received and open quantities; it excludes cancelled quantities only.
 - None of these measures represents invoiced, paid or accounting spend.
-- Where this document refers to "Total PO committed value" (6.3, 6.4, 6.5 and section 10), it means 6.1 Gross PO Line Value, unless a later approved decision changes that definition.
+- Where this document refers to "Total PO committed value" (6.3, 6.5 and section 10), it means 6.1 Gross PO Line Value. From Version 2.2, 6.4 Supplier Concentration uses Net Active PO Line Value (DEC-023).
 
 ### 6.2 Open PO Commitment Value
 
@@ -412,13 +412,19 @@ Sum of `line_total_usd`, grouped by `supplier_id`.
 
 ### 6.4 Supplier Spend Concentration
 
-**Business Question:** What percentage of total PO commitment value is associated with each supplier?
+**Business Question:** What percentage of total active PO line value is associated with each supplier?
 
-**Formula:**
+**Formula (Version 2.2, DEC-023):**
 
-Supplier PO Commitment Concentration (%) =
+Supplier Concentration (%) =
 
-(Supplier PO committed value ÷ Total PO committed value) × 100
+(Supplier's Net Active PO Line Value ÷ Total Net Active PO Line Value across all suppliers) × 100
+
+Where, for each PO line:
+
+Net Active PO Line Value = `line_total_usd` − (`cancelled_qty` × `unit_price_usd`)
+
+This is the line-level form of 6.1.2. A fully cancelled PO line therefore contributes zero, and any cancelled portion of a partially cancelled line is also removed.
 
 **Source Datasets:**
 - `purchase_orders.csv`
@@ -426,9 +432,19 @@ Supplier PO Commitment Concentration (%) =
 
 **Reporting Grain:** PO line, aggregated by supplier.
 
+**Filters and Rules:**
+- Apply the same cancellation exclusion to the numerator and the denominator.
+- The denominator equals 6.1.2 Net Active PO Line Value ($11,478,009.20 in the current dataset).
+- Supplier percentages must sum to 100% (allowing for display rounding).
+- Aggregate from `purchase_orders.csv` only, before any join to delivery or inspection data.
+
+**Current Dataset Reference:** SUP-007 27.75%, SUP-008 24.42%, SUP-002 14.49% (top three suppliers). All cancelled quantity in the current data is on 17 fully cancelled lines, so excluding fully cancelled lines and subtracting cancelled value give the same result here.
+
 **Status:** Calculable.
 
-**Important Limitation:** This is concentration of recorded PO commitments, not actual supplier spend or financial dependency.
+**Important Limitation:** This is concentration of active PO line value, not actual supplier spend or financial dependency.
+
+**Superseded Definition (Version 2.1 and earlier):** (Supplier PO committed value ÷ Total PO committed value) × 100, using gross `line_total_usd` including cancelled value.
 
 ### 6.5 Average PO Line Value
 
@@ -753,7 +769,7 @@ Before implementation, define:
 | Net Active PO Line Value (6.1.2) | `purchase_orders.csv` | Calculable |
 | Open PO Commitment Value | `purchase_orders.csv` | Calculable |
 | Supplier PO Commitment Value | PO and supplier data | Calculable |
-| Supplier Spend Concentration | PO and supplier data | Calculable |
+| Supplier Spend Concentration (net active basis, v2.2) | PO and supplier data | Calculable |
 | Average PO Line Value | `purchase_orders.csv` | Calculable |
 | Actual Invoiced Spend | Not available | Not supported |
 | Total On-Hand Inventory Value | `inventory_snapshot.csv` | Calculable |
@@ -867,8 +883,9 @@ These are future enhancements and must not be represented as existing capabiliti
 | 2.0 | Before 2026-11-13 | Implemented KPI definition baseline | – |
 | 2.1 | 2026-11-13 | Clarified Delivery Event OTD reporting bases (4.1) | DEC-017 |
 | 2.1 | 2026-11-13 | Defined Gross, Cancelled and Net Active PO Line Value (6.1, 6.1.1, 6.1.2) | DEC-019 |
+| 2.2 | 2026-11-13 | Supplier Concentration (6.4) changed to Net Active PO Line Value in both numerator and denominator | DEC-023 |
 
-Version 2.1 adds clarifications only. No other KPI formula, filter or grain was changed.
+Version 2.1 added clarifications only. Version 2.2 changes the 6.4 formula basis from gross to net active PO line value. No other KPI formula, filter or grain was changed.
 
 This document is the Phase 1 KPI definition baseline for the six implemented CSV datasets.
 
@@ -882,7 +899,7 @@ All implemented dashboard KPIs must remain traceable to this document.
 
 **Project:** Aerospace Supplier Intelligence Platform  
 **Document:** KPI Dictionary  
-**Version:** 2.1  
-**Status:** Phase 1 KPI Definition Baseline with approved 2.1 clarifications  
+**Version:** 2.2  
+**Status:** Phase 1 KPI Definition Baseline with approved 2.1 and 2.2 clarifications  
 **Data Classification:** Synthetic Demonstration Data  
 **Reporting Currency:** USD

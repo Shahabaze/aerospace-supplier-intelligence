@@ -1,7 +1,7 @@
 # Project Decision Log
 ## Aerospace Supplier Intelligence Platform
 
-**Document Version:** 2.0  
+**Document Version:** 2.1  
 **Project Stage:** Phase 2 – Application Development  
 **Repository:** aerospace-supplier-intelligence  
 **Last Updated:** 2026-11-13
@@ -42,6 +42,7 @@ Earlier decisions are never deleted. When a decision is replaced, its status cha
 | DEC-020 | Parse every CSV field as text and convert types explicitly from a schema; blank stays blank (null), never zero | Prevents silent conversion of blanks and identifiers; implements Data Model v2.0 control 15 | Approved |
 | DEC-021 | Adopt a five-module application scope (see section 7.4) | Aligns modules with the KPIs the current data supports | Approved |
 | DEC-022 | Start AI assistant work only after the core dashboard is completed and validated; any AI API must be called through a secure backend, never from browser code | Protects API keys and keeps AI output grounded in validated KPIs | Approved |
+| DEC-023 | Supplier Concentration (KPI 6.4) uses Net Active PO Line Value in both numerator and denominator | Cancelled value is not active commitment and must not inflate a supplier's share (consistent with DEC-019) | Approved |
 
 ## 3. Technology Decisions Pending Validation
 
@@ -155,7 +156,18 @@ Replaces DEC-011. The application modules are:
 
 There is no standalone Supplier Risk Intelligence module. A composite supplier risk score is not introduced, consistent with KPI Dictionary 8.5.
 
+### 7.5 DEC-023 – Supplier Concentration basis
+
+**Decision (Project Owner, 2026-11-13):**
+
+Supplier Concentration (%) = (Supplier's Net Active PO Line Value ÷ Total Net Active PO Line Value across all suppliers) × 100
+
+- Net Active PO Line Value per line = `line_total_usd` − (`cancelled_qty` × `unit_price_usd`), so fully cancelled lines contribute zero.
+- The same exclusion applies to numerator and denominator.
+- Recorded in KPI Dictionary Version 2.2.
+- Effect on current data: SUP-007 changes from 25.38% (gross) to 27.75% (net active); SUP-008 from 22.34% to 24.42%.
+
 ---
 
-**Document Status:** Decision Register – Version 2.0  
+**Document Status:** Decision Register – Version 2.1  
 **Approval Authority:** Project Owner

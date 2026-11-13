@@ -89,10 +89,10 @@ aerospace-supplier-intelligence/
 ├── docs/
 │   ├── project-charter.md
 │   ├── architecture.md        v2.0 – approved architecture
-│   ├── decision-log.md        v2.0 – decision register
+│   ├── decision-log.md        v2.1 – decision register
 │   ├── development-roadmap.md
 │   ├── data-model.md          v2.0 – implemented data model
-│   └── kpi-dictionary.md      v2.1 – KPI definitions
+│   └── kpi-dictionary.md      v2.2 – KPI definitions
 ├── src/                       Application code (CSS, JavaScript, pinned libraries)
 ├── tests/                     Browser-based test pages, fixtures and stage test reports
 ├── assets/                    Screenshots and images
@@ -105,7 +105,7 @@ aerospace-supplier-intelligence/
 | Phase | Description | Status |
 |---|---|---|
 | Phase 0 | Project foundation and documentation | Completed |
-| Phase 1 | Requirements, architecture validation and data design | Completed (Data Model v2.0, KPI Dictionary v2.1, Architecture v2.0) |
+| Phase 1 | Requirements, architecture validation and data design | Completed (Data Model v2.0, KPI Dictionary v2.2, Architecture v2.0) |
 | Phase 2 | Dashboard and application development | In progress |
 | Phase 3 | AI integration and procurement assistant | Planned – after Phase 2 validation |
 | Phase 4 | Testing, validation and security | Ongoing per stage; final review planned |
@@ -128,10 +128,10 @@ Each stage is committed separately with a test report in `tests/reports/`.
 
 - [Project Charter](docs/project-charter.md) – Objectives, scope and governance.
 - [Technical Architecture](docs/architecture.md) – Approved application architecture (v2.0).
-- [Decision Log](docs/decision-log.md) – Approved decisions and rationale (v2.0).
+- [Decision Log](docs/decision-log.md) – Approved decisions and rationale (v2.1).
 - [Development Roadmap](docs/development-roadmap.md) – Phases and milestones.
 - [Data Model](docs/data-model.md) – Datasets, fields, keys and validation controls (v2.0).
-- [KPI Dictionary](docs/kpi-dictionary.md) – KPI definitions, formulas and limitations (v2.1).
+- [KPI Dictionary](docs/kpi-dictionary.md) – KPI definitions, formulas and limitations (v2.2).
 
 Where the charter or roadmap differ from later approved decisions (technology stack, five-module scope), the decision log takes precedence.
 
@@ -168,9 +168,9 @@ A feature is described as tested only when a test has actually been run and its 
 **Completed**
 
 - Data Model v2.0 and six synthetic CSV datasets.
-- KPI Dictionary v2.1.
+- KPI Dictionary v2.2.
 - Repository audit (2026-11-13): all 17 data-model controls pass on the source data.
-- Architecture v2.0 and Decision Log v2.0.
+- Architecture v2.0 and Decision Log v2.1.
 - Data layer: CSV loader, schema typing (blank stays blank) and all 17 Data Model validation controls, with browser tests ([Stage 2 test report](tests/reports/stage-02-data-layer.md)).
 
 **Next**
