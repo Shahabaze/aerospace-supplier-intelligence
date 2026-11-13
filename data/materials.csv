@@ -1,0 +1,26 @@
+material_id,material_description,material_category,commodity,supplier_id,unit_of_measure,standard_cost_usd,lead_time_days,safety_stock_qty,reorder_point_qty,criticality,shelf_life_days,material_status
+MAT-001,Precision CNC Machined Housing,Machined Components,Precision Machined Components,SUP-001,EA,2850,45,20,35,Critical,,Active
+MAT-002,High Pressure Turbine Blade,Engine Components,Engine Components,SUP-002,EA,4850,90,15,25,Critical,,Active
+MAT-003,Aluminium Alloy 7075 Plate,Raw Materials,Raw Materials,SUP-003,KG,42,35,500,800,High,,Active
+MAT-004,Flight Control Avionics Module,Avionics,Avionics,SUP-004,EA,6200,75,8,15,Critical,,Active
+MAT-005,Aerospace Titanium Fastener Kit,Aerospace Fasteners,Aerospace Fasteners,SUP-005,EA,185,30,100,180,High,,Active
+MAT-006,Carbon Fibre Composite Panel,Composite Materials,Composite Materials,SUP-006,EA,1450,60,25,40,High,365,Active
+MAT-007,Aircraft Landing Gear Actuator,Landing Gear Components,Landing Gear Components,SUP-007,EA,18500,120,5,10,Critical,,Active
+MAT-008,Aircraft Heat Exchanger,Thermal Management,Thermal Management,SUP-008,EA,7800,65,8,15,Medium,,Active
+MAT-009,Aircraft Structural Steel Forging,Castings and Forgings,Castings and Forgings,SUP-009,KG,68,55,150,250,High,,Active
+MAT-010,Hydraulic Pressure Control Valve,Hydraulic Components,Hydraulic Components,SUP-010,EA,3250,70,12,20,High,,Active
+MAT-011,Aerospace Electrical Connector,Electrical Components,Electrical Components,SUP-011,EA,95,25,200,350,Medium,,Active
+MAT-012,Electromechanical Actuator Assembly,Actuation Systems,Actuation Systems,SUP-012,EA,9200,100,6,12,Critical,,Active
+MAT-013,Nickel Alloy Aerospace Bar,Raw Materials,Raw Materials,SUP-013,KG,125,80,100,180,High,,Active
+MAT-014,Aircraft Structural Fastener Set,Aerospace Fasteners,Aerospace Fasteners,SUP-014,EA,145,35,150,250,Medium,,Active
+MAT-015,Aircraft Cabin Seat Bracket,Cabin Components,Cabin Components,SUP-015,EA,320,40,50,80,Medium,,Active
+MAT-016,Aircraft Pressure Sensor,Sensors and Instrumentation,Sensors and Instrumentation,SUP-016,EA,1250,55,15,25,High,,Active
+MAT-017,Aircraft Wing Structural Bracket,Structural Components,Structural Components,SUP-017,EA,2150,65,15,25,High,,Active
+MAT-018,Certified Surface Treatment Service,Special Process Services,Special Process Services,SUP-018,SERVICE,850,20,0,0,Medium,,Active
+MAT-019,Aerospace Aluminium Sheet,Raw Materials,Raw Materials,SUP-019,KG,38,40,300,500,Medium,,Active
+MAT-020,Aircraft Precision Bearing Assembly,Bearings,Bearings,SUP-020,EA,1850,60,20,35,High,,Active
+MAT-021,Aircraft Component Surface Coating,Surface Treatment,Surface Treatment,SUP-021,SERVICE,420,15,0,0,Medium,,Active
+MAT-022,Aircraft Electrical Wiring Harness,Electrical Assemblies,Electrical Assemblies,SUP-022,EA,980,50,20,35,Medium,,Active
+MAT-023,Heavy Duty Aerospace Forging,Castings and Forgings,Castings and Forgings,SUP-023,KG,95,85,80,140,High,,Active
+MAT-024,Aircraft Polymer Seal Assembly,Polymer Components,Polymer Components,SUP-024,EA,75,30,100,180,Low,730,Active
+MAT-025,Aerospace Protective Packaging Kit,Logistics and Packaging,Logistics and Packaging,SUP-025,EA,45,15,100,150,Low,,Active
