@@ -1,201 +1,123 @@
 # Aerospace Supplier Intelligence Platform
 
-**A browser-based aerospace procurement and supplier intelligence dashboard that turns supplier, purchase order, delivery, quality and inventory data into traceable, decision-ready KPIs.**
+**A browser-based procurement and supplier intelligence dashboard for an aerospace supply base: delivery performance, PO commitment and overdue exposure, inspection quality and inventory position, calculated live from validated data with every figure traceable to a documented KPI definition.**
 
-<p align="center">
-  <strong>Independent Technology Portfolio Project | Aerospace | Procurement | Supplier Performance | Supply Chain Analytics</strong>
-</p>
+**Live dashboard:** https://shahabaze.github.io/aerospace-supplier-intelligence/
 
-> **All data in this repository is synthetic.** Supplier names, figures and results are invented for demonstration and do not describe any real company or supplier.
+> **All data is synthetic.** Suppliers, materials, purchase orders and results are invented for demonstration. They do not describe any real company, supplier or programme.
+
+![Executive dashboard](assets/screenshots/01-executive-dashboard.png)
 
 ---
 
-## 1. Project Overview
+## What this demonstrates
 
-The Aerospace Supplier Intelligence Platform demonstrates how aerospace procurement domain knowledge, disciplined KPI governance and modern web technology can be combined into a practical supplier intelligence tool.
-
-The application runs entirely in a web browser. It loads six synthetic procurement datasets, validates them against a documented data model, and calculates every KPI live from the source files using documented formulas.
-
-An AI Procurement Assistant is planned for a later phase, once the core dashboard is complete and validated.
-
-## 2. Business Problem
-
-Aerospace procurement operations involve complex supplier networks, long material lead times, strict quality requirements, delivery commitments and inventory constraints.
-
-Fragmented procurement information can make it difficult to:
-
-- Identify suppliers with declining delivery performance.
-- Monitor supplier delivery performance against promised dates.
-- Identify potential supply disruptions.
-- Understand PO commitments and supplier concentration.
-- Detect material shortages and excess inventory.
-- Prioritize suppliers requiring management intervention.
-- Convert operational data into actionable management insights.
-
-## 3. What Makes This Project Different
-
-- **KPI governance first.** Every KPI is defined in [`docs/kpi-dictionary.md`](docs/kpi-dictionary.md) before it is built, including its formula, grain, filters and limitations.
-- **Validated data.** All 17 integrity controls in [`docs/data-model.md`](docs/data-model.md) are run in the browser before KPIs are shown.
-- **Honest measures.** Delivery-event OTD is never presented as OTIF. PO commitment is never presented as invoiced spend. Unsupported KPIs are labelled as unsupported rather than estimated.
-- **Traceable.** Each figure on screen shows its basis, denominator and as-of date.
-
-## 4. Application Modules
-
-| # | Module | Primary Capabilities | Status |
-|---|---|---|---|
-| 1 | Executive Dashboard | Delivery Event OTD (snapshot and full-dataset bases), late delivery events, open PO commitment, net active PO line value (with gross and cancelled), inspection rejection rate, on-hand inventory value; data-quality warnings; supplier concentration; unsupported-KPI register | Approved (Stage 4) |
-| 2 | Supplier Performance | Delivery-event OTD on snapshot and full-dataset bases, late events, delivery variance, rejection rate, nonconformances, corrective-action register, criticality/qualification/certification; criticality segments; PO exposure vs OTD; sortable, filterable comparison; supplier detail with events and inspections; sample-size labels | Approved (Stage 5) |
-| 3 | Procurement Intelligence | PO value bridge (gross, cancelled, net active, received, open, overdue, not yet due), overdue ageing, supplier Pareto concentration, commitment by segment, supplier commitment table, expediting register, promise-to-request gap | Approved (Stage 6) |
-| 4 | Inventory Intelligence | On-hand and available value, below reorder point and safety stock (available basis), days of supply, excess value, status on both bases, searchable material table with supplier and material criticality, single-snapshot warnings | Built (Stage 7) |
-| 5 | AI Procurement Assistant | Natural-language questions grounded in validated KPI results, via a secure backend | Future phase |
-
-There is no composite supplier risk score. The current data does not support one (KPI Dictionary 8.5).
-
-## 5. Technology Stack
-
-| Technology | Purpose |
+| Area | What you will see |
 |---|---|
-| HTML5, CSS3, vanilla JavaScript | Application structure, styling and logic, with no framework and no build step |
-| [Papa Parse](https://www.papaparse.com/) (pinned local copy, MIT) | CSV parsing in the browser |
-| [Chart.js](https://www.chartjs.org/) (pinned local copy, MIT) | Charts |
-| Barlow and Barlow Semi Condensed (self-hosted, SIL OFL 1.1) | Typography |
-| GitHub Pages | Free hosting from the `main` branch |
-| GitHub | Source code, documentation and version control |
-| ChatGPT | Project architecture and independent quality review |
-| Claude | Implementation and code review |
+| **Supplier performance** | Delivery-event on-time delivery on two clearly labelled bases, late events, delivery variance, inspection rejection rate, nonconformances, corrective actions, and supplier criticality, qualification and certification |
+| **Procurement intelligence** | A PO value bridge that reconciles to the cent, overdue ageing, supplier concentration (Pareto), commitment by category and criticality, and an expediting register sorted by days past promise |
+| **Inventory intelligence** | On-hand and available value, materials below reorder point and safety stock on the stricter available-stock basis, days of supply and excess value |
+| **Data governance** | 17 data-model controls run in the browser before any KPI is shown, sample-size labels, "not supported" registers instead of estimated figures, and a decision log behind every rule |
 
-No Python, no server and no paid services are required. See [`docs/architecture.md`](docs/architecture.md).
+### Procurement judgement built into the numbers
 
-## 6. Data
+- **Delivery-event OTD is never presented as OTIF**, and PO-line value is never presented as invoiced spend. The data cannot support either claim, so the dashboard says so.
+- **Cancelled value is separated from active commitment.** Gross $12.55M − cancelled $1.07M = net active $11.48M = received $2.62M + open $8.86M.
+- **Overdue exposure is shown in value, not just line counts.** 51 of 63 open lines are past their recorded promise, $6.90M or 77.9% of open commitment. Critical suppliers carry 61.1% of it.
+- **Thin evidence is flagged.** Critical suppliers hold 52.6% of active PO value but have only 4 delivered events in the period. Rates from fewer than 3 records carry a "Limited sample" label.
+- **Available stock, not on-hand stock, drives reorder alerts.** Where the supplied status disagrees (MAT-010, MAT-020), both bases are shown.
+- **No composite supplier risk score** is invented. Risk indicators are shown individually.
 
-Six synthetic CSV datasets in [`data/`](data/), defined by Data Model v2.0:
+## Modules
+
+| Module | Highlights | Screenshot |
+|---|---|---|
+| Executive dashboard | Six headline KPIs, data-quality panel, supplier concentration, unsupported-KPI register | [View](assets/screenshots/01-executive-dashboard.png) |
+| Supplier performance | Criticality segments, PO exposure vs delivery chart, sortable and filterable comparison of 25 suppliers, supplier detail with every delivery and inspection | [View](assets/screenshots/02-supplier-performance.png), [detail](assets/screenshots/03-supplier-detail.png) |
+| Procurement intelligence | PO value bridge, overdue ageing, Pareto concentration, supplier commitment table, expediting register | [View](assets/screenshots/04-procurement-intelligence.png), [register](assets/screenshots/05-expediting-register.png) |
+| Inventory intelligence | Six inventory KPIs, status on both stock bases, searchable material table with supplier and material criticality | [View](assets/screenshots/06-inventory-intelligence.png) |
+| AI procurement assistant | Planned for a later phase, through a secure backend; not part of this release | — |
+
+Mobile layouts: [Executive](assets/screenshots/08-mobile-executive.png), [Procurement](assets/screenshots/09-mobile-procurement.png). Data quality: [View](assets/screenshots/07-data-quality.png).
+
+## How to use it
+
+1. Open the **live dashboard** link above in any modern browser. Nothing needs to be installed.
+2. Use the tabs at the top to move between modules.
+3. In **Supplier performance**, sort any column, filter by criticality, qualification or sample size, and select a supplier to see its deliveries and inspections. Each supplier has its own address, for example `#/suppliers/SUP-013`.
+4. In **Procurement intelligence**, use the expediting register filters, for example "Over 180 days" plus "Nothing received yet", to find the lines that need action first.
+5. In **Inventory intelligence**, filter by stock position or criticality, or search for a material.
+6. Hover over rounded values for exact figures. Expand the data-quality notices on the Executive dashboard to see the records behind each warning.
+
+A five-minute walkthrough for reviewers is in the [Portfolio demonstration guide](docs/portfolio-guide.md).
+
+## Architecture
+
+```text
+Browser (static site on GitHub Pages: no server, no build step, no Python)
+  data/*.csv ──► data-loader.js ──► validation.js ──► kpis.js ──► views/*.js
+  six source    typed, blanks     17 Data Model      one function    Executive, Supplier,
+  files         stay blank        controls + notices per KPI ID      Procurement, Inventory
+```
+
+- **Plain HTML, CSS and JavaScript.** Papa Parse and Chart.js are stored as pinned local copies, and fonts are self-hosted. No CDN, no tracking, no API keys.
+- **Calculations are separate from display.** Each displayed figure is tagged with the KPI-engine result it came from, and the tests check the page against the engine.
+- **Grain-safe.** PO values are aggregated from PO lines before any join, so delivery and inspection rows cannot double-count value.
+- **Governing documents:** [Data Model v2.0](docs/data-model.md), [KPI Dictionary v2.3](docs/kpi-dictionary.md), [Architecture](docs/architecture.md) and [Decision Log](docs/decision-log.md) (DEC-001 to DEC-032).
+
+## Data
+
+Six synthetic CSV files in [`data/`](data/). Reporting period 1 Nov 2025 to 31 Oct 2026; snapshot 31 Oct 2026; USD.
 
 | File | Records | Grain |
 |---|---:|---|
-| `suppliers.csv` | 25 | One supplier |
-| `materials.csv` | 25 | One material |
-| `purchase_orders.csv` | 100 | One PO line |
-| `delivery_transactions.csv` | 91 | One delivery event |
-| `inventory_snapshot.csv` | 25 | One material at snapshot date 2026-10-31 |
-| `supplier_quality.csv` | 73 | One inspection event |
+| `suppliers.csv` | 25 | Supplier |
+| `materials.csv` | 25 | Material |
+| `purchase_orders.csv` | 100 | PO line |
+| `delivery_transactions.csv` | 91 | Delivery event |
+| `inventory_snapshot.csv` | 25 | Material at snapshot |
+| `supplier_quality.csv` | 73 | Inspection event |
 
-Reporting period: 2025-11-01 to 2026-10-31. Currency: USD.
+Known, documented data conditions are shown on screen rather than corrected silently. For example, 12 delivery events fall after the snapshot date, so delivery OTD is shown on a snapshot-period basis (39.7%) and a full-dataset basis (38.4%).
 
-## 7. Repository Structure
+## Quality assurance
 
-```text
-aerospace-supplier-intelligence/
-├── index.html                 Application entry point
-├── data/                      Six source CSV files (read-only)
-├── docs/
-│   ├── project-charter.md
-│   ├── architecture.md        v2.0 – approved architecture
-│   ├── decision-log.md        v2.5 – decision register
-│   ├── development-roadmap.md
-│   ├── data-model.md          v2.0 – implemented data model
-│   └── kpi-dictionary.md      v2.3 – KPI definitions
-├── src/                       Application code (CSS, JavaScript, pinned libraries)
-├── tests/                     Browser-based test pages, fixtures and stage test reports
-├── assets/                    Screenshots and images
-├── .gitignore
-└── README.md
-```
+**274 automated browser tests**, all passing in Chrome at release. Each suite is an ordinary web page that shows pass or fail:
 
-## 8. Development Roadmap
+| Suite | Tests | Covers |
+|---|---:|---|
+| [`tests/data-layer-tests.html`](tests/data-layer-tests.html) | 54 | Loading, typing, the 17 controls, each control's ability to detect an injected fault |
+| [`tests/kpi-tests.html`](tests/kpi-tests.html) | 88 | Every KPI against values calculated independently of the dashboard code, boundaries and governance rules |
+| [`tests/dashboard-tests.html`](tests/dashboard-tests.html) | 38 | Executive dashboard, navigation, failure handling |
+| [`tests/supplier-tests.html`](tests/supplier-tests.html) | 44 | Supplier comparison, sorting, filtering, detail, sample-size rule |
+| [`tests/procurement-tests.html`](tests/procurement-tests.html) | 33 | Bridge, ageing, concentration, commitment table, expediting register |
+| [`tests/inventory-tests.html`](tests/inventory-tests.html) | 17 | Inventory KPIs, stock bases, material table |
 
-| Phase | Description | Status |
-|---|---|---|
-| Phase 0 | Project foundation and documentation | Completed |
-| Phase 1 | Requirements, architecture validation and data design | Completed (Data Model v2.0, KPI Dictionary v2.3, Architecture v2.0) |
-| Phase 2 | Dashboard and application development | In progress |
-| Phase 3 | AI integration and procurement assistant | Planned – after Phase 2 validation |
-| Phase 4 | Testing, validation and security | Ongoing per stage; final review planned |
-| Phase 5 | Deployment and portfolio preparation | Planned |
+Each stage also included a mutation check: bugs were planted deliberately to confirm the tests catch them. Stage reports with screenshots are in [`tests/reports/`](tests/reports/).
 
-### Phase 2 build sequence
+All 274 tests also pass when run from the live site. Anyone can open the test pages above in a browser and run them.
 
-1. Decision log and documentation updates
-2. Data layer: loader, schema handling and all 17 validation controls
-3. KPI engine and browser-based KPI tests
-4. Executive Dashboard
-5. Supplier Performance
-6. Procurement Intelligence
-7. Inventory Intelligence
-8. GitHub Pages deployment and live-site verification
+**Testing limits:** automated tests ran in Chrome. Firefox, Safari and physical devices were not part of the automated runs. Live-site checks are recorded in [`tests/reports/stage-08-deployment.md`](tests/reports/stage-08-deployment.md).
 
-Each stage is committed separately with a test report in `tests/reports/`.
+## Not supported by the data (by design)
 
-## 9. Project Documentation
+OTIF and complete PO-line OTD; invoiced spend; purchase price variance and savings; composite, financial or continuity supplier risk; inventory trends. Each appears in an on-screen "not supported" list with its reason, instead of an estimated figure.
 
-- [Project Charter](docs/project-charter.md) – Objectives, scope and governance.
-- [Technical Architecture](docs/architecture.md) – Approved application architecture (v2.0).
-- [Decision Log](docs/decision-log.md) – Approved decisions and rationale (v2.5).
-- [Development Roadmap](docs/development-roadmap.md) – Phases and milestones.
-- [Data Model](docs/data-model.md) – Datasets, fields, keys and validation controls (v2.0).
-- [KPI Dictionary](docs/kpi-dictionary.md) – KPI definitions, formulas and limitations (v2.3).
+## Roadmap
 
-Where the charter or roadmap differ from later approved decisions (technology stack, five-module scope), the decision log takes precedence.
+- AI procurement assistant answering questions from validated KPI results, through a secure backend (deferred).
+- CSV export of the expediting register (deferred, DEC-031).
 
-## 10. Data and Security
-
-The project does not use or publish:
-
-- Confidential aerospace supplier information.
-- Proprietary company procurement records.
-- Restricted supplier financial information.
-- Personal or sensitive business information.
-- API keys, passwords or authentication credentials.
-
-The future AI assistant will call any AI service only through a secure backend. API keys will never appear in browser code or in this repository.
-
-AI-generated content will clearly distinguish dataset values, rule-based calculations and AI interpretation, and must not invent supplier performance results.
-
-## 11. Development Governance
+## Project and governance
 
 | Role | Responsibility |
 |---|---|
-| Project Owner | Project decisions and final approval |
-| ChatGPT | Project architecture and independent quality review |
-| Claude | Implementation, testing and code review |
-| GitHub | Authoritative repository and version control |
+| Project Owner | Scope, decisions and approval of every stage |
+| ChatGPT | Architecture and independent quality review |
+| Claude | Implementation and testing |
 
-A feature is described as tested only when a test has actually been run and its result recorded.
-
-## 12. Current Project Status
-
-**Current Phase:** Phase 2 – Application Development  
-**Development Budget:** Zero cost
-
-**Completed**
-
-- Data Model v2.0 and six synthetic CSV datasets.
-- KPI Dictionary v2.3.
-- Repository audit (2026-11-13): all 17 data-model controls pass on the source data.
-- Architecture v2.0 and Decision Log v2.5.
-- Data layer: CSV loader, schema typing (blank stays blank) and all 17 Data Model validation controls, with browser tests ([Stage 2 test report](tests/reports/stage-02-data-layer.md)).
-
-- KPI engine implementing KPI Dictionary v2.3, verified against independently calculated values ([Stage 3 test report](tests/reports/stage-03-kpi-engine.md)).
-
-- Executive Dashboard and application shell ([Stage 4 test report](tests/reports/stage-04-executive-dashboard.md)).
-
-- Supplier Performance module ([Stage 5 test report](tests/reports/stage-05-supplier-performance.md)).
-
-- Procurement Intelligence module ([Stage 6 test report](tests/reports/stage-06-procurement-intelligence.md)).
-
-**Next**
-
-- Inventory Intelligence module ([Stage 7 test report](tests/reports/stage-07-inventory-intelligence.md)).
-- GitHub Pages deployment and live validation (Stage 8).
-
-The live dashboard link and screenshots will be added once the first module is deployed and verified.
-
-## 13. Project Vision
-
-To demonstrate how aerospace procurement professionals can combine industry expertise, data governance and modern digital technology to build practical supplier intelligence and supply chain decision-support tools.
+Every rule that affects a number, such as the OTD bases, the inventory basis, the PO bridge, concentration, the sample-size threshold and the ageing buckets, is recorded with its approval in the [Decision Log](docs/decision-log.md).
 
 ---
 
-**Project Classification:** Independent Professional Technology Portfolio Project  
-**Data Classification:** Synthetic Demonstration Data  
-**Document Version:** 1.2  
-**Repository:** aerospace-supplier-intelligence
+**Classification:** Independent portfolio project, synthetic data. **Version:** 1.0 (first public release).
