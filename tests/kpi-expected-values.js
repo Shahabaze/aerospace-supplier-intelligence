@@ -2,7 +2,7 @@
  * Expected KPI values for tests/kpi-tests.js.
  *
  * Calculated independently during development (2026-11-13) by a separate script that reads the
- * six CSV files directly and applies the KPI Dictionary v2.2 formulas. That script is not part of
+ * six CSV files directly and applies the KPI Dictionary formulas (v2.2, extended for v2.3 in Stage 6). That script is not part of
  * the application and does not share any code with src/js/kpis.js, so these values are an
  * independent check, not a copy of the JavaScript output.
  *
@@ -941,4 +941,904 @@ export const EXPECTED_SUPPLIERS = Object.freeze({
     "SUP-024": 1,
     "SUP-025": 3
   }
+});
+
+/**
+ * Stage 6 additions (procurement intelligence, KPI Dictionary v2.3), calculated by the same
+ * independent script. As-of date 2026-10-31. Bucket "181+" = over 180 days.
+ */
+export const EXPECTED_PROCUREMENT = Object.freeze({
+ "gross": 12550378.2,
+ "cancelled": 1072369,
+ "net": 11478009.2,
+ "received": 2621523.29,
+ "open": 8856485.91,
+ "overdue": 6898446.46,
+ "overdue_lines": 51,
+ "not_yet_due": 1958039.45,
+ "not_yet_due_lines": 12,
+ "buckets": {
+  "1-30": {
+   "lines": 4,
+   "value": 914291.6
+  },
+  "31-90": {
+   "lines": 10,
+   "value": 2923291.8
+  },
+  "91-180": {
+   "lines": 12,
+   "value": 2197476.06
+  },
+  "181+": {
+   "lines": 25,
+   "value": 863386.9999999999
+  }
+ },
+ "max_days_overdue": 327,
+ "overdue_no_receipt": 28,
+ "gap": {
+  "later": 66,
+  "same": 5,
+  "earlier": 29,
+  "mean": 2.46,
+  "max": 8,
+  "min": -3,
+  "n": 100
+ },
+ "suppliers": {
+  "SUP-001": {
+   "lines": 4,
+   "gross": 478515,
+   "cancelled": 136800,
+   "net": 341715,
+   "received": 173479.5,
+   "open": 168235.5,
+   "open_lines": 3,
+   "overdue_lines": 3,
+   "overdue": 168235.5,
+   "oldest": 325,
+   "gap_mean": -0.5,
+   "gap_later": 1
+  },
+  "SUP-002": {
+   "lines": 4,
+   "gross": 1686345,
+   "cancelled": 23280,
+   "net": 1663065,
+   "received": 181584,
+   "open": 1481481,
+   "open_lines": 3,
+   "overdue_lines": 3,
+   "overdue": 1481481,
+   "oldest": 278,
+   "gap_mean": -1,
+   "gap_later": 1
+  },
+  "SUP-003": {
+   "lines": 4,
+   "gross": 60144,
+   "cancelled": 10920,
+   "net": 49224,
+   "received": 15028.44,
+   "open": 34195.56,
+   "open_lines": 3,
+   "overdue_lines": 3,
+   "overdue": 34195.56,
+   "oldest": 327,
+   "gap_mean": 2.25,
+   "gap_later": 3
+  },
+  "SUP-004": {
+   "lines": 4,
+   "gross": 690370,
+   "cancelled": 313100,
+   "net": 377270,
+   "received": 0,
+   "open": 377270,
+   "open_lines": 3,
+   "overdue_lines": 2,
+   "overdue": 189410,
+   "oldest": 266,
+   "gap_mean": 5,
+   "gap_later": 4
+  },
+  "SUP-005": {
+   "lines": 4,
+   "gross": 53039.5,
+   "cancelled": 37370,
+   "net": 15669.5,
+   "received": 15669.5,
+   "open": 0,
+   "open_lines": 0,
+   "overdue_lines": 0,
+   "overdue": 0,
+   "oldest": null,
+   "gap_mean": 5.25,
+   "gap_later": 4
+  },
+  "SUP-006": {
+   "lines": 4,
+   "gross": 165880,
+   "cancelled": 38425,
+   "net": 127455,
+   "received": 125947,
+   "open": 1508,
+   "open_lines": 1,
+   "overdue_lines": 1,
+   "overdue": 1508,
+   "oldest": 94,
+   "gap_mean": 4.25,
+   "gap_later": 4
+  },
+  "SUP-007": {
+   "lines": 4,
+   "gross": 3184775,
+   "cancelled": 0,
+   "net": 3184775,
+   "received": 711880,
+   "open": 2472895,
+   "open_lines": 4,
+   "overdue_lines": 3,
+   "overdue": 2198170,
+   "oldest": 211,
+   "gap_mean": 2.75,
+   "gap_later": 3
+  },
+  "SUP-008": {
+   "lines": 4,
+   "gross": 2803320,
+   "cancelled": 0,
+   "net": 2803320,
+   "received": 382200,
+   "open": 2421120,
+   "open_lines": 3,
+   "overdue_lines": 2,
+   "overdue": 1672320,
+   "oldest": 183,
+   "gap_mean": 2.25,
+   "gap_later": 3
+  },
+  "SUP-009": {
+   "lines": 4,
+   "gross": 80784,
+   "cancelled": 50320,
+   "net": 30464,
+   "received": 0,
+   "open": 30464,
+   "open_lines": 2,
+   "overdue_lines": 1,
+   "overdue": 13463.999999999998,
+   "oldest": 289,
+   "gap_mean": 2.25,
+   "gap_later": 2
+  },
+  "SUP-010": {
+   "lines": 4,
+   "gross": 338325,
+   "cancelled": 78000,
+   "net": 260325,
+   "received": 205627.5,
+   "open": 54697.5,
+   "open_lines": 1,
+   "overdue_lines": 1,
+   "overdue": 54697.5,
+   "oldest": 263,
+   "gap_mean": 4.75,
+   "gap_later": 4
+  },
+  "SUP-011": {
+   "lines": 4,
+   "gross": 10583,
+   "cancelled": 3876,
+   "net": 6707,
+   "received": 2375,
+   "open": 4332,
+   "open_lines": 2,
+   "overdue_lines": 2,
+   "overdue": 4332,
+   "oldest": 198,
+   "gap_mean": 2.5,
+   "gap_later": 3
+  },
+  "SUP-012": {
+   "lines": 4,
+   "gross": 894240,
+   "cancelled": 47840,
+   "net": 846400,
+   "received": 0,
+   "open": 846400,
+   "open_lines": 3,
+   "overdue_lines": 2,
+   "overdue": 368000,
+   "oldest": 218,
+   "gap_mean": 4,
+   "gap_later": 3
+  },
+  "SUP-013": {
+   "lines": 4,
+   "gross": 56625,
+   "cancelled": 0,
+   "net": 56625,
+   "received": 38561.25,
+   "open": 18063.75,
+   "open_lines": 2,
+   "overdue_lines": 1,
+   "overdue": 12000,
+   "oldest": 243,
+   "gap_mean": 3.75,
+   "gap_later": 3
+  },
+  "SUP-014": {
+   "lines": 4,
+   "gross": 76052.5,
+   "cancelled": 0,
+   "net": 76052.5,
+   "received": 7363.1,
+   "open": 68689.4,
+   "open_lines": 4,
+   "overdue_lines": 4,
+   "overdue": 68689.4,
+   "oldest": 270,
+   "gap_mean": 3.75,
+   "gap_later": 3
+  },
+  "SUP-015": {
+   "lines": 4,
+   "gross": 63728,
+   "cancelled": 12896,
+   "net": 50832,
+   "received": 24268.8,
+   "open": 26563.2,
+   "open_lines": 2,
+   "overdue_lines": 2,
+   "overdue": 26563.2,
+   "oldest": 264,
+   "gap_mean": 1.25,
+   "gap_later": 3
+  },
+  "SUP-016": {
+   "lines": 4,
+   "gross": 719750,
+   "cancelled": 0,
+   "net": 719750,
+   "received": 458750,
+   "open": 261000,
+   "open_lines": 2,
+   "overdue_lines": 2,
+   "overdue": 261000,
+   "oldest": 250,
+   "gap_mean": 4.75,
+   "gap_later": 3
+  },
+  "SUP-017": {
+   "lines": 4,
+   "gross": 180922.5,
+   "cancelled": 0,
+   "net": 180922.5,
+   "received": 84280,
+   "open": 96642.5,
+   "open_lines": 2,
+   "overdue_lines": 1,
+   "overdue": 53212.5,
+   "oldest": 39,
+   "gap_mean": 3,
+   "gap_later": 3
+  },
+  "SUP-018": {
+   "lines": 4,
+   "gross": 10115,
+   "cancelled": 0,
+   "net": 10115,
+   "received": 1802,
+   "open": 8313,
+   "open_lines": 3,
+   "overdue_lines": 3,
+   "overdue": 8313,
+   "oldest": 280,
+   "gap_mean": 1.5,
+   "gap_later": 2
+  },
+  "SUP-019": {
+   "lines": 4,
+   "gross": 55442,
+   "cancelled": 6042,
+   "net": 49400,
+   "received": 13946,
+   "open": 35454,
+   "open_lines": 2,
+   "overdue_lines": 2,
+   "overdue": 35454,
+   "oldest": 264,
+   "gap_mean": 5,
+   "gap_later": 3
+  },
+  "SUP-020": {
+   "lines": 4,
+   "gross": 535852.5,
+   "cancelled": 283050,
+   "net": 252802.5,
+   "received": 58478.5,
+   "open": 194324,
+   "open_lines": 2,
+   "overdue_lines": 1,
+   "overdue": 7474,
+   "oldest": 56,
+   "gap_mean": 1,
+   "gap_later": 2
+  },
+  "SUP-021": {
+   "lines": 4,
+   "gross": 4750.2,
+   "cancelled": 2226,
+   "net": 2524.2,
+   "received": 1239,
+   "open": 1285.2,
+   "open_lines": 2,
+   "overdue_lines": 1,
+   "overdue": 411.6,
+   "oldest": 275,
+   "gap_mean": 0.5,
+   "gap_later": 2
+  },
+  "SUP-022": {
+   "lines": 4,
+   "gross": 212660,
+   "cancelled": 28224,
+   "net": 184436,
+   "received": 34535.2,
+   "open": 149900.8,
+   "open_lines": 3,
+   "overdue_lines": 3,
+   "overdue": 149900.8,
+   "oldest": 222,
+   "gap_mean": 4,
+   "gap_later": 4
+  },
+  "SUP-023": {
+   "lines": 4,
+   "gross": 149910,
+   "cancelled": 0,
+   "net": 149910,
+   "received": 79361.1,
+   "open": 70548.9,
+   "open_lines": 4,
+   "overdue_lines": 3,
+   "overdue": 62190.8,
+   "oldest": 197,
+   "gap_mean": -1.75,
+   "gap_later": 0
+  },
+  "SUP-024": {
+   "lines": 4,
+   "gross": 32760,
+   "cancelled": 0,
+   "net": 32760,
+   "received": 853.5,
+   "open": 31906.5,
+   "open_lines": 4,
+   "overdue_lines": 3,
+   "overdue": 26704.5,
+   "oldest": 242,
+   "gap_mean": -0.75,
+   "gap_later": 1
+  },
+  "SUP-025": {
+   "lines": 4,
+   "gross": 5490,
+   "cancelled": 0,
+   "net": 5490,
+   "received": 4293.9,
+   "open": 1196.1,
+   "open_lines": 3,
+   "overdue_lines": 2,
+   "overdue": 719.1,
+   "oldest": 252,
+   "gap_mean": 1.75,
+   "gap_later": 2
+  }
+ },
+ "pareto": [
+  [
+   "SUP-007",
+   27.74675420193948,
+   27.74675420193948
+  ],
+  [
+   "SUP-008",
+   24.423399137892314,
+   52.1701533398318
+  ],
+  [
+   "SUP-002",
+   14.48914154904145,
+   66.65929488887325
+  ],
+  [
+   "SUP-012",
+   7.374101076691941,
+   74.03339596556519
+  ],
+  [
+   "SUP-016",
+   6.270686731981362,
+   80.30408269754655
+  ],
+  [
+   "SUP-004",
+   3.2868940373388096,
+   83.59097673488536
+  ],
+  [
+   "SUP-001",
+   2.977127775781884,
+   86.56810451066724
+  ],
+  [
+   "SUP-010",
+   2.268032682880233,
+   88.83613719354747
+  ],
+  [
+   "SUP-020",
+   2.2024943140836655,
+   91.03863150763114
+  ],
+  [
+   "SUP-022",
+   1.6068640195897388,
+   92.64549552722087
+  ],
+  [
+   "SUP-017",
+   1.5762533105479652,
+   94.22174883776884
+  ],
+  [
+   "SUP-023",
+   1.306062727323829,
+   95.52781156509268
+  ],
+  [
+   "SUP-006",
+   1.110427756060694,
+   96.63823932115336
+  ],
+  [
+   "SUP-014",
+   0.662593126341108,
+   97.30083244749447
+  ],
+  [
+   "SUP-013",
+   0.49333468037296924,
+   97.79416712786744
+  ],
+  [
+   "SUP-015",
+   0.4428642555888525,
+   98.2370313834563
+  ],
+  [
+   "SUP-019",
+   0.43038822446666103,
+   98.66741960792297
+  ],
+  [
+   "SUP-003",
+   0.42885485751309554,
+   99.09627446543607
+  ],
+  [
+   "SUP-024",
+   0.28541534885683834,
+   99.38168981429291
+  ],
+  [
+   "SUP-009",
+   0.2654118799625984,
+   99.64710169425551
+  ],
+  [
+   "SUP-005",
+   0.13651757658462235,
+   99.78361927084013
+  ],
+  [
+   "SUP-018",
+   0.0881250382688315,
+   99.87174430910896
+  ],
+  [
+   "SUP-011",
+   0.0584334781679736,
+   99.93017778727693
+  ],
+  [
+   "SUP-025",
+   0.04783059417655808,
+   99.97800838145349
+  ],
+  [
+   "SUP-021",
+   0.021991618546533313,
+   100.00000000000003
+  ]
+ ],
+ "suppliers_for_80": 5,
+ "seg_category": {
+  "Machined Components": {
+   "lines": 4,
+   "net": 341715,
+   "open": 168235.5,
+   "overdue": 168235.5,
+   "overdue_lines": 3
+  },
+  "Engine Components": {
+   "lines": 4,
+   "net": 1663065,
+   "open": 1481481,
+   "overdue": 1481481,
+   "overdue_lines": 3
+  },
+  "Raw Materials": {
+   "lines": 12,
+   "net": 155249,
+   "open": 87713.31,
+   "overdue": 81649.56,
+   "overdue_lines": 6
+  },
+  "Avionics": {
+   "lines": 4,
+   "net": 377270,
+   "open": 377270,
+   "overdue": 189410,
+   "overdue_lines": 2
+  },
+  "Aerospace Fasteners": {
+   "lines": 8,
+   "net": 91722,
+   "open": 68689.4,
+   "overdue": 68689.4,
+   "overdue_lines": 4
+  },
+  "Composite Materials": {
+   "lines": 4,
+   "net": 127455,
+   "open": 1508,
+   "overdue": 1508,
+   "overdue_lines": 1
+  },
+  "Landing Gear Components": {
+   "lines": 4,
+   "net": 3184775,
+   "open": 2472895,
+   "overdue": 2198170,
+   "overdue_lines": 3
+  },
+  "Thermal Management": {
+   "lines": 4,
+   "net": 2803320,
+   "open": 2421120,
+   "overdue": 1672320,
+   "overdue_lines": 2
+  },
+  "Castings and Forgings": {
+   "lines": 8,
+   "net": 180374,
+   "open": 101012.90000000001,
+   "overdue": 75654.8,
+   "overdue_lines": 4
+  },
+  "Hydraulic Components": {
+   "lines": 4,
+   "net": 260325,
+   "open": 54697.5,
+   "overdue": 54697.5,
+   "overdue_lines": 1
+  },
+  "Electrical Components": {
+   "lines": 4,
+   "net": 6707,
+   "open": 4332,
+   "overdue": 4332,
+   "overdue_lines": 2
+  },
+  "Actuation Systems": {
+   "lines": 4,
+   "net": 846400,
+   "open": 846400,
+   "overdue": 368000,
+   "overdue_lines": 2
+  },
+  "Cabin Components": {
+   "lines": 4,
+   "net": 50832,
+   "open": 26563.2,
+   "overdue": 26563.2,
+   "overdue_lines": 2
+  },
+  "Sensors and Instrumentation": {
+   "lines": 4,
+   "net": 719750,
+   "open": 261000,
+   "overdue": 261000,
+   "overdue_lines": 2
+  },
+  "Structural Components": {
+   "lines": 4,
+   "net": 180922.5,
+   "open": 96642.5,
+   "overdue": 53212.5,
+   "overdue_lines": 1
+  },
+  "Special Process Services": {
+   "lines": 4,
+   "net": 10115,
+   "open": 8313,
+   "overdue": 8313,
+   "overdue_lines": 3
+  },
+  "Bearings": {
+   "lines": 4,
+   "net": 252802.5,
+   "open": 194324,
+   "overdue": 7474,
+   "overdue_lines": 1
+  },
+  "Surface Treatment": {
+   "lines": 4,
+   "net": 2524.2,
+   "open": 1285.2,
+   "overdue": 411.6,
+   "overdue_lines": 1
+  },
+  "Electrical Assemblies": {
+   "lines": 4,
+   "net": 184436,
+   "open": 149900.8,
+   "overdue": 149900.8,
+   "overdue_lines": 3
+  },
+  "Polymer Components": {
+   "lines": 4,
+   "net": 32760,
+   "open": 31906.5,
+   "overdue": 26704.5,
+   "overdue_lines": 3
+  },
+  "Logistics and Packaging": {
+   "lines": 4,
+   "net": 5490,
+   "open": 1196.1,
+   "overdue": 719.1,
+   "overdue_lines": 2
+  }
+ },
+ "seg_country": {
+  "United States": {
+   "lines": 12,
+   "net": 414009.5,
+   "open": 186299.25,
+   "overdue": 180235.5,
+   "overdue_lines": 4
+  },
+  "United Kingdom": {
+   "lines": 4,
+   "net": 1663065,
+   "open": 1481481,
+   "overdue": 1481481,
+   "overdue_lines": 3
+  },
+  "Germany": {
+   "lines": 4,
+   "net": 49224,
+   "open": 34195.56,
+   "overdue": 34195.56,
+   "overdue_lines": 3
+  },
+  "France": {
+   "lines": 4,
+   "net": 377270,
+   "open": 377270,
+   "overdue": 189410,
+   "overdue_lines": 2
+  },
+  "Canada": {
+   "lines": 4,
+   "net": 127455,
+   "open": 1508,
+   "overdue": 1508,
+   "overdue_lines": 1
+  },
+  "Italy": {
+   "lines": 4,
+   "net": 3184775,
+   "open": 2472895,
+   "overdue": 2198170,
+   "overdue_lines": 3
+  },
+  "Japan": {
+   "lines": 4,
+   "net": 2803320,
+   "open": 2421120,
+   "overdue": 1672320,
+   "overdue_lines": 2
+  },
+  "India": {
+   "lines": 4,
+   "net": 30464,
+   "open": 30464,
+   "overdue": 13463.999999999998,
+   "overdue_lines": 1
+  },
+  "Netherlands": {
+   "lines": 4,
+   "net": 260325,
+   "open": 54697.5,
+   "overdue": 54697.5,
+   "overdue_lines": 1
+  },
+  "Singapore": {
+   "lines": 8,
+   "net": 12197,
+   "open": 5528.1,
+   "overdue": 5051.1,
+   "overdue_lines": 4
+  },
+  "Sweden": {
+   "lines": 4,
+   "net": 846400,
+   "open": 846400,
+   "overdue": 368000,
+   "overdue_lines": 2
+  },
+  "Spain": {
+   "lines": 4,
+   "net": 76052.5,
+   "open": 68689.4,
+   "overdue": 68689.4,
+   "overdue_lines": 4
+  },
+  "Poland": {
+   "lines": 4,
+   "net": 50832,
+   "open": 26563.2,
+   "overdue": 26563.2,
+   "overdue_lines": 2
+  },
+  "South Korea": {
+   "lines": 4,
+   "net": 719750,
+   "open": 261000,
+   "overdue": 261000,
+   "overdue_lines": 2
+  },
+  "Australia": {
+   "lines": 4,
+   "net": 180922.5,
+   "open": 96642.5,
+   "overdue": 53212.5,
+   "overdue_lines": 1
+  },
+  "Ireland": {
+   "lines": 4,
+   "net": 10115,
+   "open": 8313,
+   "overdue": 8313,
+   "overdue_lines": 3
+  },
+  "United Arab Emirates": {
+   "lines": 4,
+   "net": 49400,
+   "open": 35454,
+   "overdue": 35454,
+   "overdue_lines": 2
+  },
+  "Switzerland": {
+   "lines": 4,
+   "net": 252802.5,
+   "open": 194324,
+   "overdue": 7474,
+   "overdue_lines": 1
+  },
+  "Czech Republic": {
+   "lines": 4,
+   "net": 2524.2,
+   "open": 1285.2,
+   "overdue": 411.6,
+   "overdue_lines": 1
+  },
+  "Mexico": {
+   "lines": 4,
+   "net": 184436,
+   "open": 149900.8,
+   "overdue": 149900.8,
+   "overdue_lines": 3
+  },
+  "Brazil": {
+   "lines": 4,
+   "net": 149910,
+   "open": 70548.90000000001,
+   "overdue": 62190.8,
+   "overdue_lines": 3
+  },
+  "Malaysia": {
+   "lines": 4,
+   "net": 32760,
+   "open": 31906.5,
+   "overdue": 26704.5,
+   "overdue_lines": 3
+  }
+ },
+ "seg_tier": {
+  "Tier 1": {
+   "lines": 32,
+   "net": 7646102.5,
+   "open": 5856303,
+   "overdue": 4728468,
+   "overdue_lines": 17
+  },
+  "Tier 2": {
+   "lines": 68,
+   "net": 3831906.6999999997,
+   "open": 3000182.91,
+   "overdue": 2169978.46,
+   "overdue_lines": 34
+  }
+ },
+ "seg_criticality": {
+  "Critical": {
+   "lines": 16,
+   "net": 6035955,
+   "open": 4969011.5,
+   "overdue": 4215886.5,
+   "overdue_lines": 11
+  },
+  "High": {
+   "lines": 44,
+   "net": 2220417.5,
+   "open": 1138714.21,
+   "overdue": 689152.36,
+   "overdue_lines": 16
+  },
+  "Medium": {
+   "lines": 32,
+   "net": 3183386.6999999997,
+   "open": 2715657.6,
+   "overdue": 1965984,
+   "overdue_lines": 19
+  },
+  "Low": {
+   "lines": 8,
+   "net": 38250,
+   "open": 33102.6,
+   "overdue": 27423.6,
+   "overdue_lines": 5
+  }
+ },
+ "register_first5": [
+  [
+   "POL-00003",
+   327
+  ],
+  [
+   "POL-00001",
+   325
+  ],
+  [
+   "POL-00009",
+   289
+  ],
+  [
+   "POL-00018",
+   280
+  ],
+  [
+   "POL-00002",
+   278
+  ]
+ ],
+ "register_count": 63,
+ "avg_gross_line": 125503.78199999999
 });

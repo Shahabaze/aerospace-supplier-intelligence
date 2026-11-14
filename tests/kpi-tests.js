@@ -12,7 +12,7 @@ import { SCHEMA, DATASET_NAMES } from '../src/js/schema.js';
 import { loadAllDatasets, rowsOf } from '../src/js/data-loader.js';
 import { runValidation } from '../src/js/validation.js';
 import * as K from '../src/js/kpis.js';
-import { EXPECTED as E, EXPECTED_SUPPLIERS as ES } from './kpi-expected-values.js';
+import { EXPECTED as E, EXPECTED_SUPPLIERS as ES, EXPECTED_PROCUREMENT as EP } from './kpi-expected-values.js';
 
 const Papa = window.Papa;
 const DATA_PATH = '../data/';
@@ -353,6 +353,182 @@ test('Suppliers (Stage 5)', 'scopeToSupplier keeps only that supplier\'s transac
 
 test('Suppliers (Stage 5)', 'Unknown supplier returns null detail', async () => {
   assertEqual(K.supplierDetail(d, 'SUP-999', { asOfDate: AS_OF }), null);
+});
+
+/* ======================================================================
+ * Stage 6 – procurement intelligence (KPI Dictionary v2.3)
+ * ==================================================================== */
+
+/** A synthetic PO line for rule tests (in memory only). */
+function poLine(id, { ordered = 10, received = 0, cancelled = 0, price = 100, promised = '2026-10-01', requested = '2026-10-01', supplier = 'SUP-001', material = 'MAT-001' } = {}) {
+  return { po_id: `PO-${id}`, po_line_id: id, supplier_id: supplier, material_id: material, order_date: '2026-01-01', requested_delivery_date: requested, promised_delivery_date: promised, ordered_qty: ordered, unit_of_measure: 'EA', unit_price_usd: price, line_total_usd: ordered * price, received_qty: received, cancelled_qty: cancelled, open_qty: ordered - received - cancelled, po_status: 'Open' };
+}
+const onlyLines = (lines) => ({ ...d, purchase_orders: lines, delivery_transactions: [], supplier_quality: [] });
+const addDays = (iso, n) => { const t = new Date(`${iso}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
+
+test('Procurement (Stage 6)', '6.7 Received PO line value = $2,621,523.29', async () => assertClose(all.procurement.received.value, EP.received, CENT));
+
+test('Procurement (Stage 6)', '6.8 Overdue open PO value = $6,898,446.46 (51 lines); not yet due $1,958,039.45 (12 lines)', async () => {
+  const k = all.procurement.overdueOpen;
+  assertClose(k.value, EP.overdue, CENT);
+  assertEqual([k.n, k.notYetDueLines], [EP.overdue_lines, EP.not_yet_due_lines]);
+  assertClose(k.notYetDueValue, EP.not_yet_due, CENT);
+  assertEqual(k.sharePct.toFixed(1), '77.9');
+});
+
+test('Procurement (Stage 6)', '6.9 Bridge: all three identities reconcile to the cent', async () => {
+  const b = all.procurement.bridge;
+  assertClose(b.gross - b.cancelled, b.netActive, CENT, 'gross − cancelled');
+  assertClose(b.received + b.open, b.netActive, CENT, 'received + open');
+  assertClose(b.overdue + b.notYetDue, b.open, CENT, 'overdue + not yet due');
+  assert(b.reconciles && b.checks.length === 3, 'reconciliation flag');
+  for (const [k, e] of [['gross', 'gross'], ['cancelled', 'cancelled'], ['netActive', 'net'], ['received', 'received'], ['open', 'open'], ['overdue', 'overdue'], ['notYetDue', 'not_yet_due']]) assertClose(b[k], EP[e], CENT, k);
+});
+
+test('Procurement (Stage 6)', '6.9 Bridge values equal the existing KPIs 6.1, 6.1.1, 6.1.2 and 6.2', async () => {
+  const b = all.procurement.bridge;
+  assertEqual([b.gross, b.cancelled, b.netActive, b.open], [all.procurement.gross.value, all.procurement.cancelled.value, all.procurement.netActive.value, all.procurement.openCommitment.value]);
+});
+
+test('Procurement (Stage 6)', '4.4.1 Ageing: 4 / 10 / 12 / 25 lines with matching values; totals equal KPI 4.4 and 6.8', async () => {
+  const items = all.procurement.ageing.items;
+  assertEqual(items.map((i) => i.bucket), ['1-30', '31-90', '91-180', '181+']);
+  for (const i of items) {
+    assertEqual(i.lines, EP.buckets[i.bucket].lines, i.bucket);
+    assertClose(i.value, EP.buckets[i.bucket].value, CENT, i.bucket);
+  }
+  assertEqual(items.reduce((s, i) => s + i.lines, 0), all.delivery.overdueOpenPoLines.value);
+  assertClose(items.reduce((s, i) => s + i.value, 0), all.procurement.overdueOpen.value, CENT);
+  assertEqual(all.procurement.ageing.oldestDays, EP.max_days_overdue);
+});
+
+test('Procurement (Stage 6)', 'Ageing boundaries: 0 not overdue; 1 and 30 → 1–30; 31 and 90 → 31–90; 91 and 180 → 91–180; 181 → over 180', async () => {
+  const cases = [[-5, null], [0, null], [1, '1-30'], [30, '1-30'], [31, '31-90'], [90, '31-90'], [91, '91-180'], [180, '91-180'], [181, '181+'], [400, '181+']];
+  for (const [days, bucket] of cases) assertEqual(K.ageingBucket(days)?.id ?? null, bucket, `${days} days`);
+  // Same boundaries through the full calculation, with PO lines promised N days before the as-of date.
+  const lines = cases.map(([days], i) => poLine(`B-${i}`, { promised: addDays(AS_OF, -days) }));
+  const k = K.overdueAgeing(onlyLines(lines), { asOfDate: AS_OF });
+  assertEqual(k.items.map((i) => i.lines), [2, 2, 2, 2]);
+  assertEqual(k.items.find((i) => i.bucket === '1-30').poLines.sort(), ['B-2', 'B-3']);
+  assertEqual(k.items.find((i) => i.bucket === '181+').poLines.sort(), ['B-8', 'B-9']);
+  const reg = K.openPoRegister(onlyLines(lines), { asOfDate: AS_OF }).items;
+  assertEqual(reg.filter((r) => !r.overdue).map((r) => r.po_line_id).sort(), ['B-0', 'B-1'], 'promised on or after the as-of date is not yet due');
+});
+
+test('Procurement (Stage 6)', 'Ageing bucket definitions are contiguous, non-overlapping and match DEC-027 exactly', async () => {
+  assertEqual(K.AGEING_BUCKETS.map((b) => [b.id, b.min, b.max]), [['1-30', 1, 30], ['31-90', 31, 90], ['91-180', 91, 180], ['181+', 181, null]]);
+  K.AGEING_BUCKETS.forEach((b, i) => { if (i > 0) assertEqual(b.min, K.AGEING_BUCKETS[i - 1].max + 1, `${b.id} must start the day after the previous bucket ends`); });
+});
+
+test('Procurement (Stage 6)', 'As-of date: a line promised on the as-of date is not overdue; one day later it is 1 day overdue', async () => {
+  const line = poLine('A-1', { promised: '2026-10-31' });
+  assertEqual(K.overdueOpenPoValue(onlyLines([line]), { asOfDate: '2026-10-31' }).n, 0);
+  const next = K.openPoRegister(onlyLines([line]), { asOfDate: '2026-11-01' }).items[0];
+  assertEqual([next.overdue, next.daysPastPromised, next.bucket], [true, 1, '1-30']);
+});
+
+test('Procurement (Stage 6)', 'As-of date moved to 2025-10-31: nothing is overdue and all open value is not yet due', async () => {
+  const k = K.overdueOpenPoValue(d, { asOfDate: '2025-10-31' });
+  assertEqual(k.value, 0);
+  assertClose(k.notYetDueValue, EP.open, CENT);
+});
+
+test('Procurement (Stage 6)', 'Cancellation cases: zero, partial and full cancellation reconcile and are treated correctly', async () => {
+  const zero = poLine('C-0', { ordered: 10, received: 4, cancelled: 0 });
+  const part = poLine('C-P', { ordered: 10, received: 4, cancelled: 3 });
+  const full = poLine('C-F', { ordered: 10, received: 0, cancelled: 10 });
+  const b = K.poValueBridge(onlyLines([zero, part, full]), { asOfDate: AS_OF });
+  assertEqual([b.gross, b.cancelled, b.netActive, b.received, b.open, b.overdue], [3000, 1300, 1700, 800, 900, 900]);
+  assert(b.reconciles, 'bridge does not reconcile');
+  const rows = K.openPoRegister(onlyLines([zero, part, full]), { asOfDate: AS_OF }).items.map((r) => [r.po_line_id, r.open_qty, r.openValue]);
+  assertEqual(rows.sort(), [['C-0', 6, 600], ['C-P', 3, 300]], 'fully cancelled line must not appear as open');
+  const sup = K.supplierCommitmentRows(onlyLines([zero, part, full]), { asOfDate: AS_OF }).items.find((r) => r.supplier_id === 'SUP-001');
+  assertEqual([sup.grossValue, sup.cancelledValue, sup.netActiveValue, sup.openValue, sup.overdueLines], [3000, 1300, 1700, 900, 2]);
+});
+
+test('Procurement (Stage 6)', 'A fully cancelled line past its promised date is not counted as overdue', async () => {
+  const k = K.overdueOpenPoValue(onlyLines([poLine('F-1', { cancelled: 10, promised: '2025-01-01' })]), { asOfDate: AS_OF });
+  assertEqual([k.n, k.value], [0, 0]);
+});
+
+test('Procurement (Stage 6)', '4.7 Promise-to-request gap: 66 later, 5 same, 29 earlier; mean +2.46 days; range −3 to +8', async () => {
+  const g = all.procurement.promiseGap;
+  assertEqual([g.later, g.same, g.earlier, g.n, g.min, g.max, g.excluded], [EP.gap.later, EP.gap.same, EP.gap.earlier, EP.gap.n, EP.gap.min, EP.gap.max, 0]);
+  assertClose(g.value, EP.gap.mean, 1e-9);
+  assert(g.limitation.includes('currently recorded promised date') && g.limitation.includes('revisions'), g.limitation);
+});
+
+test('Procurement (Stage 6)', '4.7 Sign: promised after requested is positive; before is negative; blank date excluded', async () => {
+  const g = K.promiseToRequestGap(onlyLines([
+    poLine('G-1', { requested: '2026-05-01', promised: '2026-05-04' }),
+    poLine('G-2', { requested: '2026-05-10', promised: '2026-05-08' }),
+    { ...poLine('G-3'), promised_delivery_date: null },
+  ]));
+  assertEqual([g.later, g.earlier, g.min, g.max, g.n, g.excluded], [1, 1, -2, 3, 2, 1]);
+});
+
+test('Procurement (Stage 6)', 'Supplier commitment rows match independently for all 25 suppliers', async () => {
+  const bad = [];
+  for (const r of all.procurement.supplierRows.items) {
+    const e = EP.suppliers[r.supplier_id];
+    const pairs = [['poLines', r.poLines, e.lines], ['gross', r.grossValue, e.gross], ['cancelled', r.cancelledValue, e.cancelled], ['net', r.netActiveValue, e.net], ['received', r.receivedValue, e.received], ['open', r.openValue, e.open], ['openLines', r.openLines, e.open_lines], ['overdueLines', r.overdueLines, e.overdue_lines], ['overdue', r.overdueValue, e.overdue], ['oldest', r.oldestOverdueDays, e.oldest], ['gapLater', r.gapLater, e.gap_later]];
+    for (const [k, a, b] of pairs) if (!(a === b || (typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) < CENT))) bad.push(`${r.supplier_id} ${k}: ${a} vs ${b}`);
+    if (!(r.avgPromiseGapDays === e.gap_mean || Math.abs(r.avgPromiseGapDays - e.gap_mean) < 1e-9)) bad.push(`${r.supplier_id} gap mean`);
+  }
+  assertEqual(bad, []);
+});
+
+test('Procurement (Stage 6)', 'Supplier rows: default order net active descending; share equals KPI 6.4; cumulative reaches 100%; 5 suppliers for 80%', async () => {
+  const items = all.procurement.supplierRows.items;
+  assertEqual(items.map((i) => i.supplier_id).slice(0, 5), EP.pareto.slice(0, 5).map((p) => p[0]));
+  assert(items.every((it, i) => i === 0 || items[i - 1].netActiveValue >= it.netActiveValue), 'not sorted');
+  for (const it of items) assertClose(it.sharePct, conc(all, it.supplier_id).concentrationPct, 1e-9, it.supplier_id);
+  items.forEach((it, i) => assertClose(it.cumulativeSharePct, EP.pareto[i][2], 1e-9, `cumulative ${it.supplier_id}`));
+  assertClose(items[items.length - 1].cumulativeSharePct, 100, 1e-9);
+  assertEqual(all.procurement.supplierRows.suppliersFor80Pct, EP.suppliers_for_80);
+});
+
+test('Procurement (Stage 6)', 'Segments by category, country, tier and criticality match and reconcile to totals', async () => {
+  for (const [key, ek] of [['byCategory', 'seg_category'], ['byCountry', 'seg_country'], ['byTier', 'seg_tier'], ['byCriticality', 'seg_criticality']]) {
+    const items = all.procurement[key].items;
+    assertEqual(items.length, Object.keys(EP[ek]).length, `${key} groups`);
+    for (const g of items) {
+      const e = EP[ek][g.segment];
+      assertEqual([g.poLines, g.overdueLines], [e.lines, e.overdue_lines], `${key} ${g.segment}`);
+      assertClose(g.netActiveValue, e.net, CENT, `${key} ${g.segment} net`);
+      assertClose(g.openValue, e.open, CENT, `${key} ${g.segment} open`);
+      assertClose(g.overdueValue, e.overdue, CENT, `${key} ${g.segment} overdue`);
+    }
+    assertClose(items.reduce((s, g) => s + g.netActiveValue, 0), EP.net, CENT, `${key} net total`);
+    assertClose(items.reduce((s, g) => s + g.overdueValue, 0), EP.overdue, CENT, `${key} overdue total`);
+  }
+});
+
+test('Procurement (Stage 6)', 'Critical suppliers (suppliers.csv) carry $4,215,886.50 of overdue open value', async () => {
+  const c = all.procurement.byCriticality.items.find((g) => g.segment === 'Critical');
+  assertClose(c.overdueValue, 4215886.5, CENT);
+  assertEqual(c.overdueSharePct.toFixed(1), '61.1');
+});
+
+test('Procurement (Stage 6)', 'Register: 63 open lines, most overdue first (POL-00003 327 days), 28 overdue with no receipt', async () => {
+  const r = all.procurement.register;
+  assertEqual(r.items.length, EP.register_count);
+  assertEqual(r.items.slice(0, 5).map((i) => [i.po_line_id, i.daysPastPromised]), EP.register_first5);
+  assertEqual(r.overdueNoReceipt, EP.overdue_no_receipt);
+  assert(r.items.every((i) => (i.overdue ? i.daysPastPromised >= 1 && i.bucket !== 'not-due' : i.daysPastPromised <= 0 && i.bucket === 'not-due')), 'bucket and overdue flag inconsistent');
+  assertClose(r.items.reduce((s, i) => s + i.openValue, 0), EP.open, CENT);
+});
+
+test('Procurement (Stage 6)', 'Grain: extra delivery and inspection rows do not change any procurement value', async () => {
+  const extra = { ...d.delivery_transactions[0], delivery_id: 'DEL-X9' };
+  const m = withChanges(d, 'delivery_transactions', { add: [extra, extra, extra] });
+  const b = K.poValueBridge(m, { asOfDate: AS_OF });
+  assertEqual([b.gross, b.received, b.open, b.overdue], [all.procurement.bridge.gross, all.procurement.bridge.received, all.procurement.bridge.open, all.procurement.bridge.overdue]);
+});
+
+test('Procurement (Stage 6)', '6.5 is labelled "Average gross PO line value" ($125,503.78)', async () => {
+  assertEqual(all.procurement.averageLine.label, 'Average gross PO line value');
+  assertClose(all.procurement.averageLine.value, EP.avg_gross_line, CENT);
 });
 
 /* ======================================================================

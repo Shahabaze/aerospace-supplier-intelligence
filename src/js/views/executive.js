@@ -279,7 +279,7 @@ function supportingPanels(m) {
           <summary><span>Show figures as a table</span></summary>
           <div class="notice__body"><div class="table-wrap"><table class="data" data-table="concentration"><thead><tr><th>Supplier</th><th class="num">Share</th></tr></thead><tbody>${tableRows}</tbody></table></div></div>
         </details>
-        <p class="kpi__note">KPI 6.4 (KPI Dictionary v2.2): supplier net active PO line value divided by total net active PO line value. Concentration of PO value, not of invoiced spend.</p>
+        <p class="kpi__note">KPI 6.4 (net active basis since KPI Dictionary v2.2): supplier net active PO line value divided by total net active PO line value. Concentration of PO value, not of invoiced spend.</p>
       </div>
       <div class="panel" data-panel="supplier-base">
         <h3>Supplier base</h3>

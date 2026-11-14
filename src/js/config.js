@@ -34,7 +34,7 @@ export const CONFIG = Object.freeze({
   /** Governing document versions, shown in the application footer. */
   documentVersions: Object.freeze({
     dataModel: '2.0',
-    kpiDictionary: '2.2',
+    kpiDictionary: '2.3',
     architecture: '2.0',
   }),
 });

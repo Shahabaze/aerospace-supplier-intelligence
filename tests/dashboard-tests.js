@@ -135,7 +135,7 @@ test('Labels', 'Title block shows reporting period, as-of date, validation and d
   assertEqual(tb('validation'), '17 of 17 controls passed');
   assertEqual(tb('source'), '6 CSV files, 339 records');
   const t = doc.querySelector('.title-block').textContent;
-  assert(t.includes('Version 2.0') && t.includes('Version 2.2'), 'document versions missing');
+  assert(t.includes('Version 2.0') && t.includes(`Version ${CONFIG.documentVersions.kpiDictionary}`), 'document versions missing');
 });
 
 test('Labels', 'Synthetic-data statement is visible in header and footer', async () => {

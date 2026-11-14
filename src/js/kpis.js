@@ -1,5 +1,5 @@
 /**
- * KPI engine – implements docs/kpi-dictionary.md Version 2.2.
+ * KPI engine – implements docs/kpi-dictionary.md Version 2.3.
  *
  * Every function is "pure": it takes typed data (from data-loader.js) and returns a result
  * object. Nothing here touches the screen or changes the data.
@@ -301,7 +301,291 @@ export function supplierCommitment(d) {
 
 export function averagePoLineValue(d) {
   const total = sum(d.purchase_orders, (r) => r.line_total_usd);
-  return kpi({ kpiId: '6.5', label: 'Average PO line value', value: d.purchase_orders.length ? total / d.purchase_orders.length : null, unit: 'USD', numerator: total, denominator: d.purchase_orders.length, n: d.purchase_orders.length, basis: 'Gross PO line value ÷ number of PO lines', status: CALC, limitation: PO_LIMITATION });
+  return kpi({ kpiId: '6.5', label: 'Average gross PO line value', value: d.purchase_orders.length ? total / d.purchase_orders.length : null, unit: 'USD', numerator: total, denominator: d.purchase_orders.length, n: d.purchase_orders.length, basis: 'Gross PO line value ÷ number of PO lines', status: CALC, limitation: PO_LIMITATION });
+}
+
+/* ======================================================================
+ * 6 (continued). Procurement intelligence – KPI Dictionary v2.3
+ * All at PO-line grain from purchase_orders.csv; no joins before aggregation.
+ * ==================================================================== */
+
+/** Whole calendar days from date text a to b (b − a). Both YYYY-MM-DD. */
+export function daysBetweenDates(a, b) {
+  const [ya, ma, da] = a.split('-').map(Number);
+  const [yb, mb, db] = b.split('-').map(Number);
+  return Math.round((Date.UTC(yb, mb - 1, db) - Date.UTC(ya, ma - 1, da)) / 86400000);
+}
+
+/** KPI 4.4.1 ageing buckets (DEC-027), inclusive day ranges. */
+export const AGEING_BUCKETS = Object.freeze([
+  Object.freeze({ id: '1-30', label: '1–30 days', min: 1, max: 30 }),
+  Object.freeze({ id: '31-90', label: '31–90 days', min: 31, max: 90 }),
+  Object.freeze({ id: '91-180', label: '91–180 days', min: 91, max: 180 }),
+  Object.freeze({ id: '181+', label: 'Over 180 days', min: 181, max: null }),
+]);
+
+/** Bucket for a number of days past the promised date; null when not overdue (≤ 0) or missing. */
+export function ageingBucket(daysPast) {
+  if (daysPast === null || daysPast === undefined || daysPast < 1) return null;
+  return AGEING_BUCKETS.find((b) => daysPast >= b.min && (b.max === null || daysPast <= b.max)) || null;
+}
+
+const openValue = (r) => r.open_qty * r.unit_price_usd;
+const isOpenLine = (r) => r.open_qty > 0;
+/** KPI 4.4 / 6.8 rule: open quantity and recorded promised date before the as-of date. */
+export const isOverdueLine = (r, asOfDate) => isOpenLine(r) && r.promised_delivery_date !== null && r.promised_delivery_date < asOfDate;
+const daysPastPromised = (r, asOfDate) => (r.promised_delivery_date === null ? null : daysBetweenDates(r.promised_delivery_date, asOfDate));
+
+export function receivedPoLineValue(d) {
+  return kpi({ kpiId: '6.7', label: 'Received PO line value', value: sum(d.purchase_orders, (r) => r.received_qty * r.unit_price_usd), unit: 'USD', n: d.purchase_orders.length, basis: 'Σ received_qty × unit_price_usd, PO-line grain', status: CALC, limitation: 'Received quantity at PO unit price; not invoiced or paid value. Includes receipts from events dated after the as-of date (DEC-017).' });
+}
+
+export function overdueOpenPoValue(d, { asOfDate }) {
+  const open = d.purchase_orders.filter(isOpenLine);
+  const overdue = open.filter((r) => isOverdueLine(r, asOfDate));
+  const notYetDue = open.filter((r) => !isOverdueLine(r, asOfDate));
+  const value = sum(overdue, openValue);
+  const openTotal = sum(open, openValue);
+  return kpi({
+    kpiId: '6.8',
+    label: 'Overdue open PO value',
+    value,
+    unit: 'USD',
+    numerator: value,
+    denominator: openTotal,
+    n: overdue.length,
+    basis: `Open quantity × unit price where the recorded promised date is before ${asOfDate}`,
+    asOfDate,
+    status: LIMITED,
+    limitation: 'Measured against the currently recorded promised date; original promises and revisions are not available. Not an invoice liability.',
+    sharePct: pct(value, openTotal),
+    notYetDueValue: sum(notYetDue, openValue),
+    notYetDueLines: notYetDue.length,
+  });
+}
+
+/** KPI 4.4.1 – overdue open PO lines and value by ageing bucket. */
+export function overdueAgeing(d, { asOfDate }) {
+  const items = AGEING_BUCKETS.map((b) => ({ bucket: b.id, label: b.label, minDays: b.min, maxDays: b.max, lines: 0, value: 0, poLines: [] }));
+  let oldest = null;
+  for (const r of d.purchase_orders) {
+    if (!isOverdueLine(r, asOfDate)) continue;
+    const days = daysPastPromised(r, asOfDate);
+    const b = ageingBucket(days);
+    const it = items.find((x) => x.bucket === b.id);
+    it.lines++;
+    it.value += openValue(r);
+    it.poLines.push(r.po_line_id);
+    oldest = oldest === null ? days : Math.max(oldest, days);
+  }
+  return kpi({
+    kpiId: '4.4.1',
+    label: 'Overdue open PO line ageing',
+    value: null,
+    n: items.reduce((t, i) => t + i.lines, 0),
+    basis: `Days past recorded promised date at ${asOfDate}; buckets 1–30, 31–90, 91–180, over 180 (inclusive)`,
+    asOfDate,
+    status: LIMITED,
+    limitation: 'Ageing is measured from the currently recorded promised date. Lines not yet due are excluded.',
+    oldestDays: oldest,
+    items,
+  });
+}
+
+/** KPI 6.9 – PO value bridge with reconciliation checks. */
+export function poValueBridge(d, { asOfDate }) {
+  const gross = sum(d.purchase_orders, (r) => r.line_total_usd);
+  const cancelled = sum(d.purchase_orders, (r) => r.cancelled_qty * r.unit_price_usd);
+  const netActive = sum(d.purchase_orders, netActiveLineValue);
+  const received = sum(d.purchase_orders, (r) => r.received_qty * r.unit_price_usd);
+  const open = sum(d.purchase_orders.filter(isOpenLine), openValue);
+  const overdue = sum(d.purchase_orders.filter((r) => isOverdueLine(r, asOfDate)), openValue);
+  const notYetDue = sum(d.purchase_orders.filter((r) => isOpenLine(r) && !isOverdueLine(r, asOfDate)), openValue);
+  const checks = [
+    { id: 'gross-cancelled-net', label: 'Gross − cancelled = net active', difference: gross - cancelled - netActive },
+    { id: 'net-received-open', label: 'Net active = received + open', difference: netActive - (received + open) },
+    { id: 'open-overdue-notdue', label: 'Open = overdue open + not yet due', difference: open - (overdue + notYetDue) },
+  ].map((c) => ({ ...c, reconciles: Math.abs(c.difference) < 0.005 }));
+  return kpi({
+    kpiId: '6.9',
+    label: 'PO value bridge',
+    value: null,
+    unit: 'USD',
+    n: d.purchase_orders.length,
+    asOfDate,
+    status: CALC,
+    limitation: 'PO line values, not invoiced or paid spend.',
+    gross,
+    cancelled,
+    netActive,
+    received,
+    open,
+    overdue,
+    notYetDue,
+    checks,
+    reconciles: checks.every((c) => c.reconciles),
+  });
+}
+
+/** KPI 4.7 – promise-to-request gap (promised − requested), current promise dates only. */
+export function promiseToRequestGap(d) {
+  const lines = d.purchase_orders.filter((r) => r.promised_delivery_date !== null && r.requested_delivery_date !== null);
+  const gaps = lines.map((r) => daysBetweenDates(r.requested_delivery_date, r.promised_delivery_date));
+  const dist = {};
+  for (const g of gaps) dist[g] = (dist[g] || 0) + 1;
+  return kpi({
+    kpiId: '4.7',
+    label: 'Promise-to-request gap',
+    value: avg(gaps),
+    unit: 'days',
+    n: gaps.length,
+    basis: 'Current promised date − requested date, all PO lines with both dates',
+    status: LIMITED,
+    limitation: 'Uses the currently recorded promised date. Original promises and promise revisions are not held in the data.',
+    later: gaps.filter((g) => g > 0).length,
+    same: gaps.filter((g) => g === 0).length,
+    earlier: gaps.filter((g) => g < 0).length,
+    excluded: d.purchase_orders.length - lines.length,
+    min: gaps.length ? Math.min(...gaps) : null,
+    max: gaps.length ? Math.max(...gaps) : null,
+    distribution: Object.entries(dist).map(([k, v]) => ({ days: Number(k), lines: v })).sort((a, b) => a.days - b.days),
+  });
+}
+
+/**
+ * Supplier commitment rows (KPI 6.3 gross and 6.4 net active side by side, DEC-032), with open,
+ * overdue, received value and promise gap per supplier. Default order: net active value, descending.
+ */
+export function supplierCommitmentRows(d, { asOfDate }) {
+  const totalNet = sum(d.purchase_orders, netActiveLineValue);
+  const blank = (s) => ({ supplier_id: s.supplier_id, supplier_name: s.supplier_name ?? null, criticality: s.criticality ?? null, country: s.country ?? null, supplier_tier: s.supplier_tier ?? null, poLines: 0, grossValue: 0, cancelledValue: 0, netActiveValue: 0, receivedValue: 0, openValue: 0, openLines: 0, overdueLines: 0, overdueValue: 0, oldestOverdueDays: null, gapSum: 0, gapN: 0, gapLater: 0 });
+  const rows = new Map(d.suppliers.map((s) => [s.supplier_id, blank(s)]));
+  for (const r of d.purchase_orders) {
+    if (!rows.has(r.supplier_id)) rows.set(r.supplier_id, blank({ supplier_id: r.supplier_id }));
+    const e = rows.get(r.supplier_id);
+    e.poLines++;
+    e.grossValue += r.line_total_usd;
+    e.cancelledValue += r.cancelled_qty * r.unit_price_usd;
+    e.netActiveValue += netActiveLineValue(r);
+    e.receivedValue += r.received_qty * r.unit_price_usd;
+    if (isOpenLine(r)) {
+      e.openLines++;
+      e.openValue += openValue(r);
+      if (isOverdueLine(r, asOfDate)) {
+        const days = daysPastPromised(r, asOfDate);
+        e.overdueLines++;
+        e.overdueValue += openValue(r);
+        e.oldestOverdueDays = e.oldestOverdueDays === null ? days : Math.max(e.oldestOverdueDays, days);
+      }
+    }
+    if (r.promised_delivery_date !== null && r.requested_delivery_date !== null) {
+      const g = daysBetweenDates(r.requested_delivery_date, r.promised_delivery_date);
+      e.gapSum += g;
+      e.gapN++;
+      if (g > 0) e.gapLater++;
+    }
+  }
+  const items = [...rows.values()]
+    .map(({ gapSum, gapN, ...e }) => ({ ...e, sharePct: pct(e.netActiveValue, totalNet), avgPromiseGapDays: gapN ? gapSum / gapN : null, gapLines: gapN }))
+    .sort((a, b) => b.netActiveValue - a.netActiveValue || a.supplier_id.localeCompare(b.supplier_id));
+  let cum = 0;
+  for (const it of items) {
+    cum += it.sharePct ?? 0;
+    it.cumulativeSharePct = it.sharePct === null ? null : cum;
+  }
+  const for80 = items.findIndex((i) => i.cumulativeSharePct !== null && i.cumulativeSharePct >= 80 - 1e-9);
+  return kpi({
+    kpiId: '6.3',
+    label: 'Supplier PO commitment (gross and net active)',
+    value: null,
+    unit: 'USD',
+    denominator: totalNet,
+    n: items.length,
+    basis: 'Gross (KPI 6.3) and net active (KPI 6.1.2) per supplier; share and cumulative share on net active (KPI 6.4)',
+    asOfDate,
+    status: CALC,
+    limitation: 'PO line values, not invoiced or paid spend.',
+    suppliersFor80Pct: for80 >= 0 ? for80 + 1 : null,
+    items,
+  });
+}
+
+/** Net active, open and overdue open value grouped by a supplier or material attribute. */
+export function procurementSegments(d, { asOfDate, by }) {
+  const sup = new Map(d.suppliers.map((s) => [s.supplier_id, s]));
+  const mat = new Map(d.materials.map((m) => [m.material_id, m]));
+  const keyFns = {
+    material_category: (r) => mat.get(r.material_id)?.material_category,
+    country: (r) => sup.get(r.supplier_id)?.country,
+    supplier_tier: (r) => sup.get(r.supplier_id)?.supplier_tier,
+    criticality: (r) => sup.get(r.supplier_id)?.criticality,
+  };
+  const keyFn = keyFns[by];
+  if (!keyFn) throw new Error(`Unknown grouping "${by}"`);
+  const totalNet = sum(d.purchase_orders, netActiveLineValue);
+  const totalOverdue = sum(d.purchase_orders.filter((r) => isOverdueLine(r, asOfDate)), openValue);
+  const g = new Map();
+  for (const r of d.purchase_orders) {
+    const k = keyFn(r) ?? 'Unknown';
+    if (!g.has(k)) g.set(k, { segment: k, poLines: 0, suppliers: new Set(), netActiveValue: 0, openValue: 0, overdueValue: 0, overdueLines: 0 });
+    const e = g.get(k);
+    e.poLines++;
+    e.suppliers.add(r.supplier_id);
+    e.netActiveValue += netActiveLineValue(r);
+    if (isOpenLine(r)) {
+      e.openValue += openValue(r);
+      if (isOverdueLine(r, asOfDate)) {
+        e.overdueValue += openValue(r);
+        e.overdueLines++;
+      }
+    }
+  }
+  const items = [...g.values()]
+    .map((e) => ({ ...e, suppliers: e.suppliers.size, sharePct: pct(e.netActiveValue, totalNet), overdueSharePct: pct(e.overdueValue, totalOverdue) }))
+    .sort((a, b) => b.netActiveValue - a.netActiveValue || String(a.segment).localeCompare(String(b.segment)));
+  return kpi({ kpiId: '6.1.2', label: `Commitment by ${by.replace(/_/g, ' ')}`, value: null, unit: 'USD', n: items.length, basis: `Net active, open and overdue open PO value grouped by ${by.replace(/_/g, ' ')} (PO-line grain)`, asOfDate, status: CALC, items });
+}
+
+/** Expediting register: all open PO lines, most overdue first. */
+export function openPoRegister(d, { asOfDate }) {
+  const sup = new Map(d.suppliers.map((s) => [s.supplier_id, s]));
+  const mat = new Map(d.materials.map((m) => [m.material_id, m]));
+  const items = d.purchase_orders
+    .filter(isOpenLine)
+    .map((r) => {
+      const days = daysPastPromised(r, asOfDate);
+      const overdue = isOverdueLine(r, asOfDate);
+      const b = overdue ? ageingBucket(days) : null;
+      return {
+        po_line_id: r.po_line_id,
+        po_id: r.po_id,
+        supplier_id: r.supplier_id,
+        supplier_name: sup.get(r.supplier_id)?.supplier_name ?? null,
+        criticality: sup.get(r.supplier_id)?.criticality ?? null,
+        material_id: r.material_id,
+        material_description: mat.get(r.material_id)?.material_description ?? null,
+        material_category: mat.get(r.material_id)?.material_category ?? null,
+        order_date: r.order_date,
+        requested_delivery_date: r.requested_delivery_date,
+        promised_delivery_date: r.promised_delivery_date,
+        daysPastPromised: days,
+        overdue,
+        bucket: b ? b.id : 'not-due',
+        bucketLabel: b ? b.label : 'Not yet due',
+        promiseGapDays: r.requested_delivery_date && r.promised_delivery_date ? daysBetweenDates(r.requested_delivery_date, r.promised_delivery_date) : null,
+        ordered_qty: r.ordered_qty,
+        received_qty: r.received_qty,
+        cancelled_qty: r.cancelled_qty,
+        open_qty: r.open_qty,
+        unit_of_measure: r.unit_of_measure,
+        unit_price_usd: r.unit_price_usd,
+        openValue: openValue(r),
+        po_status: r.po_status,
+        noReceipt: r.received_qty === 0,
+      };
+    })
+    .sort((a, b) => (b.daysPastPromised ?? -Infinity) - (a.daysPastPromised ?? -Infinity) || a.po_line_id.localeCompare(b.po_line_id));
+  return kpi({ kpiId: '4.4', label: 'Open PO line register', value: null, n: items.length, basis: `PO lines with open quantity at ${asOfDate}, most overdue first`, asOfDate, status: LIMITED, limitation: 'Days past promised use the currently recorded promised date.', overdueNoReceipt: items.filter((i) => i.overdue && i.noReceipt).length, items });
 }
 
 /* ======================================================================
@@ -743,6 +1027,17 @@ export function computeAllKpis(d, { asOfDate, minSample = DEFAULT_MIN_SAMPLE }) 
       supplierCommitment: commitment.commitment,
       concentration: commitment.concentration,
       averageLine: averagePoLineValue(d),
+      received: receivedPoLineValue(d),
+      overdueOpen: overdueOpenPoValue(d, opts),
+      ageing: overdueAgeing(d, opts),
+      bridge: poValueBridge(d, opts),
+      promiseGap: promiseToRequestGap(d),
+      supplierRows: supplierCommitmentRows(d, opts),
+      byCategory: procurementSegments(d, { ...opts, by: 'material_category' }),
+      byCountry: procurementSegments(d, { ...opts, by: 'country' }),
+      byTier: procurementSegments(d, { ...opts, by: 'supplier_tier' }),
+      byCriticality: procurementSegments(d, { ...opts, by: 'criticality' }),
+      register: openPoRegister(d, opts),
     },
     inventory: {
       onHandValue: onHandInventoryValue(d),
