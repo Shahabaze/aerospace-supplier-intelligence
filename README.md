@@ -6,7 +6,7 @@
 
 > **All data is synthetic.** Suppliers, materials, purchase orders and results are invented for demonstration. They do not describe any real company, supplier or programme.
 
-![Executive dashboard](assets/screenshots/01-executive-dashboard.png)
+![Command centre: dark chart-first overview of delivery, PO commitment, concentration and inventory](assets/screenshots/12-command-centre.png)
 
 ---
 
@@ -36,6 +36,7 @@
 | Supplier performance | Criticality segments, PO exposure vs delivery chart, sortable and filterable comparison of 25 suppliers, supplier detail with every delivery and inspection | [View](assets/screenshots/02-supplier-performance.png), [detail](assets/screenshots/03-supplier-detail.png) |
 | Procurement intelligence | PO value bridge, overdue ageing, Pareto concentration, supplier commitment table, expediting register | [View](assets/screenshots/04-procurement-intelligence.png), [register](assets/screenshots/05-expediting-register.png) |
 | Inventory intelligence | Six inventory KPIs, status on both stock bases, searchable material table with supplier and material criticality | [View](assets/screenshots/06-inventory-intelligence.png) |
+| Command centre | Dark, chart-first overview: four ring gauges, six headline figures, supplier footprint by country, concentration curve, ageing, promise gap, stock position, largest-supplier OTD and criticality. Every value comes from the same KPI engine, and each panel links to its module | [View](assets/screenshots/12-command-centre.png), [phone](assets/screenshots/13-mobile-command-centre.png) |
 | AI procurement assistant | Planned for a later phase, through a secure backend; not part of this release | — |
 
 Mobile layouts: [Executive](assets/screenshots/08-mobile-executive.png), [Procurement](assets/screenshots/09-mobile-procurement.png), [inventory table with fixed Material column](assets/screenshots/10-mobile-inventory-table.png), [module menu](assets/screenshots/11-mobile-menu-open.png). On phones the module menu collapses behind a menu button, controls are at least 44px tall, and wide tables keep their first column in place while scrolling sideways. Data quality: [View](assets/screenshots/07-data-quality.png).
@@ -43,7 +44,7 @@ Mobile layouts: [Executive](assets/screenshots/08-mobile-executive.png), [Procur
 ## How to use it
 
 1. Open the **live dashboard** link above in any modern browser. Nothing needs to be installed.
-2. Use the tabs at the top to move between modules.
+2. Use the tabs at the top to move between modules. The **Command centre** gives the whole picture on one screen; select any ring or panel link to open the module behind it.
 3. In **Supplier performance**, sort any column, filter by criticality, qualification or sample size, and select a supplier to see its deliveries and inspections. Each supplier has its own address, for example `#/suppliers/SUP-013`.
 4. In **Procurement intelligence**, use the expediting register filters, for example "Over 180 days" plus "Nothing received yet", to find the lines that need action first.
 5. In **Inventory intelligence**, filter by stock position or criticality, or search for a material.
@@ -82,7 +83,7 @@ Known, documented data conditions are shown on screen rather than corrected sile
 
 ## Quality assurance
 
-**280 automated browser tests**, all passing in Chrome at release. Each suite is an ordinary web page that shows pass or fail:
+**304 automated browser tests**, all passing in Chrome at release. Each suite is an ordinary web page that shows pass or fail:
 
 | Suite | Tests | Covers |
 |---|---:|---|
@@ -91,11 +92,12 @@ Known, documented data conditions are shown on screen rather than corrected sile
 | [`tests/dashboard-tests.html`](tests/dashboard-tests.html) | 38 | Executive dashboard, navigation, failure handling |
 | [`tests/supplier-tests.html`](tests/supplier-tests.html) | 44 | Supplier comparison, sorting, filtering, detail, sample-size rule |
 | [`tests/procurement-tests.html`](tests/procurement-tests.html) | 33 | Bridge, ageing, concentration, commitment table, expediting register |
+| [`tests/overview-tests.html`](tests/overview-tests.html) | 24 | Command centre: every ring, figure and chart against the engine and independent values, dark theme limited to this page, links, chart fallback, phone layout |
 | [`tests/inventory-tests.html`](tests/inventory-tests.html) | 23 | Inventory KPIs, stock bases, material table, mobile menu, touch targets and sideways scrolling at 375px |
 
 Each stage also included a mutation check: bugs were planted deliberately to confirm the tests catch them. Stage reports with screenshots are in [`tests/reports/`](tests/reports/).
 
-All 274 tests that existed at deployment also passed when run from the live site; the 6 mobile tests were added afterwards ([`tests/reports/stage-08-mobile-usability.md`](tests/reports/stage-08-mobile-usability.md)). Anyone can open the test pages above in a browser and run them.
+All 274 tests that existed at deployment also passed when run from the live site; the 6 mobile tests and 24 Command centre tests were added afterwards ([`tests/reports/stage-08-mobile-usability.md`](tests/reports/stage-08-mobile-usability.md)). Anyone can open the test pages above in a browser and run them.
 
 **Testing limits:** automated tests ran in Chrome. Firefox, Safari and physical devices were not part of the automated runs. Live-site checks are recorded in [`tests/reports/stage-08-deployment.md`](tests/reports/stage-08-deployment.md).
 
