@@ -16,6 +16,7 @@ import { MODULES, DEFAULT_MODULE, moduleById } from './modules.js';
 import { renderExecutive } from './views/executive.js';
 import { renderPlaceholder } from './views/placeholder.js';
 import { renderSuppliers } from './views/suppliers.js';
+import { renderProcurement } from './views/procurement.js';
 import { destroyAllCharts } from './charts.js';
 import { esc, date } from './format.js';
 
@@ -59,6 +60,7 @@ function currentParam() {
 const VIEWS = {
   executive: (m) => renderExecutive(main, m),
   suppliers: (m) => renderSuppliers(main, m, { selectedId: currentParam() }),
+  procurement: (m) => renderProcurement(main, m),
 };
 
 let lastModule = null;

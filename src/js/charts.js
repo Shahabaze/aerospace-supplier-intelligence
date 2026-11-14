@@ -207,3 +207,99 @@ export function drawVarianceTimeline(canvas, points, { asOfMs, startMs }) {
   charts.set(canvas.id, chart);
   return true;
 }
+
+/**
+ * Ageing chart: overdue open PO value per bucket, with line counts in the labels.
+ * @param {{label: string, value: number, lines: number}[]} buckets
+ */
+export function drawAgeingChart(canvas, buckets) {
+  const Chart = globalThis.Chart;
+  if (!Chart || !canvas) return false;
+  reset(canvas.id);
+  const reduced = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const money = (v) => (v >= 1e6 ? `$${(v / 1e6).toFixed(2)}M` : `$${(v / 1e3).toFixed(0)}K`);
+  const chart = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: buckets.map((b) => [b.label, `${b.lines} line${b.lines === 1 ? '' : 's'}`]),
+      datasets: [{ data: buckets.map((b) => b.value), backgroundColor: ['#9db6d3', '#5f8cc0', '#1d5fa8', '#13263c'], borderWidth: 0, barPercentage: 0.7 }],
+    },
+    options: {
+      maintainAspectRatio: false,
+      animation: reduced ? false : { duration: 400 },
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ` ${money(ctx.parsed.y)} overdue open value, ${buckets[ctx.dataIndex].lines} PO lines` } } },
+      scales: {
+        x: { ticks: { color: COLORS.ink, font: titleFont }, grid: { display: false }, title: { display: true, text: 'Days past recorded promised date', color: COLORS.steel, font: titleFont } },
+        y: { beginAtZero: true, ticks: { color: COLORS.steel, font: tickFont, callback: (v) => money(v) }, grid: { color: COLORS.rule }, title: { display: true, text: 'Overdue open PO value', color: COLORS.steel, font: titleFont } },
+      },
+    },
+  });
+  charts.set(canvas.id, chart);
+  return true;
+}
+
+/**
+ * Pareto chart: supplier share of net active PO value (bars) and cumulative share (line).
+ * @param {{id: string, share: number, cumulative: number}[]} rows sorted descending
+ */
+export function drawParetoChart(canvas, rows, { onSelect } = {}) {
+  const Chart = globalThis.Chart;
+  if (!Chart || !canvas) return false;
+  reset(canvas.id);
+  const reduced = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const chart = new Chart(canvas, {
+    data: {
+      labels: rows.map((r) => r.id),
+      datasets: [
+        { type: 'bar', label: 'Share of net active PO value', data: rows.map((r) => r.share), backgroundColor: rows.map((r) => (r.cumulative - r.share < 80 ? COLORS.signal : COLORS.signalMuted)), borderWidth: 0, yAxisID: 'y', order: 2 },
+        { type: 'line', label: 'Cumulative share', data: rows.map((r) => r.cumulative), borderColor: COLORS.ink, backgroundColor: COLORS.ink, pointRadius: 2, borderWidth: 1.5, yAxisID: 'y', order: 1 },
+      ],
+    },
+    options: {
+      maintainAspectRatio: false,
+      animation: reduced ? false : { duration: 400 },
+      plugins: {
+        legend: { position: 'bottom', labels: { font: titleFont, color: COLORS.ink, boxWidth: 14 } },
+        tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%` } },
+        referenceLines: { lines: [{ axis: 'y', value: 80, label: '80%' }] },
+      },
+      onClick: (_e, els) => { if (els.length && onSelect) onSelect(rows[els[0].index].id); },
+      scales: {
+        x: { ticks: { color: COLORS.ink, font: { family: 'Barlow Semi Condensed', size: 11 }, maxRotation: 90, minRotation: 60, autoSkip: false }, grid: { display: false } },
+        y: { min: 0, max: 100, ticks: { color: COLORS.steel, font: tickFont, stepSize: 20, callback: (v) => `${v}%` }, grid: { color: COLORS.rule } },
+      },
+    },
+    plugins: [referenceLines],
+  });
+  charts.set(canvas.id, chart);
+  return true;
+}
+
+/**
+ * Promise-to-request gap distribution: PO lines per gap in days.
+ * @param {{days: number, lines: number}[]} dist
+ */
+export function drawGapChart(canvas, dist) {
+  const Chart = globalThis.Chart;
+  if (!Chart || !canvas) return false;
+  reset(canvas.id);
+  const reduced = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const chart = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: dist.map((x) => (x.days > 0 ? `+${x.days}` : `${x.days}`)),
+      datasets: [{ data: dist.map((x) => x.lines), backgroundColor: dist.map((x) => (x.days > 0 ? '#b26a00' : x.days === 0 ? COLORS.steel : COLORS.signal)), borderWidth: 0, barPercentage: 0.85 }],
+    },
+    options: {
+      maintainAspectRatio: false,
+      animation: reduced ? false : { duration: 300 },
+      plugins: { legend: { display: false }, tooltip: { callbacks: { title: (items) => `${items[0].label} days`, label: (ctx) => ` ${ctx.parsed.y} PO lines` } } },
+      scales: {
+        x: { ticks: { color: COLORS.ink, font: tickFont }, grid: { display: false }, title: { display: true, text: 'Current promised date minus requested date (days)', color: COLORS.steel, font: titleFont } },
+        y: { beginAtZero: true, ticks: { color: COLORS.steel, font: tickFont, precision: 0 }, grid: { color: COLORS.rule }, title: { display: true, text: 'PO lines', color: COLORS.steel, font: titleFont } },
+      },
+    },
+  });
+  charts.set(canvas.id, chart);
+  return true;
+}

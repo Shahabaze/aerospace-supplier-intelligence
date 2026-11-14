@@ -474,7 +474,10 @@ function select(id) {
 }
 
 function bind(container) {
+  // Handlers act only while this view is shown in the container (other views reuse attribute names).
+  const active = () => container === currentContainer && container.querySelector('[data-table="compare"]');
   container.addEventListener('click', (e) => {
+    if (!active()) return;
     const t = e.target.closest('[data-sort], [data-select], [data-action]');
     if (!t) return;
     if (t.dataset.sort) {
@@ -490,6 +493,7 @@ function bind(container) {
     }
   });
   container.addEventListener('change', (e) => {
+    if (!active()) return;
     const t = e.target;
     if (t.name === 'basis') {
       state.basis = t.value;
@@ -500,6 +504,7 @@ function bind(container) {
     }
   });
   container.addEventListener('input', (e) => {
+    if (!active()) return;
     const t = e.target;
     if (t.dataset.filter === 'search') {
       state.filters.search = t.value;

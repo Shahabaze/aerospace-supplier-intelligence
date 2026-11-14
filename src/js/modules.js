@@ -19,17 +19,8 @@ export const MODULES = Object.freeze([
   {
     id: 'procurement',
     name: 'Procurement intelligence',
-    available: false,
-    stageLabel: 'Stage 6',
-    status: 'Planned for development Stage 6',
-    summary: 'Where PO value sits, how concentrated it is, and which open commitments are overdue.',
-    planned: [
-      'Gross, cancelled and net active PO line value by supplier',
-      'Supplier concentration on net active PO line value',
-      'Open PO commitment value and exposure',
-      'Overdue open PO lines against the recorded promise date',
-      'Average PO line value',
-    ],
+    available: true,
+    stageLabel: null,
   },
   {
     id: 'inventory',

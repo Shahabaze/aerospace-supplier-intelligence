@@ -203,15 +203,15 @@ test('Supporting panels', 'Critical supplier count is 4 of 25 from the supplier 
   assert(p.textContent.includes('4of 25 suppliers classified critical') || p.textContent.replace(/\s+/g, ' ').includes('4 of 25 suppliers classified critical'), p.textContent);
 });
 
-test('Navigation', 'Navigation lists the five approved modules; Executive dashboard and Supplier performance are available', async () => {
+test('Navigation', 'Navigation lists the five approved modules; Executive dashboard, Supplier performance and Procurement intelligence are available', async () => {
   const links = [...doc.querySelectorAll('#module-nav-list a')];
   assertEqual(links.map((a) => a.dataset.module), ['executive', 'suppliers', 'procurement', 'inventory', 'assistant']);
-  assertEqual(MODULES.filter((m) => m.available).map((m) => m.id), ['executive', 'suppliers']);
+  assertEqual(MODULES.filter((m) => m.available).map((m) => m.id), ['executive', 'suppliers', 'procurement']);
   assertEqual(links[0].getAttribute('aria-current'), 'page');
-  assertEqual(links.slice(1).map((a) => a.querySelector('.stage')?.textContent ?? null), [null, 'Stage 6', 'Stage 7', 'Future phase']);
+  assertEqual(links.slice(1).map((a) => a.querySelector('.stage')?.textContent ?? null), [null, null, 'Stage 7', 'Future phase']);
 });
 
-for (const id of ['procurement', 'inventory', 'assistant']) {
+for (const id of ['inventory', 'assistant']) {
   test('Navigation', `Clicking "${id}" shows a planned-module page with no figures`, async () => {
     doc.querySelector(`#module-nav-list a[data-module="${id}"]`).click();
     assert(await waitFor(() => doc.querySelector(`[data-placeholder="${id}"]`)), 'placeholder not shown');
