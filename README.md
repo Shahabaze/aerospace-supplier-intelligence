@@ -44,7 +44,7 @@ Fragmented procurement information can make it difficult to:
 | # | Module | Primary Capabilities | Status |
 |---|---|---|---|
 | 1 | Executive Dashboard | Delivery Event OTD (snapshot and full-dataset bases), late delivery events, open PO commitment, net active PO line value (with gross and cancelled), inspection rejection rate, on-hand inventory value; data-quality warnings; supplier concentration; unsupported-KPI register | Approved (Stage 4) |
-| 2 | Supplier Performance | Delivery-event OTD on snapshot and full-dataset bases, late events, delivery variance, rejection rate, nonconformances, corrective-action register, criticality/qualification/certification; criticality segments; PO exposure vs OTD; sortable, filterable comparison; supplier detail with events and inspections; sample-size labels | Built – awaiting Project Owner review |
+| 2 | Supplier Performance | Delivery-event OTD on snapshot and full-dataset bases, late events, delivery variance, rejection rate, nonconformances, corrective-action register, criticality/qualification/certification; criticality segments; PO exposure vs OTD; sortable, filterable comparison; supplier detail with events and inspections; sample-size labels | Approved (Stage 5) |
 | 3 | Procurement Intelligence | Supplier PO commitment, commitment concentration, open PO exposure, overdue open PO lines | Planned |
 | 4 | Inventory Intelligence | Inventory value, available stock, below reorder point, safety stock breaches, days of supply, excess inventory | Planned |
 | 5 | AI Procurement Assistant | Natural-language questions grounded in validated KPI results, via a secure backend | Future phase |
@@ -90,7 +90,7 @@ aerospace-supplier-intelligence/
 ├── docs/
 │   ├── project-charter.md
 │   ├── architecture.md        v2.0 – approved architecture
-│   ├── decision-log.md        v2.3 – decision register
+│   ├── decision-log.md        v2.4 – decision register
 │   ├── development-roadmap.md
 │   ├── data-model.md          v2.0 – implemented data model
 │   └── kpi-dictionary.md      v2.2 – KPI definitions
@@ -129,7 +129,7 @@ Each stage is committed separately with a test report in `tests/reports/`.
 
 - [Project Charter](docs/project-charter.md) – Objectives, scope and governance.
 - [Technical Architecture](docs/architecture.md) – Approved application architecture (v2.0).
-- [Decision Log](docs/decision-log.md) – Approved decisions and rationale (v2.3).
+- [Decision Log](docs/decision-log.md) – Approved decisions and rationale (v2.4).
 - [Development Roadmap](docs/development-roadmap.md) – Phases and milestones.
 - [Data Model](docs/data-model.md) – Datasets, fields, keys and validation controls (v2.0).
 - [KPI Dictionary](docs/kpi-dictionary.md) – KPI definitions, formulas and limitations (v2.2).
@@ -171,7 +171,7 @@ A feature is described as tested only when a test has actually been run and its 
 - Data Model v2.0 and six synthetic CSV datasets.
 - KPI Dictionary v2.2.
 - Repository audit (2026-11-13): all 17 data-model controls pass on the source data.
-- Architecture v2.0 and Decision Log v2.3.
+- Architecture v2.0 and Decision Log v2.4.
 - Data layer: CSV loader, schema typing (blank stays blank) and all 17 Data Model validation controls, with browser tests ([Stage 2 test report](tests/reports/stage-02-data-layer.md)).
 
 - KPI engine implementing KPI Dictionary v2.2, verified against independently calculated values ([Stage 3 test report](tests/reports/stage-03-kpi-engine.md)).
@@ -182,7 +182,7 @@ A feature is described as tested only when a test has actually been run and its 
 
 **Next**
 
-- Project Owner review of Supplier Performance, then Procurement Intelligence (Stage 6).
+- Procurement Intelligence (Stage 6): proposal prepared for Project Owner review before implementation.
 
 The live dashboard link and screenshots will be added once the first module is deployed and verified.
 

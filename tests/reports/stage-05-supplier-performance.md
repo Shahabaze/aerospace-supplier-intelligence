@@ -4,7 +4,8 @@
 **Stage:** Phase 2, Stage 5 – Supplier Performance module  
 **Date:** 2026-11-13  
 **Tested by:** Claude (automated runs in a real browser), for review by ChatGPT and the Project Owner  
-**Result:** **Supplier view 38 / 38. KPI engine 68 / 68 (13 new). Regression: Executive dashboard 40 / 40, data layer 54 / 54.** Responsive and console checks: 35 / 35 viewport and route combinations passed.
+**Status:** Approved by the Project Owner (2026-11-14). DEC-025 approved (threshold 3).  
+**Result at approval:** **Supplier view 38 / 38. KPI engine 68 / 68 (13 new). Regression: Executive dashboard 40 / 40, data layer 54 / 54.** Responsive and console checks: 35 / 35 viewport and route combinations passed.
 
 ---
 
@@ -122,9 +123,19 @@ All six were caught by at least one suite.
 5. **Comparison table too wide.** The table needed 339 px of sideways scrolling at 1440 px. Headings now wrap and sample tags show "n = 2", with the full wording in a tooltip and the legend. It now fits at desktop width.
 6. **Comparison table cut off.** The table had a fixed height that hid rows. The limit was removed.
 
-## 7. Items for Project Owner Decision
+## 7. Project Owner Decisions
 
-1. **DEC-025 (proposed): sample-size labels.** Fewer than 3 records = "limited", 0 = "No data". The threshold is configurable. Please approve or give another value.
+**Stage 5 approved** by the Project Owner on 2026-11-14 after review of the five screenshots.
+
+**DEC-025 approved** with a minimum sample threshold of **3 records**:
+
+- 0 records: "No data".
+- 1–2 records: the calculated result with an amber "Limited sample" indicator.
+- 3 or more records: the calculated result with no warning.
+- Delivery OTD counts delivered events; rejection rate counts inspection records and also displays inspected quantity as its denominator.
+- The threshold must be clear from a tooltip or legend.
+
+The implementation was aligned with the approved wording after approval. See section 11.
 
 ## 8. Remaining Issues and Notes
 

@@ -1,7 +1,7 @@
 # Project Decision Log
 ## Aerospace Supplier Intelligence Platform
 
-**Document Version:** 2.3  
+**Document Version:** 2.4  
 **Project Stage:** Phase 2 – Application Development  
 **Repository:** aerospace-supplier-intelligence  
 **Last Updated:** 2026-11-13
@@ -44,7 +44,7 @@ Earlier decisions are never deleted. When a decision is replaced, its status cha
 | DEC-022 | Start AI assistant work only after the core dashboard is completed and validated; any AI API must be called through a secure backend, never from browser code | Protects API keys and keeps AI output grounded in validated KPIs | Approved |
 | DEC-023 | Supplier Concentration (KPI 6.4) uses Net Active PO Line Value in both numerator and denominator | Cancelled value is not active commitment and must not inflate a supplier's share (consistent with DEC-019) | Approved |
 | DEC-024 | Self-host the Barlow and Barlow Semi Condensed web fonts (SIL Open Font License 1.1) in `src/vendor/fonts/`, with licence files `OFL-LICENSE-Barlow.txt` and `OFL-LICENSE-Barlow-Semi-Condensed.txt` | Consistent professional typography with tabular figures, no external font service, free licence | Approved (Project Owner, 2026-11-13) |
-| DEC-025 | Label supplier-level rates by sample size: no records = "No data" (rate blank); fewer than 3 records = "limited" (rate shown with n); 3 or more = sufficient. Threshold configurable (`minimumSampleForRate`) | Supplier rates often rest on 1–2 events; users must see how much evidence is behind each figure. Display rule only, no KPI formula changes | Proposed (Stage 5 build, for Project Owner review) |
+| DEC-025 | Label supplier-level rates by sample size: no records = "No data" (rate blank); fewer than 3 records = "limited" (rate shown with n); 3 or more = sufficient. Threshold configurable (`minimumSampleForRate`) | Supplier rates often rest on 1–2 events; users must see how much evidence is behind each figure. Display rule only, no KPI formula changes | Approved (Project Owner, 2026-11-14), threshold 3 |
 
 ## 3. Technology Decisions Pending Validation
 
@@ -182,7 +182,7 @@ Supplier Concentration (%) = (Supplier's Net Active PO Line Value ÷ Total Net A
 | Source | npm packages `@fontsource/barlow@5.3.0` and `@fontsource/barlow-semi-condensed@5.3.0`, files unmodified |
 | Integrity | SHA-256 hashes listed in `src/vendor/fonts/README.md` |
 
-### 7.7 DEC-025 – Sample-size labels for supplier-level rates (proposed)
+### 7.7 DEC-025 – Sample-size labels for supplier-level rates
 
 **Why:** in the current data, 4 suppliers have no delivered events in the snapshot period and 11 have only 1 or 2. Critical suppliers hold 52.6% of net active PO line value but account for 4 of 63 delivered events in the period. A rate such as "100% OTD" from one event must not look as reliable as a rate from six events.
 
@@ -198,9 +198,26 @@ Supplier Concentration (%) = (Supplier's Net Active PO Line Value ÷ Total Net A
 - The threshold is a setting (`minimumSampleForRate` in `src/js/config.js`, default 3).
 - This is a display rule. It does not change any KPI formula, and no supplier is excluded from any total.
 
-**Status:** proposed during Stage 5; requires Project Owner approval.
+**Status:** Approved by the Project Owner on 2026-11-14 with a minimum sample threshold of **3 records**.
+
+**Approved rule, applied consistently to every supplier-level and supplier-group rate:**
+
+| Records | Display |
+|---|---|
+| 0 | "No data". No rate is shown. |
+| 1–2 | The calculated rate, with an amber **"Limited sample"** indicator |
+| 3 or more | The calculated rate, with no limited-sample warning |
+
+**Record count used for each metric:**
+
+| Metric | Records counted for the rule | Also displayed |
+|---|---|---|
+| Delivery Event OTD (snapshot-period and full-dataset bases) | Delivered events on that basis | Numerator and denominator (events) |
+| Inspection rejection rate | Inspection records with inspected quantity > 0 | Inspected quantity, as the rejection-rate denominator |
+
+The threshold and the record type must be explained in a visible legend and in the tooltip of each indicator.
 
 ---
 
-**Document Status:** Decision Register – Version 2.3  
+**Document Status:** Decision Register – Version 2.4  
 **Approval Authority:** Project Owner
