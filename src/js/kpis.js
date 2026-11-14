@@ -608,7 +608,7 @@ export function supplierSegments(d, { asOfDate, field = 'criticality', order = [
   const attr = new Map(d.suppliers.map((s) => [s.supplier_id, s[field]]));
   const seg = new Map();
   const get = (k) => {
-    if (!seg.has(k)) seg.set(k, { segment: k, suppliers: 0, suppliersWithSnapshotEvents: new Set(), snapOn: 0, snapN: 0, fullOn: 0, fullN: 0, inspected: 0, rejected: 0, nonconformances: 0, openCorrectiveActions: 0, netActiveValue: 0 });
+    if (!seg.has(k)) seg.set(k, { segment: k, suppliers: 0, suppliersWithSnapshotEvents: new Set(), snapOn: 0, snapN: 0, fullOn: 0, fullN: 0, inspections: 0, inspected: 0, rejected: 0, nonconformances: 0, openCorrectiveActions: 0, netActiveValue: 0 });
     return seg.get(k);
   };
   for (const s of d.suppliers) get(s[field]).suppliers++;
@@ -627,6 +627,7 @@ export function supplierSegments(d, { asOfDate, field = 'criticality', order = [
     if (r.quality_result === 'Nonconformance') g.nonconformances++;
     if (isOpenCorrectiveAction(r)) g.openCorrectiveActions++;
     if (typeof r.inspected_qty === 'number' && r.inspected_qty > 0) {
+      g.inspections++;
       g.inspected += r.inspected_qty;
       g.rejected += r.rejected_qty;
     }
@@ -645,6 +646,7 @@ export function supplierSegments(d, { asOfDate, field = 'criticality', order = [
       otdSnapshotPct: pct(g.snapOn, g.snapN),
       deliveredEventsFull: g.fullN,
       otdFullPct: pct(g.fullOn, g.fullN),
+      inspections: g.inspections,
       inspectedQty: g.inspected,
       rejectedQty: g.rejected,
       rejectionRatePct: pct(g.rejected, g.inspected),

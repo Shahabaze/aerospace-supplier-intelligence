@@ -220,6 +220,48 @@ In `tests/reports/screenshots/stage-05/`:
 | 12 | scopeToSupplier keeps only that supplier's transactions and leaves the input unchanged | PASS |
 | 13 | Unknown supplier returns null detail | PASS |
 
+## 11. DEC-025 Alignment After Approval (2026-11-14)
+
+The approved wording differed slightly from the Stage 5 build. These changes were made in a separate commit:
+
+| Item | Before | After |
+|---|---|---|
+| Table indicator for 1–2 records | Amber tag "n = 2" | Amber tag **"Limited sample"**, placed under the value |
+| Indicator tooltip | "Limited sample: 2 records" | Names the record type and threshold, e.g. "Limited sample: 2 inspection records. Rates based on fewer than 3 records are flagged (DEC-025)." |
+| "No data" cells | Text only | Tooltip names the missing records, e.g. "No data: 0 delivered events." |
+| Rejection-rate denominator in the table | Not shown | Inspected units shown under the inspection count; rate tooltip shows "x rejected of y inspected units, n inspection records" |
+| Legend | One sentence | Visible legend: threshold, the three states, and the record type per metric |
+| Criticality table | Rates without indicators | Same rule applied; inspection-record counts shown under inspected units (Critical 4, High 45, Medium 19, Low 5), so no group is flagged at threshold 3 |
+| Supplier detail | "Limited sample: 1 event" | "Limited sample: 1 delivered event" / "1 inspection record"; the full-dataset OTD line is also flagged when below the threshold |
+
+Unchanged: comparison, sorting, filtering, supplier detail, snapshot-period and full-dataset bases, design language. Engine change: supplier groups now also return their inspection-record count. No KPI formula, CSV or Data Model change.
+
+### Test results after alignment
+
+| Suite | Result |
+|---|---|
+| Supplier performance | **44 / 44** (6 new DEC-025 tests) |
+| KPI engine | 68 / 68 |
+| Executive dashboard | 40 / 40 |
+| Data layer | 54 / 54 |
+| Viewport × route checks (5 viewports × 7 routes) | 35 / 35; no overflow, no console errors |
+| Comparison table width at 1440 px | Fits without scrolling (it was 4 px too wide after the change; cell padding reduced) |
+
+New tests cover:
+
+- the boundary (SUP-010 with exactly 3 events is not flagged; SUP-016 with 2 is)
+- rejection-rate flags based on inspection records, with inspected units and the tooltip correct for all 25 suppliers
+- the legend text
+- "No data" tooltips
+- criticality-group record counts
+- a threshold of 5, which flags the Critical and Low groups and updates the legend
+
+**Mutation check:** two deliberate bugs were introduced: the rejection flag using the delivery sample, and the legend threshold hardcoded. Each was caught.
+
+**Issue found in testing:** one new test first failed because the test itself assumed the Critical group had 3 inspection records. The independent count is 4, and the page was correct. The test now checks all four groups against the independent counts.
+
+New screenshots: `dec-025-comparison-and-legend-desktop-1440.png`, `dec-025-comparison-and-legend-mobile-390.png`. The other Stage 5 screenshots were regenerated with the final labels.
+
 ---
 
 *Synthetic demonstration data. Results describe software behaviour only, not the performance of any real supplier.*

@@ -163,8 +163,55 @@ test('Comparison', 'Sample labels: 4 "No data" and 11 "limited" OTD cells on the
   const lab = (s) => rows().filter((r) => r.querySelector(`[data-col="otd"] [data-sample="${s}"]`)).map((r) => r.dataset.supplier);
   assertEqual(lab('none').sort(), ['SUP-004', 'SUP-009', 'SUP-012', 'SUP-018']);
   assertEqual(lab('limited').sort(), ['SUP-001', 'SUP-002', 'SUP-007', 'SUP-008', 'SUP-011', 'SUP-015', 'SUP-016', 'SUP-020', 'SUP-021', 'SUP-022', 'SUP-024']);
-  assert(doc.querySelector('tr[data-supplier="SUP-002"] [data-col="otd"]').textContent.includes('n = 1'));
-  assertEqual(doc.querySelector('tr[data-supplier="SUP-002"] [data-col="otd"] [data-sample]').title, 'Limited sample: 1 record');
+  const t = doc.querySelector('tr[data-supplier="SUP-002"] [data-col="otd"] [data-sample="limited"]');
+  assertEqual(t.textContent, 'Limited sample');
+  assertEqual(t.title, 'Limited sample: 1 delivered event. Rates based on fewer than 3 records are flagged (DEC-025).');
+});
+
+test('Sample rule (DEC-025)', 'Boundary: 3 delivered events shows no flag (SUP-010); 2 shows "Limited sample" (SUP-016)', async () => {
+  const p10 = profiles.find((p) => p.supplier_id === 'SUP-010');
+  const p16 = profiles.find((p) => p.supplier_id === 'SUP-016');
+  assertEqual([p10.deliveredEventsSnapshot, p16.deliveredEventsSnapshot], [3, 2]);
+  assert(!doc.querySelector('tr[data-supplier="SUP-010"] [data-col="otd"] [data-sample]'), 'SUP-010 should not be flagged');
+  assertEqual(text('tr[data-supplier="SUP-016"] [data-col="otd"] [data-sample]'), 'Limited sample');
+});
+
+test('Sample rule (DEC-025)', 'Rejection rate uses inspection records for the flag and shows inspected units as the denominator', async () => {
+  const bad = [];
+  for (const p of profiles) {
+    const tr = doc.querySelector(`tr[data-supplier="${p.supplier_id}"]`);
+    const units = tr.querySelector('[data-col="inspected-units"]')?.textContent ?? null;
+    const expUnits = p.inspections ? `${p.inspectedQty.toLocaleString('en-US')} units` : null;
+    if (units !== expUnits) bad.push(`${p.supplier_id} units "${units}" vs "${expUnits}"`);
+    const flag = tr.querySelector('[data-col="rejection"] [data-sample]')?.dataset.sample ?? 'sufficient';
+    if (flag !== p.inspectionSample) bad.push(`${p.supplier_id} flag ${flag} vs ${p.inspectionSample}`);
+    const fig = tr.querySelector('[data-col="rejection"] .figure');
+    if (fig && fig.title !== `${p.rejectedQty.toLocaleString('en-US')} rejected of ${p.inspectedQty.toLocaleString('en-US')} inspected units, ${p.inspections} inspection records`) bad.push(`${p.supplier_id} tooltip "${fig.title}"`);
+  }
+  assertEqual(bad, []);
+  assertEqual(doc.querySelector('tr[data-supplier="SUP-020"] [data-col="rejection"] [data-sample]').title,
+    'Limited sample: 2 inspection records. Rates based on fewer than 3 records are flagged (DEC-025).');
+});
+
+test('Sample rule (DEC-025)', 'Legend states the threshold and the record type for each metric', async () => {
+  const t = text('[data-legend="sample"]');
+  for (const s of ['minimum 3 records', 'No data 0 records', 'Limited sample 1 to 2 records', '3 or more records: the rate is shown without a flag', 'Delivery Event OTD counts delivered events', 'Rejection rate counts inspection records; its denominator is inspected units']) {
+    assert(t.includes(s), `legend missing "${s}"`);
+  }
+});
+
+test('Sample rule (DEC-025)', '"No data" cells carry a tooltip naming the missing records', async () => {
+  assertEqual(doc.querySelector('tr[data-supplier="SUP-004"] [data-col="otd"] .no-data').title, 'No data: 0 delivered events.');
+  assertEqual(doc.querySelector('tr[data-supplier="SUP-004"] [data-col="rejection"] .no-data').title, 'No data: 0 inspection records.');
+});
+
+test('Sample rule (DEC-025)', 'Criticality table applies the same rule; all four groups have 3 or more records, so none is flagged', async () => {
+  assertEqual(doc.querySelectorAll('[data-table="segments"] [data-sample]').length, 0);
+  // Inspection-record counts per group, from the independent calculation: Critical 4, High 45, Medium 19, Low 5.
+  for (const [seg, n] of Object.entries({ Critical: 4, High: 45, Medium: 19, Low: 5 })) {
+    const sub = doc.querySelector(`[data-table="segments"] tr[data-segment="${seg}"] td:nth-child(8) .cell-sub`).textContent;
+    assertEqual(sub, `${n} records`, seg);
+  }
 });
 
 test('Sorting', 'OTD ascending: lowest first, suppliers with no data last', async () => {
@@ -249,7 +296,7 @@ test('Filtering', 'No matches: a clear message and a working "Clear filters" but
 test('Basis', 'Switching to the full dataset changes delivery columns: SUP-018 shows 0.0% (n = 2, limited)', async () => {
   setBasis('full');
   const cell = doc.querySelector('tr[data-supplier="SUP-018"] [data-col="otd"]').textContent;
-  assert(cell.includes('0.0%') && cell.includes('n = 2'), cell);
+  assert(cell.includes('0.0%') && cell.includes('Limited sample'), cell);
   assert(text('[data-count]').includes('full dataset'));
   const c = frame.contentWindow.Chart.getChart(doc.getElementById('exposure-chart'));
   assertEqual(c.data.datasets[0].data.length, 22);
@@ -312,8 +359,9 @@ test('Detail', 'Supplier with no delivered events (SUP-004): "No data" and no ch
 test('Detail', 'Limited-sample supplier (SUP-008) is labelled in the detail', async () => {
   frame.contentWindow.location.hash = '#/suppliers/SUP-008';
   assert(await waitFor(() => doc.querySelector('[data-detail="SUP-008"]')));
-  assert(text('[data-card="det-otd"]').includes('Limited sample: 1 event'), text('[data-card="det-otd"]'));
-  assert(text('[data-card="det-quality"]').includes('Limited sample: 1 inspection'));
+  assert(text('[data-card="det-otd"]').includes('Limited sample: 1 delivered event'), text('[data-card="det-otd"]'));
+  assert(text('[data-card="det-quality"]').includes('Limited sample: 1 inspection record'), text('[data-card="det-quality"]'));
+  assert(text('[data-card="det-quality"]').includes('1 of 50 units'), 'inspected-unit denominator missing');
 });
 
 test('Detail', 'Unknown supplier in the address shows a clear message', async () => {
@@ -393,6 +441,18 @@ test('Rules', 'Changing source data changes the supplier figures (not hardcoded)
   // Mark SUP-013's late in-period event DEL-00035 as on time in an in-memory copy.
   const host = renderInto(modelFrom(altered('delivery_transactions', (r) => r.delivery_id === 'DEL-00035', { on_time_flag: 1, delivery_variance_days: 0, actual_delivery_date: '2026-06-20' })), 'SUP-013');
   assertEqual(host.querySelector('[data-card="det-otd"] .kpi__value').textContent, '75.0%');
+  host.remove();
+});
+
+test('Rules', 'With a threshold of 5, the Critical and Low groups (4 events each) are flagged "Limited sample"', async () => {
+  const cfg = { ...CONFIG, minimumSampleForRate: 5 };
+  const model = { ...modelFrom(lr), config: cfg };
+  model.kpis = computeAllKpis(rowsOf(lr), { asOfDate: AS_OF, minSample: 5 });
+  const host = renderInto(model);
+  const flagged = (seg) => host.querySelector(`[data-table="segments"] tr[data-segment="${seg}"] td:nth-child(5) [data-sample="limited"]`);
+  assert(flagged('Critical') && flagged('Low'), 'Critical/Low not flagged');
+  assert(!flagged('High'), 'High (38 events) should not be flagged');
+  assert(host.querySelector('[data-legend="sample"]').textContent.includes('minimum 5 records'));
   host.remove();
 });
 

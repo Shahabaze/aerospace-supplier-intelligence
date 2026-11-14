@@ -231,7 +231,7 @@ table.data td.num, table.data th.num { text-align: right; font-family: var(--fon
 
 .table-wrap--bounded { background: var(--surface); border: 1px solid var(--rule); overflow-x: auto; }
 table.data--compare thead th { position: sticky; top: 0; z-index: 2; background: #eef2f6; vertical-align: bottom; line-height: 1.25; }
-table.data--compare th, table.data--compare td { padding: 0.4rem 0.45rem; }
+table.data--compare th, table.data--compare td { padding: 0.4rem 0.4rem; }
 table.data--compare thead th:not(.sticky) { min-width: 4.5rem; max-width: 7rem; }
 table.data--compare th.sticky, table.data--compare td.sticky { position: sticky; left: 0; background: var(--surface); z-index: 1; min-width: 12rem; max-width: 14rem; white-space: normal; }
 table.data--compare thead th.sticky { z-index: 3; background: #eef2f6; }
@@ -247,6 +247,12 @@ th[aria-sort='ascending'] .sort, th[aria-sort='descending'] .sort { color: var(-
 .link-button:focus-visible { outline: 3px solid var(--signal); outline-offset: 2px; }
 .sid { font-family: var(--font-figure); font-weight: 600; }
 .no-data { color: var(--steel); font-style: italic; }
+table.data .sample-tag { display: block; width: max-content; margin: 0.15rem 0 0 auto; }
+.cell-sub { display: block; font-size: var(--t-xs); color: var(--steel); font-family: var(--font-text); }
+.sample-legend { margin-top: 0.75rem; font-size: var(--t-sm); color: var(--steel); max-width: 80ch; }
+.sample-legend ul { list-style: none; margin: 0.35rem 0 0.5rem; padding: 0; display: grid; gap: 0.3rem; }
+.sample-legend li .sample-tag { margin: 0 0.4rem 0 0; }
+.sample-legend strong { color: var(--ink); }
 .sample-tag { display: inline-block; margin-left: 0.4rem; font-size: var(--t-xs); font-family: var(--font-text); padding: 0 0.35rem; border-radius: var(--radius); white-space: nowrap; vertical-align: 1px; }
 .sample-tag--limited { background: var(--caution-bg); color: var(--caution); border: 1px solid var(--caution-line); }
 .sample-tag--none { background: #eef1f4; color: var(--steel); border: 1px solid var(--rule); }

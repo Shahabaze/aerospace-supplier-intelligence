@@ -11,7 +11,7 @@
  */
 
 import { usd, usdCompact, percent, integer, signedDays, date, esc, isMissing, NA } from '../format.js';
-import { supplierDetail } from '../kpis.js';
+import { supplierDetail, sampleSufficiency } from '../kpis.js';
 import { drawExposureChart, drawVarianceTimeline } from '../charts.js';
 import { rowsOf } from '../data-loader.js';
 
@@ -47,7 +47,7 @@ function columns(basis) {
     { key: 'otd', label: 'Delivery Event OTD', sortValue: (p) => p[b.otd], type: 'num' },
     { key: 'late', label: 'Late events', sortValue: (p) => (p[b.n] ? p[b.late] : null), type: 'num' },
     { key: 'variance', label: 'Avg variance', sortValue: (p) => p[b.variance], type: 'num' },
-    { key: 'inspections', label: 'Inspections', sortValue: (p) => p.inspections, type: 'num' },
+    { key: 'inspections', label: 'Inspections (units)', sortValue: (p) => p.inspections, type: 'num' },
     { key: 'rejection', label: 'Rejection rate', sortValue: (p) => p.rejectionRatePct, type: 'num' },
     { key: 'nc', label: 'Non­conform­ances', sortValue: (p) => p.nonconformances, type: 'num' },
     { key: 'openca', label: 'Open CAs', sortValue: (p) => p.openCorrectiveActions, type: 'num' },
@@ -87,12 +87,26 @@ export function filterProfiles(items, basis, f) {
 
 /* ---------- small helpers ---------- */
 
-const tag = (sample, n) =>
-  sample === 'sufficient' ? '' : `<span class="sample-tag sample-tag--${sample}" data-sample="${sample}" title="${sample === 'none' ? 'No records' : `Limited sample: ${n} record${n === 1 ? '' : 's'}`}">${sample === 'none' ? 'No data' : `n = ${n}`}</span>`;
+/**
+ * DEC-025 sample indicator. `unit` names the records the rate rests on,
+ * e.g. ['delivered event', 'delivered events'] or ['inspection record', 'inspection records'].
+ */
+let MIN_SAMPLE = 3;
+const tag = (sample, n, unit) => {
+  if (sample === 'sufficient') return '';
+  const [one, many] = unit;
+  const title =
+    sample === 'none'
+      ? `No data: 0 ${many}.`
+      : `Limited sample: ${n} ${n === 1 ? one : many}. Rates based on fewer than ${MIN_SAMPLE} records are flagged (DEC-025).`;
+  return `<span class="sample-tag sample-tag--${sample}" data-sample="${sample}" title="${esc(title)}">${sample === 'none' ? 'No data' : 'Limited sample'}</span>`;
+};
+const DELIVERY_UNIT = ['delivered event', 'delivered events'];
+const INSPECTION_UNIT = ['inspection record', 'inspection records'];
 
-function rateCell(value, n, sample, digits = 1) {
-  if (isMissing(value)) return `<span class="no-data" data-sample="none">No data</span>`;
-  return `<span class="figure">${esc(percent(value, digits))}</span>${tag(sample, n)}`;
+function rateCell(value, n, sample, unit, digits = 1, title = '') {
+  if (isMissing(value)) return `<span class="no-data" data-sample="none" title="${esc(`No data: 0 ${unit[1]}.`)}">No data</span>`;
+  return `<span class="figure"${title ? ` title="${esc(title)}"` : ''}>${esc(percent(value, digits))}</span>${tag(sample, n, unit)}`;
 }
 
 const options = (values, current, allLabel) =>
@@ -169,6 +183,7 @@ function baseline(m) {
 }
 
 function segments(m) {
+  const sampleOf = (n) => sampleSufficiency(n, m.config.minimumSampleForRate);
   const seg = m.kpis.suppliers.byCriticality.items;
   const crit = seg.find((g) => g.segment === 'Critical');
   const totalSnap = m.kpis.delivery.otdSnapshot.denominator;
@@ -182,11 +197,11 @@ function segments(m) {
         <td class="num">${integer(g.suppliers)}</td>
         <td class="num">${esc(percent(g.netActiveSharePct, 1))}</td>
         <td class="num">${integer(g.deliveredEventsSnapshot)}</td>
-        <td class="num">${isMissing(g.otdSnapshotPct) ? 'No data' : esc(percent(g.otdSnapshotPct, 1))}</td>
+        <td class="num">${rateCell(g.otdSnapshotPct, g.deliveredEventsSnapshot, sampleOf(g.deliveredEventsSnapshot), DELIVERY_UNIT)}</td>
         <td class="num">${integer(g.deliveredEventsFull)}</td>
-        <td class="num">${isMissing(g.otdFullPct) ? 'No data' : esc(percent(g.otdFullPct, 1))}</td>
-        <td class="num">${integer(g.inspectedQty)}</td>
-        <td class="num">${isMissing(g.rejectionRatePct) ? 'No data' : esc(percent(g.rejectionRatePct, 2))}</td>
+        <td class="num">${rateCell(g.otdFullPct, g.deliveredEventsFull, sampleOf(g.deliveredEventsFull), DELIVERY_UNIT)}</td>
+        <td class="num">${integer(g.inspectedQty)}<span class="cell-sub">${integer(g.inspections)} records</span></td>
+        <td class="num">${rateCell(g.rejectionRatePct, g.inspections, sampleOf(g.inspections), INSPECTION_UNIT, 2)}</td>
         <td class="num">${integer(g.nonconformances)}</td>
         <td class="num">${integer(g.openCorrectiveActions)}</td></tr>`,
     )
@@ -197,7 +212,7 @@ function segments(m) {
       <div class="panel">
         <p class="panel__lead panel__lead--insight">${lead}</p>
         <div class="table-wrap"><table class="data" data-table="segments">
-          <thead><tr><th scope="col">Criticality</th><th scope="col" class="num">Suppliers</th><th scope="col" class="num">Net active PO share</th><th scope="col" class="num">Events in period</th><th scope="col" class="num">OTD in period</th><th scope="col" class="num">Events, full</th><th scope="col" class="num">OTD, full</th><th scope="col" class="num">Inspected units</th><th scope="col" class="num">Rejection rate</th><th scope="col" class="num">Nonconform­ances</th><th scope="col" class="num">Open CAs</th></tr></thead>
+          <thead><tr><th scope="col">Criticality</th><th scope="col" class="num">Suppliers</th><th scope="col" class="num">Net active PO share</th><th scope="col" class="num">Events in period</th><th scope="col" class="num">OTD in period</th><th scope="col" class="num">Events, full</th><th scope="col" class="num">OTD, full</th><th scope="col" class="num">Inspected units (records)</th><th scope="col" class="num">Rejection rate</th><th scope="col" class="num">Nonconform­ances</th><th scope="col" class="num">Open CAs</th></tr></thead>
           <tbody>${rows}</tbody></table></div>
       </div>
     </section>`;
@@ -251,11 +266,11 @@ function comparison(m, profiles) {
         <td>${esc(p.qualification_status ?? NA)}</td>
         <td>${esc(p.certification_status ?? NA)}</td>
         <td class="num">${integer(p[b.n])}</td>
-        <td class="num" data-col="otd">${rateCell(p[b.otd], p[b.n], p[b.sample])}</td>
+        <td class="num" data-col="otd">${rateCell(p[b.otd], p[b.n], p[b.sample], DELIVERY_UNIT)}</td>
         <td class="num">${late}</td>
         <td class="num">${variance}</td>
-        <td class="num">${integer(p.inspections)}</td>
-        <td class="num" data-col="rejection">${rateCell(p.rejectionRatePct, p.inspections, p.inspectionSample, 2)}</td>
+        <td class="num" data-col="inspections">${integer(p.inspections)}${p.inspections ? `<span class="cell-sub" data-col="inspected-units">${integer(p.inspectedQty)} units</span>` : ''}</td>
+        <td class="num" data-col="rejection">${rateCell(p.rejectionRatePct, p.inspections, p.inspectionSample, INSPECTION_UNIT, 2, isMissing(p.rejectionRatePct) ? '' : `${integer(p.rejectedQty)} rejected of ${integer(p.inspectedQty)} inspected units, ${integer(p.inspections)} inspection records`)}</td>
         <td class="num">${integer(p.nonconformances)}</td>
         <td class="num">${integer(p.openCorrectiveActions)}</td>
         <td class="num">${esc(percent(p.netActiveSharePct, 1))}</td></tr>`;
@@ -283,7 +298,15 @@ function comparison(m, profiles) {
       ${empty}
       <div class="table-wrap table-wrap--bounded"${shown.length ? '' : ' hidden'}><table class="data data--compare" data-table="compare">
         <thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>
-      <p class="kpi__note">Sample labels: an amber "n = …" tag marks a limited sample of fewer than ${integer(m.config.minimumSampleForRate)} records (DEC-025); "No data" means no records, so the rate is left blank. Rejection rate sample counts inspection records. Criticality, qualification and certification from suppliers.csv.</p>
+      <div class="sample-legend" data-legend="sample">
+        <p><strong>Sample rule (DEC-025), minimum ${integer(m.config.minimumSampleForRate)} records:</strong></p>
+        <ul>
+          <li><span class="sample-tag sample-tag--none">No data</span> 0 records. The rate is left blank, never 0%.</li>
+          <li><span class="sample-tag sample-tag--limited">Limited sample</span> 1 to ${integer(m.config.minimumSampleForRate - 1)} records. The rate is shown but rests on very little evidence.</li>
+          <li>${integer(m.config.minimumSampleForRate)} or more records: the rate is shown without a flag.</li>
+        </ul>
+        <p>Delivery Event OTD counts delivered events on the selected basis. Rejection rate counts inspection records; its denominator is inspected units, shown under the inspection count. Criticality, qualification and certification come from suppliers.csv.</p>
+      </div>
     </section>`;
 }
 
@@ -303,7 +326,12 @@ function detailSection(m) {
   const pr = det.procurement;
   const min = m.config.minimumSampleForRate;
   const word = (n, one, many) => (n === 1 ? one : many);
-  const sampleNote = (n, one, many) => (n === 0 ? `<span class="sample-tag sample-tag--none" data-sample="none">No ${many}</span>` : n < min ? `<span class="sample-tag sample-tag--limited" data-sample="limited">Limited sample: ${n} ${word(n, one, many)}</span>` : '');
+  const sampleNote = (n, one, many) =>
+    n === 0
+      ? `<span class="sample-tag sample-tag--none" data-sample="none" title="No data: 0 ${many}.">No data: 0 ${many}</span>`
+      : n < min
+        ? `<span class="sample-tag sample-tag--limited" data-sample="limited" title="Rates based on fewer than ${min} records are flagged (DEC-025).">Limited sample: ${n} ${word(n, one, many)}</span>`
+        : '';
   const attr = (k, field = 'value', key) => `data-detail-key="${key}" data-kpi-field="${field}" data-value="${isMissing(k[field]) ? '' : esc(k[field])}"`;
 
   const delivered = det.events.filter((e) => e.delivery_status === 'Delivered');
@@ -342,8 +370,8 @@ function detailSection(m) {
       <div class="kpi-panel kpi-panel--four">
         <article class="kpi" data-card="det-otd"><span class="kpi__ref">KPI 4.1</span><h3 class="kpi__label">Delivery Event OTD</h3>
           <span class="kpi__value${isMissing(dl.otdSnapshot.value) ? ' kpi__value--na' : ''}" ${attr(dl.otdSnapshot, 'value', 'delivery.otdSnapshot')}>${isMissing(dl.otdSnapshot.value) ? 'No data' : esc(percent(dl.otdSnapshot.value, 1))}</span>
-          <p class="kpi__context">${integer(dl.otdSnapshot.numerator)} of ${integer(dl.otdSnapshot.denominator)} ${word(dl.otdSnapshot.denominator, 'event', 'events')} in period ${sampleNote(dl.otdSnapshot.denominator, 'event', 'events')}</p>
-          <ul class="kpi__lines"><li><span>Full dataset</span><span ${attr(dl.otdFull, 'value', 'delivery.otdFull')}>${isMissing(dl.otdFull.value) ? 'No data' : `${esc(percent(dl.otdFull.value, 1))} (${integer(dl.otdFull.numerator)} of ${integer(dl.otdFull.denominator)})`}</span></li>
+          <p class="kpi__context">${integer(dl.otdSnapshot.numerator)} of ${integer(dl.otdSnapshot.denominator)} ${word(dl.otdSnapshot.denominator, 'event', 'events')} in period ${sampleNote(dl.otdSnapshot.denominator, 'delivered event', 'delivered events')}</p>
+          <ul class="kpi__lines"><li><span>Full dataset</span><span ${attr(dl.otdFull, 'value', 'delivery.otdFull')}>${isMissing(dl.otdFull.value) ? 'No data' : `${esc(percent(dl.otdFull.value, 1))} (${integer(dl.otdFull.numerator)} of ${integer(dl.otdFull.denominator)})${dl.otdFull.denominator < min ? ' <span class="sample-tag sample-tag--limited" data-sample="limited">Limited sample</span>' : ''}`}</span></li>
           <li><span>Portfolio, in period</span><span>${esc(percent(m.kpis.delivery.otdSnapshot.value, 1))}</span></li></ul></article>
         <article class="kpi" data-card="det-late"><span class="kpi__ref">KPI 4.2, 4.3</span><h3 class="kpi__label">Late delivery events</h3>
           <span class="kpi__value" ${attr(dl.lateSnapshot, 'value', 'delivery.lateSnapshot')}>${integer(dl.lateSnapshot.value)}</span>
@@ -352,7 +380,7 @@ function detailSection(m) {
           <li><span>In transit</span><span>${integer(det.events.length - delivered.length)}</span></li></ul></article>
         <article class="kpi" data-card="det-quality"><span class="kpi__ref">KPI 5.1, 5.3, 5.4</span><h3 class="kpi__label">Inspection rejection rate</h3>
           <span class="kpi__value${isMissing(q.rejectionRate.value) ? ' kpi__value--na' : ''}" ${attr(q.rejectionRate, 'value', 'quality.rejectionRate')}>${isMissing(q.rejectionRate.value) ? 'No data' : esc(percent(q.rejectionRate.value, 2))}</span>
-          <p class="kpi__context">${integer(q.rejectionRate.numerator)} of ${integer(q.rejectionRate.denominator)} units, ${integer(q.rejectionRate.n)} ${word(q.rejectionRate.n, 'inspection', 'inspections')} ${sampleNote(q.rejectionRate.n, 'inspection', 'inspections')}</p>
+          <p class="kpi__context">${integer(q.rejectionRate.numerator)} of ${integer(q.rejectionRate.denominator)} units, ${integer(q.rejectionRate.n)} ${word(q.rejectionRate.n, 'inspection record', 'inspection records')} ${sampleNote(q.rejectionRate.n, 'inspection record', 'inspection records')}</p>
           <ul class="kpi__lines"><li><span>Nonconformance inspections</span><span>${integer(q.nonconformances.value)}</span></li>
           <li><span>Open corrective actions</span><span>${integer(q.openCorrectiveActions.value)} of ${integer(q.openCorrectiveActions.n)}</span></li></ul></article>
         <article class="kpi" data-card="det-po"><span class="kpi__ref">KPI 6.1.2, 6.4, 6.2, 4.4</span><h3 class="kpi__label">Net active PO line value</h3>
@@ -407,6 +435,7 @@ let currentModel = null;
 let currentContainer = null;
 
 function draw(m, container) {
+  MIN_SAMPLE = m.config.minimumSampleForRate;
   const profiles = m.kpis.suppliers.profiles.items;
   container.innerHTML = `
     ${titleBlock(m, profiles)}
