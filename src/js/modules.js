@@ -1,5 +1,6 @@
 /**
- * The five approved application modules (DEC-021).
+ * The five approved application modules (DEC-021), plus the Command centre overview
+ * added at the Project Owner's request on 2026-11-14 (a chart-first view of the same KPIs).
  * `available: false` modules show a "planned" page with no figures.
  */
 
@@ -7,6 +8,12 @@ export const MODULES = Object.freeze([
   {
     id: 'executive',
     name: 'Executive dashboard',
+    available: true,
+    stageLabel: null,
+  },
+  {
+    id: 'overview',
+    name: 'Command centre',
     available: true,
     stageLabel: null,
   },

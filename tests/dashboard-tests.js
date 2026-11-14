@@ -203,12 +203,12 @@ test('Supporting panels', 'Critical supplier count is 4 of 25 from the supplier 
   assert(p.textContent.includes('4of 25 suppliers classified critical') || p.textContent.replace(/\s+/g, ' ').includes('4 of 25 suppliers classified critical'), p.textContent);
 });
 
-test('Navigation', 'Navigation lists the five approved modules; four modules are available and the AI assistant is a planned page', async () => {
+test('Navigation', 'Navigation lists the five approved modules plus the Command centre; five pages are available and the AI assistant is a planned page', async () => {
   const links = [...doc.querySelectorAll('#module-nav-list a')];
-  assertEqual(links.map((a) => a.dataset.module), ['executive', 'suppliers', 'procurement', 'inventory', 'assistant']);
-  assertEqual(MODULES.filter((m) => m.available).map((m) => m.id), ['executive', 'suppliers', 'procurement', 'inventory']);
+  assertEqual(links.map((a) => a.dataset.module), ['executive', 'overview', 'suppliers', 'procurement', 'inventory', 'assistant']);
+  assertEqual(MODULES.filter((m) => m.available).map((m) => m.id), ['executive', 'overview', 'suppliers', 'procurement', 'inventory']);
   assertEqual(links[0].getAttribute('aria-current'), 'page');
-  assertEqual(links.slice(1).map((a) => a.querySelector('.stage')?.textContent ?? null), [null, null, null, 'Future phase']);
+  assertEqual(links.slice(1).map((a) => a.querySelector('.stage')?.textContent ?? null), [null, null, null, null, 'Future phase']);
 });
 
 for (const id of ['assistant']) {

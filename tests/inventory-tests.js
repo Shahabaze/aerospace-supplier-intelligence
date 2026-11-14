@@ -208,12 +208,12 @@ function altered(name, where, set2) {
 const shown = (el) => !!el && el.getBoundingClientRect().height > 0;
 let mFrame, mDoc;
 
-test('Mobile', 'Desktop width: menu button and swipe hint hidden, all five module links visible', async () => {
+test('Mobile', 'Desktop width: menu button and swipe hint hidden, all six menu links visible', async () => {
   doc.querySelector('#module-nav-list a[data-module="inventory"]').click();
   assert(await waitFor(() => doc.querySelector('[data-table="inventory"]')));
   assert(!shown(doc.getElementById('nav-toggle')), 'menu button visible on desktop');
   assert(!shown(doc.querySelector('[data-hint="inventory"]')), 'swipe hint visible on desktop');
-  assertEqual([...doc.querySelectorAll('#module-nav-list a')].filter(shown).length, 5);
+  assertEqual([...doc.querySelectorAll('#module-nav-list a')].filter(shown).length, 6);
 });
 
 test('Mobile', '375px: menu collapsed by default; button names the current module and is at least 44px', async () => {
@@ -237,7 +237,7 @@ test('Mobile', '375px: menu opens, links are at least 44px, Escape closes it and
   b.click();
   assertEqual(b.getAttribute('aria-expanded'), 'true');
   const links = [...mDoc.querySelectorAll('#module-nav-list a')].filter(shown);
-  assertEqual(links.length, 5);
+  assertEqual(links.length, 6);
   assert(links.every((a) => a.getBoundingClientRect().height >= 44), 'link below 44px');
   links[0].focus();
   mDoc.dispatchEvent(new mFrame.contentWindow.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
