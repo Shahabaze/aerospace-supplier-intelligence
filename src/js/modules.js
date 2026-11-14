@@ -25,16 +25,8 @@ export const MODULES = Object.freeze([
   {
     id: 'inventory',
     name: 'Inventory intelligence',
-    available: false,
-    stageLabel: 'Stage 7',
-    status: 'Planned for development Stage 7',
-    summary: 'Point-in-time stock health for physical materials at the 31 October 2026 snapshot.',
-    planned: [
-      'On-hand and available inventory value (SERVICE materials excluded)',
-      'Materials below reorder point and safety stock, on the available-stock basis',
-      'Days of supply and excess inventory value',
-      'Supplied inventory status, labelled as on-hand based',
-    ],
+    available: true,
+    stageLabel: null,
   },
   {
     id: 'assistant',

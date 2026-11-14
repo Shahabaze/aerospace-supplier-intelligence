@@ -58,7 +58,7 @@ aerospace-supplier-intelligence/
 │   │   ├── charts.js          Chart.js helpers
 │   │   ├── format.js          Display formatting only (blank shown as "Not available")
 │   │   ├── modules.js         The five approved modules and their status
-│   │   ├── views/             One file per dashboard module (executive.js, suppliers.js, procurement.js, placeholder.js)
+│   │   ├── views/             One file per dashboard module (executive.js, suppliers.js, procurement.js, inventory.js, placeholder.js)
 │   │   └── app.js             Start-up, navigation and error display
 │   └── vendor/                Pinned Chart.js, Papa Parse and fonts + licence files
 ├── tests/
@@ -67,6 +67,7 @@ aerospace-supplier-intelligence/
 │   ├── dashboard-tests.html   Browser test page for the dashboard screens
 │   ├── supplier-tests.html    Browser test page for Supplier Performance
 │   ├── procurement-tests.html Browser test page for Procurement Intelligence
+│   ├── inventory-tests.html   Browser test page for Inventory Intelligence
 │   ├── fixtures/              Small deliberately faulty CSV files for negative tests
 │   └── reports/               Test report for each development stage
 └── assets/                    Screenshots and images

@@ -636,6 +636,58 @@ export function inventoryStatusDistribution(d) {
   return kpi({ kpiId: '7.7', label: 'Supplied inventory status (on-hand basis)', value: counts, unit: 'materials', n: rows.length, basis: 'Supplied classification, based on on-hand stock (DEC-018)', asOfDate: snapshotDateOf(rows), status: LIMITED, limitation: 'Supplied classification. Uses on-hand stock, so it can differ from KPI 7.3 and 7.4, which use available stock.' });
 }
 
+/**
+ * Material inventory register (Stage 7): one row per material at the snapshot date.
+ * Stock position uses available stock (DEC-018); the supplied status is passed through and
+ * labelled as on-hand based. Supplier criticality comes from suppliers.csv; material
+ * criticality from the inventory/material record. SERVICE rows are flagged, not dropped,
+ * so the view can show them as excluded.
+ */
+export function inventoryRegister(d) {
+  const sup = new Map(d.suppliers.map((s) => [s.supplier_id, s]));
+  const items = d.inventory_snapshot.map((r) => {
+    const physicalRow = isPhysical(r);
+    const s = sup.get(r.supplier_id) || {};
+    let position = null;
+    if (physicalRow && r.available_qty !== null && r.safety_stock_qty !== null && r.reorder_point_qty !== null) {
+      position = r.available_qty < r.safety_stock_qty ? 'Below safety stock' : r.available_qty < r.reorder_point_qty ? 'Below reorder point' : 'At or above reorder point';
+    }
+    return {
+      material_id: r.material_id,
+      material_description: r.material_description,
+      material_category: r.material_category,
+      supplier_id: r.supplier_id,
+      supplier_name: s.supplier_name ?? null,
+      supplierCriticality: s.criticality ?? null, // suppliers.csv
+      materialCriticality: r.criticality ?? null, // material record
+      unit_of_measure: r.unit_of_measure,
+      physical: physicalRow,
+      on_hand_qty: r.on_hand_qty,
+      allocated_qty: r.allocated_qty,
+      available_qty: r.available_qty,
+      safety_stock_qty: r.safety_stock_qty,
+      reorder_point_qty: r.reorder_point_qty,
+      days_of_supply: physicalRow ? r.days_of_supply : null,
+      on_hand_inventory_value_usd: r.on_hand_inventory_value_usd,
+      available_inventory_value_usd: r.available_inventory_value_usd,
+      stockPosition: position, // available-stock basis
+      suppliedStatus: r.inventory_status, // on-hand basis, as supplied
+      snapshot_date: r.snapshot_date,
+    };
+  });
+  return kpi({
+    kpiId: '7.x',
+    label: 'Material inventory register',
+    value: null,
+    n: items.length,
+    basis: 'One row per material at the snapshot date; stock position on available stock; SERVICE flagged and excluded from inventory KPIs',
+    asOfDate: snapshotDateOf(d.inventory_snapshot),
+    status: LIMITED,
+    limitation: 'Single snapshot. No trend, consumption history or batch expiry data.',
+    items,
+  });
+}
+
 /* ======================================================================
  * 8. Supplier profile and risk indicators
  * ==================================================================== */
@@ -1047,6 +1099,7 @@ export function computeAllKpis(d, { asOfDate, minSample = DEFAULT_MIN_SAMPLE }) 
       daysOfSupply: averageDaysOfSupply(d),
       excessValue: excessInventoryValue(d),
       statusDistribution: inventoryStatusDistribution(d),
+      register: inventoryRegister(d),
     },
     suppliers: {
       critical: criticalSupplierCount(d),

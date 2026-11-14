@@ -45,8 +45,8 @@ Fragmented procurement information can make it difficult to:
 |---|---|---|---|
 | 1 | Executive Dashboard | Delivery Event OTD (snapshot and full-dataset bases), late delivery events, open PO commitment, net active PO line value (with gross and cancelled), inspection rejection rate, on-hand inventory value; data-quality warnings; supplier concentration; unsupported-KPI register | Approved (Stage 4) |
 | 2 | Supplier Performance | Delivery-event OTD on snapshot and full-dataset bases, late events, delivery variance, rejection rate, nonconformances, corrective-action register, criticality/qualification/certification; criticality segments; PO exposure vs OTD; sortable, filterable comparison; supplier detail with events and inspections; sample-size labels | Approved (Stage 5) |
-| 3 | Procurement Intelligence | PO value bridge (gross, cancelled, net active, received, open, overdue, not yet due), overdue ageing, supplier Pareto concentration, commitment by segment, supplier commitment table, expediting register, promise-to-request gap | Built – awaiting Project Owner review |
-| 4 | Inventory Intelligence | Inventory value, available stock, below reorder point, safety stock breaches, days of supply, excess inventory | Planned |
+| 3 | Procurement Intelligence | PO value bridge (gross, cancelled, net active, received, open, overdue, not yet due), overdue ageing, supplier Pareto concentration, commitment by segment, supplier commitment table, expediting register, promise-to-request gap | Approved (Stage 6) |
+| 4 | Inventory Intelligence | On-hand and available value, below reorder point and safety stock (available basis), days of supply, excess value, status on both bases, searchable material table with supplier and material criticality, single-snapshot warnings | Built (Stage 7) |
 | 5 | AI Procurement Assistant | Natural-language questions grounded in validated KPI results, via a secure backend | Future phase |
 
 There is no composite supplier risk score. The current data does not support one (KPI Dictionary 8.5).
@@ -184,7 +184,8 @@ A feature is described as tested only when a test has actually been run and its 
 
 **Next**
 
-- Project Owner review of Procurement Intelligence, then Inventory Intelligence (Stage 7).
+- Inventory Intelligence module ([Stage 7 test report](tests/reports/stage-07-inventory-intelligence.md)).
+- GitHub Pages deployment and live validation (Stage 8).
 
 The live dashboard link and screenshots will be added once the first module is deployed and verified.
 

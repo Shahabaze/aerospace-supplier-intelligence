@@ -18,6 +18,7 @@ The test pages run in an ordinary web browser and show pass or fail for each che
 | `dashboard-tests.html` | Loads the real application and checks that every displayed figure equals the KPI engine output, plus warnings, navigation and failure handling |
 | `supplier-tests.html` | Supplier Performance: figures against the KPI engine, sorting, filtering, delivery bases, supplier detail, sample-size labels |
 | `procurement-tests.html` | Procurement Intelligence: bridge, ageing, concentration, supplier commitment table and expediting register against the KPI engine and independent values |
+| `inventory-tests.html` | Inventory Intelligence: KPIs 7.1–7.7, stock-position bases, material table filters and sorting |
 | `fixtures/` | Small, deliberately faulty CSV files used to prove each control detects errors. The real data files are never altered |
 | `reports/` | Test report for each development stage |
 

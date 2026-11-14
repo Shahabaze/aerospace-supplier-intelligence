@@ -308,6 +308,13 @@ table.data--register tbody tr.is-overdue > th.sticky { box-shadow: inset 3px 0 0
 .bucket-tag--91-180 { background: #1d5fa8; color: #fff; border-color: #1d5fa8; }
 .bucket-tag--31-90 { background: #dce8f5; color: var(--ink); border-color: #9db6d3; }
 
+/* ---------- Inventory intelligence ---------- */
+.pos { display: inline-block; font-size: var(--t-xs); font-weight: 600; padding: 0.05rem 0.45rem; border-radius: var(--radius); white-space: nowrap; }
+.pos--ss { background: #b26a00; color: #fff; }
+.pos--rop { background: var(--caution-bg); color: var(--caution); border: 1px solid var(--caution-line); }
+.pos--ok { background: #eef1f4; color: var(--steel); border: 1px solid var(--rule); }
+tr.is-service > * { background: #f6f8fa; color: var(--steel); }
+
 /* ---------- Not supported ---------- */
 .unsupported { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 var(--gap); background: var(--surface); border: 1px solid var(--rule); padding: 0.4rem 1.2rem; }
 .unsupported div { padding: 0.65rem 0; border-bottom: 1px solid var(--rule); }
