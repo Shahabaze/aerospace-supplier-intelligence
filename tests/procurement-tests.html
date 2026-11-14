@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Running – Procurement intelligence tests</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="test-page.css">
+</head>
+<body>
+  <header>
+    <h1>Procurement Intelligence Tests</h1>
+    <p>Aerospace Supplier Intelligence Platform · PO value bridge, overdue ageing, concentration, supplier commitment and expediting register, checked against the KPI engine and independent expected values (KPI Dictionary v2.3).</p>
+    <p class="note">Synthetic demonstration data. These tests read the CSV files in <code>data/</code> and never change them.</p>
+  </header>
+  <main id="results"><p>Running tests…</p></main>
+  <script src="../src/vendor/papaparse-5.7.1.min.js"></script>
+  <script src="../src/vendor/chart-4.6.1.umd.min.js"></script>
+  <script type="module" src="procurement-tests.js"></script>
+</body>
+</html>

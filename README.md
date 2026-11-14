@@ -45,7 +45,7 @@ Fragmented procurement information can make it difficult to:
 |---|---|---|---|
 | 1 | Executive Dashboard | Delivery Event OTD (snapshot and full-dataset bases), late delivery events, open PO commitment, net active PO line value (with gross and cancelled), inspection rejection rate, on-hand inventory value; data-quality warnings; supplier concentration; unsupported-KPI register | Approved (Stage 4) |
 | 2 | Supplier Performance | Delivery-event OTD on snapshot and full-dataset bases, late events, delivery variance, rejection rate, nonconformances, corrective-action register, criticality/qualification/certification; criticality segments; PO exposure vs OTD; sortable, filterable comparison; supplier detail with events and inspections; sample-size labels | Approved (Stage 5) |
-| 3 | Procurement Intelligence | Supplier PO commitment, commitment concentration, open PO exposure, overdue open PO lines | Planned |
+| 3 | Procurement Intelligence | PO value bridge (gross, cancelled, net active, received, open, overdue, not yet due), overdue ageing, supplier Pareto concentration, commitment by segment, supplier commitment table, expediting register, promise-to-request gap | Built – awaiting Project Owner review |
 | 4 | Inventory Intelligence | Inventory value, available stock, below reorder point, safety stock breaches, days of supply, excess inventory | Planned |
 | 5 | AI Procurement Assistant | Natural-language questions grounded in validated KPI results, via a secure backend | Future phase |
 
@@ -180,9 +180,11 @@ A feature is described as tested only when a test has actually been run and its 
 
 - Supplier Performance module ([Stage 5 test report](tests/reports/stage-05-supplier-performance.md)).
 
+- Procurement Intelligence module ([Stage 6 test report](tests/reports/stage-06-procurement-intelligence.md)).
+
 **Next**
 
-- Procurement Intelligence (Stage 6): approved for implementation (DEC-026 to DEC-032).
+- Project Owner review of Procurement Intelligence, then Inventory Intelligence (Stage 7).
 
 The live dashboard link and screenshots will be added once the first module is deployed and verified.
 
