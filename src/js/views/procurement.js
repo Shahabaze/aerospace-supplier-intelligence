@@ -172,7 +172,7 @@ function ageingSection(m) {
   const byLines = [...a.items].sort((x, y) => y.lines - x.lines)[0];
   const byValue = [...a.items].sort((x, y) => y.value - x.value)[0];
   const lead = totalLines
-    ? `The most lines sit in <strong>${esc(byLines.label.toLowerCase())}</strong> (${integer(byLines.lines)} of ${integer(totalLines)}), while the most value sits in <strong>${esc(byValue.label.toLowerCase())}</strong> (${esc(usd(byValue.value))}, ${esc(percent((byValue.value / total) * 100, 1))} of overdue open value).`
+    ? `Most lines: <strong>${esc(byLines.label.toLowerCase())}</strong> (${integer(byLines.lines)} of ${integer(totalLines)}). Most value: <strong>${esc(byValue.label.toLowerCase())}</strong> (${esc(usd(byValue.value))}, ${esc(percent((byValue.value / total) * 100, 1))}).`
     : 'No PO lines are overdue at this date.';
   const rows = a.items
     .map((i) => `<tr data-bucket="${esc(i.bucket)}"><th scope="row">${esc(i.label)}</th><td class="num">${i.maxDays === null ? `${i.minDays} or more` : `${i.minDays} to ${i.maxDays}`}</td><td class="num">${integer(i.lines)}</td><td class="num">${esc(usd(i.value))}</td><td class="num">${total ? esc(percent((i.value / total) * 100, 1)) : NA}</td></tr>`)
@@ -209,7 +209,7 @@ function paretoSection(m) {
       <div class="panel" data-panel="pareto">
         <p class="panel__lead panel__lead--insight">${lead}</p>
         <div class="chart-box chart-box--tall"><canvas id="pareto-chart" role="img" aria-label="Pareto chart of supplier share and cumulative share of net active PO value. Figures are in the supplier commitment table."></canvas></div>
-        <p class="kpi__note">Dark bars are the suppliers that together first reach 80%. Concentration of PO value, not invoiced spend. No concentration index is calculated (DEC-028).</p>
+        <p class="kpi__note">Dark bars together first reach 80%. PO value, not invoiced spend; no concentration index (DEC-028).</p>
       </div>
     </section>`;
 }
@@ -378,7 +378,7 @@ function gapSection(m) {
       <div class="section__head"><h2 id="gap-title">Promised versus requested date</h2><p>Supporting indicator (KPI 4.7), based on the currently recorded promised date.</p></div>
       <div class="support-grid">
         <div class="panel" data-panel="gap">
-          <p class="panel__lead panel__lead--insight" data-insight="gap"><strong>${integer(g.later)} of ${integer(g.n)}</strong> PO lines carry a promised date later than the requested date, ${integer(g.same)} match it and ${integer(g.earlier)} are earlier. Average gap ${esc(signed(g.value))}; range ${esc(signed(g.min, 0))} to ${esc(signed(g.max, 0))}.</p>
+          <p class="panel__lead panel__lead--insight" data-insight="gap"><strong>${integer(g.later)} of ${integer(g.n)}</strong> PO lines are promised later than requested, ${integer(g.same)} on the date, ${integer(g.earlier)} earlier. Average gap ${esc(signed(g.value))} (range ${esc(signed(g.min, 0))} to ${esc(signed(g.max, 0))}).</p>
           <div class="chart-box"><canvas id="gap-chart" role="img" aria-label="Bar chart of PO lines by promise-to-request gap in days."></canvas></div>
         </div>
         <div class="panel">

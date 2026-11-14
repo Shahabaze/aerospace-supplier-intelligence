@@ -134,7 +134,7 @@ test('Exposure', 'Chart plots the 21 suppliers with events in period; the 4 with
 
 test('Exposure', 'Top-five exposure statement is derived from the data', async () => {
   const t = text('[data-insight="top5"]');
-  assert(t.includes('80.3%') && t.includes('2 of them (SUP-008, SUP-002) are below the portfolio OTD of 39.7%') && t.includes('1 (SUP-012) have none'), t);
+  assert(t.includes('80.3%') && t.includes('2 below the 39.7% portfolio OTD (SUP-008, SUP-002)') && t.includes('4 with fewer than 3 delivered events (SUP-007, SUP-008, SUP-002, SUP-016)') && t.includes('1 with none (SUP-012)'), t);
 });
 
 test('Comparison', 'Table lists all 25 suppliers by default, sorted by criticality', async () => {

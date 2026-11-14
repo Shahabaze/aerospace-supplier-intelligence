@@ -233,9 +233,9 @@ function exposureSection(m, profiles) {
     <section class="section" aria-labelledby="exp-title">
       <div class="section__head"><h2 id="exp-title">Delivery performance against PO exposure</h2><p>Basis: ${esc(basisLabel(state.basis, m.config.reportingAsOfDate))}.</p></div>
       <div class="panel" data-panel="exposure">
-        <p class="panel__lead panel__lead--insight" data-insight="top5">The five suppliers with the most net active PO value hold <strong>${esc(percent(top5Share, 1))}</strong> of it. On this basis, ${top5Below.length} of them (${list(top5Below)}) are below the portfolio OTD of ${esc(percent(portfolio, 1))}, ${top5Limited.length} (${list(top5Limited)}) have fewer than ${integer(m.config.minimumSampleForRate)} delivered events, and ${top5NoData.length} (${list(top5NoData)}) have none.</p>
+        <p class="panel__lead panel__lead--insight" data-insight="top5">The top 5 suppliers hold <strong>${esc(percent(top5Share, 1))}</strong> of net active PO value: ${top5Below.length} below the ${esc(percent(portfolio, 1))} portfolio OTD (${list(top5Below)}), ${top5Limited.length} with fewer than ${integer(m.config.minimumSampleForRate)} delivered events (${list(top5Limited)}), ${top5NoData.length} with none (${list(top5NoData)}).</p>
         <div class="chart-box chart-box--tall"><canvas id="exposure-chart" role="img" aria-label="Bubble chart of each supplier's share of net active PO value against its Delivery Event OTD. Figures are in the comparison table."></canvas></div>
-        <p class="kpi__note">Each bubble is a supplier with at least one delivered event on this basis; bubble size reflects the number of events, and pale bubbles have a limited sample. Select a bubble to open the supplier. Not plotted (no delivered events on this basis): <span data-not-plotted>${list(notPlotted)}</span>.</p>
+        <p class="kpi__note">Bubble size shows delivered events; pale bubbles have a limited sample. Select a bubble to open the supplier. Not plotted (no delivered events): <span data-not-plotted>${list(notPlotted)}</span>.</p>
       </div>
     </section>`;
 }
@@ -393,7 +393,7 @@ function detailSection(m) {
       <div class="detail-grid">
         <div class="panel" data-panel="timeline">
           <h3>Delivery timing</h3>
-          <p class="panel__lead">Each delivered event: days late (+) or early (−) against the promised date. Events after the as-of date are included and marked in the table.</p>
+          <p class="panel__lead">Days late (+) or early (−) for each delivered event, including events after the as-of date.</p>
           ${delivered.length ? '<div class="chart-box"><canvas id="timeline-chart" role="img" aria-label="Scatter chart of delivery variance for each delivered event. Figures are in the delivery events table."></canvas></div>' : '<p class="no-data" data-timeline-empty>No delivered events for this supplier.</p>'}
         </div>
         <div class="panel">

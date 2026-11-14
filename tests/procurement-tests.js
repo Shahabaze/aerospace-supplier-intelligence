@@ -303,7 +303,7 @@ test('Register', 'Sort by open value descending; no matches shows a message and 
 
 test('Promise gap', 'Gap section: 66 later, 5 same, 29 earlier; average +2.5 days; current-promise limitation stated', async () => {
   const t = text('[data-insight="gap"]');
-  assert(t.startsWith('66 of 100 PO lines carry a promised date later than the requested date, 5 match it and 29 are earlier. Average gap +2.5 days; range −3 days to +8 days.'), t);
+  assert(t.startsWith('66 of 100 PO lines are promised later than requested, 5 on the date, 29 earlier. Average gap +2.5 days (range −3 days to +8 days).'), t);
   assert(text('section[aria-labelledby="gap-title"]').includes('does not show original promises, how often promises changed'));
   const c = frame.contentWindow.Chart.getChart(doc.getElementById('gap-chart'));
   assertEqual(c.data.datasets[0].data.reduce((s, v) => s + v, 0), 100);
