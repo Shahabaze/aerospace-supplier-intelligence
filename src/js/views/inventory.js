@@ -203,7 +203,8 @@ function tableSection(m) {
       </div>
       <p class="result-count" data-count="inventory" aria-live="polite">Showing ${integer(rows.length)} of ${integer(shown)} ${f.showService ? 'materials' : 'physical materials'}.</p>
       ${rows.length ? '' : '<p class="empty" data-empty="inventory">No materials match these filters. <button type="button" class="link-button" data-action="reset-inventory">Reset table</button></p>'}
-      <div class="table-wrap table-wrap--bounded"${rows.length ? '' : ' hidden'}><table class="data data--compare" data-table="inventory"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>
+      <p class="swipe-hint" id="inv-swipe-hint" data-hint="inventory"${rows.length ? '' : ' hidden'}><span class="swipe-hint__icon" aria-hidden="true">⇆</span> Swipe sideways to see all ${COLS.length} columns. The Material column stays in place.</p>
+      <div class="table-wrap table-wrap--bounded" role="region" aria-label="Material inventory table" tabindex="0"${rows.length ? '' : ' hidden'}><table class="data data--compare" data-table="inventory"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>
       <p class="kpi__note">Material criticality comes from the material record; supplier criticality from suppliers.csv. They can differ (for example, a Critical material from a High-criticality supplier). Stock position uses available stock; supplied status uses on-hand stock. SERVICE materials hold no physical stock and are excluded from inventory KPIs.</p>
     </section>`;
 }

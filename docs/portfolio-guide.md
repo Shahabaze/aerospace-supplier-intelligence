@@ -49,7 +49,7 @@ A supplier intelligence dashboard that turns raw supplier, PO, delivery, quality
 | Question | Short answer |
 |---|---|
 | Is this real company data? | No. All data is synthetic and was designed for this project. |
-| How are the numbers checked? | 274 automated browser tests. KPI values are checked against a separate, independent calculation, and deliberate bugs were planted to prove the tests catch them. |
+| How are the numbers checked? | 280 automated browser tests. KPI values are checked against a separate, independent calculation, and deliberate bugs were planted to prove the tests catch them. |
 | Why no OTIF? | The data does not hold original commitment dates or promise history, so a defensible OTIF cannot be calculated. Delivery-event OTD is shown instead and labelled as such. |
 | Why not show spend? | There is no invoice data. All values are PO line values, and the dashboard labels them that way. |
 | What tools were used? | Plain HTML, CSS and JavaScript on GitHub Pages, with Chart.js and Papa Parse. No server, no paid services and no API keys. |

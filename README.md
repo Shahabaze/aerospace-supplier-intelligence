@@ -38,7 +38,7 @@
 | Inventory intelligence | Six inventory KPIs, status on both stock bases, searchable material table with supplier and material criticality | [View](assets/screenshots/06-inventory-intelligence.png) |
 | AI procurement assistant | Planned for a later phase, through a secure backend; not part of this release | — |
 
-Mobile layouts: [Executive](assets/screenshots/08-mobile-executive.png), [Procurement](assets/screenshots/09-mobile-procurement.png). Data quality: [View](assets/screenshots/07-data-quality.png).
+Mobile layouts: [Executive](assets/screenshots/08-mobile-executive.png), [Procurement](assets/screenshots/09-mobile-procurement.png), [inventory table with fixed Material column](assets/screenshots/10-mobile-inventory-table.png), [module menu](assets/screenshots/11-mobile-menu-open.png). On phones the module menu collapses behind a menu button, controls are at least 44px tall, and wide tables keep their first column in place while scrolling sideways. Data quality: [View](assets/screenshots/07-data-quality.png).
 
 ## How to use it
 
@@ -82,7 +82,7 @@ Known, documented data conditions are shown on screen rather than corrected sile
 
 ## Quality assurance
 
-**274 automated browser tests**, all passing in Chrome at release. Each suite is an ordinary web page that shows pass or fail:
+**280 automated browser tests**, all passing in Chrome at release. Each suite is an ordinary web page that shows pass or fail:
 
 | Suite | Tests | Covers |
 |---|---:|---|
@@ -91,11 +91,11 @@ Known, documented data conditions are shown on screen rather than corrected sile
 | [`tests/dashboard-tests.html`](tests/dashboard-tests.html) | 38 | Executive dashboard, navigation, failure handling |
 | [`tests/supplier-tests.html`](tests/supplier-tests.html) | 44 | Supplier comparison, sorting, filtering, detail, sample-size rule |
 | [`tests/procurement-tests.html`](tests/procurement-tests.html) | 33 | Bridge, ageing, concentration, commitment table, expediting register |
-| [`tests/inventory-tests.html`](tests/inventory-tests.html) | 17 | Inventory KPIs, stock bases, material table |
+| [`tests/inventory-tests.html`](tests/inventory-tests.html) | 23 | Inventory KPIs, stock bases, material table, mobile menu, touch targets and sideways scrolling at 375px |
 
 Each stage also included a mutation check: bugs were planted deliberately to confirm the tests catch them. Stage reports with screenshots are in [`tests/reports/`](tests/reports/).
 
-All 274 tests also pass when run from the live site. Anyone can open the test pages above in a browser and run them.
+All 274 tests that existed at deployment also passed when run from the live site; the 6 mobile tests were added afterwards ([`tests/reports/stage-08-mobile-usability.md`](tests/reports/stage-08-mobile-usability.md)). Anyone can open the test pages above in a browser and run them.
 
 **Testing limits:** automated tests ran in Chrome. Firefox, Safari and physical devices were not part of the automated runs. Live-site checks are recorded in [`tests/reports/stage-08-deployment.md`](tests/reports/stage-08-deployment.md).
 

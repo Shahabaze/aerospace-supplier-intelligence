@@ -105,6 +105,8 @@ a:focus-visible, button:focus-visible, summary:focus-visible, [tabindex]:focus-v
 .module-nav a[aria-current='page'] { background: var(--paper); color: var(--ink); }
 .module-nav .stage { font-size: var(--t-xs); color: #8fa7c4; font-weight: 400; }
 .module-nav a[aria-current='page'] .stage { color: var(--steel); }
+/* Mobile menu button: displayed only at 640px and below (see Responsive). */
+.nav-toggle { display: none; }
 
 /* ---------- Page ---------- */
 main { max-width: var(--page); margin: 0 auto; padding: 1.75rem var(--gap) 3rem; }
@@ -238,6 +240,13 @@ table.data--compare thead th.sticky { z-index: 3; background: #eef2f6; }
 table.data--compare tbody tr:hover > * { background: #f6f9fc; }
 table.data--compare tbody tr.is-selected > * { background: var(--signal-soft); }
 table.data--compare td { white-space: nowrap; }
+/* Edge shadow on the sticky column once the table has been scrolled sideways (class set in app.js). */
+.table-wrap.is-scrolled table.data--compare .sticky::after {
+  content: ''; position: absolute; top: 0; bottom: -1px; right: -8px; width: 8px; pointer-events: none;
+  background: linear-gradient(to right, rgba(19, 38, 60, 0.14), rgba(19, 38, 60, 0));
+}
+.table-wrap--bounded:focus-visible { outline: 3px solid var(--signal); outline-offset: 2px; }
+.swipe-hint { display: none; }
 .sort { all: unset; cursor: pointer; display: inline; text-align: inherit; gap: 0.3rem; align-items: baseline; font-weight: 600; color: var(--steel); }
 .sort:focus-visible { outline: 3px solid var(--signal); outline-offset: 2px; }
 th[aria-sort='ascending'] .sort, th[aria-sort='descending'] .sort { color: var(--ink); }
@@ -388,6 +397,37 @@ tr.is-service > * { background: #f6f8fa; color: var(--steel); }
   .bridge__track { grid-column: 1 / -1; grid-row: 2; }
   .notice__body { padding-left: 1rem; }
   .chart-box { height: 360px; }
+
+  /* Collapsible module menu. */
+  .nav-toggle {
+    display: flex; align-items: center; gap: 0.65rem; width: 100%; min-height: 44px; margin: 0.75rem 0;
+    padding: 0 0.8rem; font: inherit; font-weight: 500; color: #fff; cursor: pointer; text-align: left;
+    background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.28); border-radius: var(--radius);
+  }
+  .nav-toggle:focus-visible { outline: 3px solid #9fc0e6; outline-offset: 2px; }
+  .nav-toggle__icon { position: relative; width: 16px; height: 2px; background: currentColor; box-shadow: 0 -5px 0 currentColor, 0 5px 0 currentColor; flex: none; }
+  .nav-toggle[aria-expanded='true'] .nav-toggle__icon { box-shadow: none; transform: rotate(45deg); }
+  .nav-toggle[aria-expanded='true'] .nav-toggle__icon::after { content: ''; position: absolute; inset: 0; background: currentColor; transform: rotate(90deg); }
+  .nav-toggle__current { margin-left: auto; color: #9fc0e6; font-size: var(--t-sm); font-weight: 400; }
+  .module-nav[data-menu='closed'] ul { display: none; }
+  .module-nav ul { flex-direction: column; gap: 0.25rem; margin-top: 0; }
+  .module-nav a { min-height: 44px; align-items: center; padding: 0 0.8rem; }
+
+  /* Touch targets of about 44px for controls; desktop sizes are unchanged. */
+  .wordmark { display: inline-block; line-height: 44px; }
+  .control select, .control input { min-height: 44px; }
+  .control--check { min-height: 44px; padding-bottom: 0; }
+  .control--check input { width: 1.25rem; height: 1.25rem; }
+  .segmented label { display: inline-flex; align-items: center; min-height: 44px; }
+  .button-quiet { min-height: 44px; }
+  .link-button, .link-plain { display: inline-block; box-sizing: border-box; min-height: 44px; padding: 0.25rem 0; }
+  table.data .sort { display: inline-flex; align-items: flex-end; min-height: 44px; min-width: 44px; padding-bottom: 0.1rem; }
+  details.notice > summary { min-height: 44px; align-items: center; }
+
+  /* Sideways-scroll hint above the inventory table. */
+  .swipe-hint { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.4rem; font-size: var(--t-sm); color: var(--steel); }
+  .swipe-hint[hidden] { display: none; }
+  .swipe-hint__icon { font-size: 1.1rem; line-height: 1; color: var(--signal); }
 }
 
 @media (prefers-reduced-motion: reduce) {

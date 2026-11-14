@@ -78,7 +78,41 @@ function markActive(id) {
     if (a.dataset.module === id) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
   }
+  const current = document.getElementById('nav-current');
+  if (current) current.textContent = moduleById(id)?.name ?? '';
 }
+
+/* ---------- mobile menu (the button is only displayed on narrow screens) ---------- */
+
+const navToggle = document.getElementById('nav-toggle');
+
+function setMenuOpen(open, { returnFocus = false } = {}) {
+  if (!navToggle) return;
+  navToggle.setAttribute('aria-expanded', String(open));
+  navToggle.closest('.module-nav').dataset.menu = open ? 'open' : 'closed';
+  if (!open && returnFocus) navToggle.focus();
+}
+
+if (navToggle) {
+  setMenuOpen(false);
+  navToggle.addEventListener('click', () => setMenuOpen(navToggle.getAttribute('aria-expanded') !== 'true'));
+  nav.addEventListener('click', (e) => { if (e.target.closest('a')) setMenuOpen(false); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navToggle.getAttribute('aria-expanded') === 'true') setMenuOpen(false, { returnFocus: true });
+  });
+}
+
+/* ---------- scroll-edge shadow on sticky-column tables ---------- */
+
+// Scroll events do not bubble, so listen in the capture phase for any table wrapper.
+document.addEventListener(
+  'scroll',
+  (e) => {
+    const w = e.target;
+    if (w instanceof HTMLElement && w.classList.contains('table-wrap')) w.classList.toggle('is-scrolled', w.scrollLeft > 0);
+  },
+  { capture: true, passive: true },
+);
 
 function route() {
   const id = currentModuleId();

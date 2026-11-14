@@ -16,10 +16,10 @@ import { EXPECTED_INVENTORY as EI } from './kpi-expected-values.js';
 const AS_OF = CONFIG.reportingAsOfDate;
 const near = (a, b, t = 0.005) => Math.abs(a - b) <= t;
 
-function openApp(hash) {
+function openApp(hash, width = 1366) {
   return new Promise((resolve, reject) => {
     const f = document.createElement('iframe');
-    f.style.cssText = 'width:1366px;height:900px;position:absolute;left:-10000px;top:0';
+    f.style.cssText = `width:${width}px;height:900px;position:absolute;left:-10000px;top:0`;
     f.src = `../index.html${hash}`;
     const t0 = Date.now();
     f.onload = () => {
@@ -202,6 +202,84 @@ function altered(name, where, set2) {
   const rows = ds.rows.map((r) => { if (!where(r)) return r; const c = { ...r, ...set2 }; Object.defineProperty(c, '_line', { value: r._line, enumerable: false }); return c; });
   return { ...lr, datasets: { ...lr.datasets, [name]: { ...ds, rows } } };
 }
+
+/* ---------- Mobile usability (Stage 8 refinement) ---------- */
+
+const shown = (el) => !!el && el.getBoundingClientRect().height > 0;
+let mFrame, mDoc;
+
+test('Mobile', 'Desktop width: menu button and swipe hint hidden, all five module links visible', async () => {
+  doc.querySelector('#module-nav-list a[data-module="inventory"]').click();
+  assert(await waitFor(() => doc.querySelector('[data-table="inventory"]')));
+  assert(!shown(doc.getElementById('nav-toggle')), 'menu button visible on desktop');
+  assert(!shown(doc.querySelector('[data-hint="inventory"]')), 'swipe hint visible on desktop');
+  assertEqual([...doc.querySelectorAll('#module-nav-list a')].filter(shown).length, 5);
+});
+
+test('Mobile', '375px: menu collapsed by default; button names the current module and is at least 44px', async () => {
+  mFrame = await openApp('#/inventory', 375);
+  mDoc = mFrame.contentDocument;
+  const b = mDoc.getElementById('nav-toggle');
+  assert(shown(b), 'menu button not shown');
+  assertEqual(b.getAttribute('aria-expanded'), 'false');
+  assertEqual(b.getAttribute('aria-controls'), 'module-nav-list');
+  assertEqual(mDoc.getElementById('nav-current').textContent, 'Inventory intelligence');
+  assertEqual([...mDoc.querySelectorAll('#module-nav-list a')].filter(shown).length, 0, 'links visible while collapsed');
+  assert(b.getBoundingClientRect().height >= 44, `button ${b.getBoundingClientRect().height}px`);
+  // Larger touch targets must not collapse word spacing in the wordmark or in links.
+  assertEqual(mDoc.querySelector('.wordmark').innerText.replace(/\s+/g, ' '), 'Aerospace Supplier Intelligence');
+  const link = mDoc.querySelector('[data-table="inventory"] a.link-plain');
+  assert(link.getBoundingClientRect().height >= 44, `supplier link ${link.getBoundingClientRect().height}px`);
+});
+
+test('Mobile', '375px: menu opens, links are at least 44px, Escape closes it and returns focus', async () => {
+  const b = mDoc.getElementById('nav-toggle');
+  b.click();
+  assertEqual(b.getAttribute('aria-expanded'), 'true');
+  const links = [...mDoc.querySelectorAll('#module-nav-list a')].filter(shown);
+  assertEqual(links.length, 5);
+  assert(links.every((a) => a.getBoundingClientRect().height >= 44), 'link below 44px');
+  links[0].focus();
+  mDoc.dispatchEvent(new mFrame.contentWindow.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assertEqual(b.getAttribute('aria-expanded'), 'false');
+  assert(mDoc.activeElement === b, `focus not returned to the menu button (on ${mDoc.activeElement?.tagName})`);
+});
+
+test('Mobile', '375px: choosing a module navigates and closes the menu', async () => {
+  const b = mDoc.getElementById('nav-toggle');
+  b.click();
+  mDoc.querySelector('#module-nav-list a[data-module="procurement"]').click();
+  assert(await waitFor(() => mFrame.contentWindow.location.hash === '#/procurement' && mDoc.querySelector('[data-table="register"]')));
+  assertEqual(b.getAttribute('aria-expanded'), 'false');
+  assertEqual(mDoc.getElementById('nav-current').textContent, 'Procurement intelligence');
+  mDoc.querySelector('#module-nav-list a[data-module="inventory"]').click();
+  assert(await waitFor(() => mDoc.querySelector('[data-table="inventory"]')));
+});
+
+test('Mobile', '375px: swipe hint above the table; table is a focusable region; Material column and header stay fixed', async () => {
+  const hint = mDoc.querySelector('[data-hint="inventory"]');
+  const wrap = mDoc.querySelector('[data-table="inventory"]').closest('.table-wrap');
+  assert(shown(hint), 'hint not shown');
+  assert(hint.textContent.includes('Swipe sideways to see all 10 columns'), hint.textContent);
+  assert(hint.getBoundingClientRect().bottom <= wrap.getBoundingClientRect().top, 'hint not above the table');
+  assertEqual(wrap.getAttribute('role'), 'region');
+  assertEqual(wrap.getAttribute('tabindex'), '0');
+  assert(wrap.scrollWidth > wrap.clientWidth, 'table does not scroll sideways at 375px');
+  const body = wrap.querySelector('tbody th.sticky'), head = wrap.querySelector('thead th.sticky');
+  const before = [body.getBoundingClientRect().left, head.getBoundingClientRect().left];
+  wrap.scrollLeft = 250;
+  assert(await waitFor(() => wrap.classList.contains('is-scrolled')), 'edge shadow class not set');
+  assertEqual(body.getBoundingClientRect().left, before[0], 'Material cell moved');
+  assertEqual(head.getBoundingClientRect().left, before[1], 'Material header moved');
+  wrap.scrollLeft = 0;
+  assert(await waitFor(() => !wrap.classList.contains('is-scrolled')), 'edge shadow class not cleared');
+});
+
+test('Mobile', '375px: filter, search, checkbox, reset and sort controls are at least 44px', async () => {
+  const sel = ['.controls select', '.controls input[type=search]', '.control--check', '.controls .button-quiet', '[data-table="inventory"] .sort'];
+  for (const s of sel) for (const el of mDoc.querySelectorAll(s)) assert(el.getBoundingClientRect().height >= 44, `${s} ${el.getBoundingClientRect().height}px`);
+  mFrame.remove();
+});
 
 test('Rules', 'Not hardcoded: lowering MAT-001 available stock below safety stock changes the page', async () => {
   const h = render(altered('inventory_snapshot', (r) => r.material_id === 'MAT-001', { allocated_qty: 69, available_qty: 10, available_inventory_value_usd: 28500 }));
