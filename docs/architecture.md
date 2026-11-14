@@ -16,7 +16,7 @@ The platform is a **static web application**: plain HTML, CSS and JavaScript fil
 - **No build step, no framework, no server and no Python.** The files in the repository are exactly the files the browser runs.
 - **Hosting:** GitHub Pages, serving the `main` branch from the repository root (DEC-015).
 - **Data:** the six CSV files in `data/`, loaded by the browser each time the page opens (DEC-014). KPIs are calculated live from these files and are never hardcoded.
-- **Governing documents:** `docs/data-model.md` (v2.0) defines datasets, fields and validation controls. `docs/kpi-dictionary.md` (v2.2) defines every KPI formula.
+- **Governing documents:** `docs/data-model.md` (v2.0) defines datasets, fields and validation controls. `docs/kpi-dictionary.md` (v2.3) defines every KPI formula.
 
 In plain language: when someone opens the website, their browser downloads the six CSV files, checks them, calculates the KPIs and draws the dashboard. Nothing is sent anywhere else.
 

@@ -1,7 +1,7 @@
 # Project Decision Log
 ## Aerospace Supplier Intelligence Platform
 
-**Document Version:** 2.4  
+**Document Version:** 2.5  
 **Project Stage:** Phase 2 – Application Development  
 **Repository:** aerospace-supplier-intelligence  
 **Last Updated:** 2026-11-13
@@ -45,6 +45,13 @@ Earlier decisions are never deleted. When a decision is replaced, its status cha
 | DEC-023 | Supplier Concentration (KPI 6.4) uses Net Active PO Line Value in both numerator and denominator | Cancelled value is not active commitment and must not inflate a supplier's share (consistent with DEC-019) | Approved |
 | DEC-024 | Self-host the Barlow and Barlow Semi Condensed web fonts (SIL Open Font License 1.1) in `src/vendor/fonts/`, with licence files `OFL-LICENSE-Barlow.txt` and `OFL-LICENSE-Barlow-Semi-Condensed.txt` | Consistent professional typography with tabular figures, no external font service, free licence | Approved (Project Owner, 2026-11-13) |
 | DEC-025 | Label supplier-level rates by sample size: no records = "No data" (rate blank); fewer than 3 records = "limited" (rate shown with n); 3 or more = sufficient. Threshold configurable (`minimumSampleForRate`) | Supplier rates often rest on 1–2 events; users must see how much evidence is behind each figure. Display rule only, no KPI formula changes | Approved (Project Owner, 2026-11-14), threshold 3 |
+| DEC-026 | Add KPI 6.7 Received PO Line Value and KPI 6.8 Overdue Open PO Value (with the not-yet-due remainder) to KPI Dictionary v2.3 | Completes the PO value bridge and expresses the overdue position in value, not only line count | Approved (Project Owner, 2026-11-14) – D6-1 |
+| DEC-027 | Age overdue open PO lines in buckets of 1–30, 31–90, 91–180 and over 180 days past the recorded promised date, measured at the reporting as-of date | Separates recent slips from long-standing exposure; not-yet-due lines are excluded | Approved (Project Owner, 2026-11-14) – D6-2 |
+| DEC-028 | Do not implement the Herfindahl–Hirschman Index; show concentration with a supplier Pareto chart, supplier shares and cumulative share | Clearer for procurement readers; avoids an additional index | Approved (Project Owner, 2026-11-14) – D6-3 |
+| DEC-029 | Add KPI 4.7 Promise-to-Request Gap (promised − requested date) as a supporting indicator, labelled as based on currently recorded promise dates | Shows whether supplier commitments meet requested dates; no promise history is implied | Approved (Project Owner, 2026-11-14) – D6-4 |
+| DEC-030 | Keep KPI 6.5 on the gross basis and label it "Average Gross PO Line Value"; no other average KPI | Consistent with the approved definition; avoids KPI proliferation | Approved (Project Owner, 2026-11-14) – D6-5 |
+| DEC-031 | Defer CSV export of the expediting register | Keeps Stage 6 focused; revisit after the core modules are complete | Deferred (Project Owner, 2026-11-14) – D6-6 |
+| DEC-032 | Supplier commitment table shows gross (KPI 6.3) and net active PO value side by side; default sort net active value, descending | Gross is the defined KPI; net active is the active commitment (DEC-019, DEC-023) | Approved (Project Owner, 2026-11-14) – D6-7 |
 
 ## 3. Technology Decisions Pending Validation
 
@@ -217,7 +224,43 @@ Supplier Concentration (%) = (Supplier's Net Active PO Line Value ÷ Total Net A
 
 The threshold and the record type must be explained in a visible legend and in the tooltip of each indicator.
 
+### 7.8 DEC-026 to DEC-032 – Stage 6 Procurement Intelligence
+
+Approved by the Project Owner on 2026-11-14 after review of the Stage 6 proposal (decisions D6-1 to D6-7).
+
+**PO value bridge (DEC-026).** All values are calculated at PO-line grain from `purchase_orders.csv`, with no joins before aggregation, and must reconcile exactly:
+
+| Identity | Current dataset |
+|---|---|
+| Gross − cancelled = net active | $12,550,378.20 − $1,072,369.00 = $11,478,009.20 |
+| Net active = received (6.7) + open (6.2) | $2,621,523.29 + $8,856,485.91 |
+| Open = overdue open (6.8) + not yet due | $6,898,446.46 + $1,958,039.45 |
+
+**Ageing (DEC-027).**
+
+- Days past promised = as-of date − `promised_delivery_date`, for lines with `open_qty` > 0 and promised date before the as-of date.
+- Buckets, inclusive: 1–30, 31–90, 91–180, and 181 days or more.
+- Boundaries must be tested at 1, 30, 31, 90, 91, 180 and 181 days; 0 days (promised on the as-of date) is not overdue.
+
+**Promise-to-request gap (DEC-029).**
+
+- Gap = `promised_delivery_date` − `requested_delivery_date`. Positive = later commitment; negative = earlier.
+- Labelled as based on currently recorded promise dates. It must not imply that promise history or revisions exist.
+
+**Also recorded:**
+
+- **Concentration (DEC-028):** shown with a Pareto chart, supplier shares and cumulative share. No HHI.
+- **Average PO line value (DEC-030):** labelled "Average Gross PO Line Value".
+- **CSV export (DEC-031):** deferred.
+- **Supplier commitment table (DEC-032):** gross and net active side by side, sorted by net active descending, linked to the Stage 5 supplier detail.
+
+**Constraints restated:**
+
+- No change to the six CSV files or Data Model v2.0.
+- Overdue calculations use open quantity and the currently recorded promised date.
+- No AI or inventory functionality in Stage 6.
+
 ---
 
-**Document Status:** Decision Register – Version 2.4  
+**Document Status:** Decision Register – Version 2.5  
 **Approval Authority:** Project Owner

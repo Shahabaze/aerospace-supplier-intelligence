@@ -2,8 +2,8 @@
 
 # KPI Dictionary
 
-**Document Version:** 2.2  
-**Project Phase:** Phase 1 – KPI Definition (2.1 and 2.2 clarifications approved 2026-11-13)  
+**Document Version:** 2.3  
+**Project Phase:** Phase 1 – KPI Definition (2.1 and 2.2 clarifications approved 2026-11-13; 2.3 additions approved 2026-11-14)  
 **Reporting Currency:** USD  
 **Dataset Classification:** Synthetic Demonstration Data  
 **Industry Scope:** Aerospace OEM and Supplier Ecosystem  
@@ -170,6 +170,43 @@ Count of PO lines where:
 
 **Important Limitation:** The dataset does not preserve original supplier promise dates or promise-revision history. This KPI measures overdue open commitments against the currently recorded promise date.
 
+### 4.4.1 Overdue Open PO Line Ageing (Version 2.3, DEC-027)
+
+**Business Question:** How long have overdue open PO lines been outstanding beyond their recorded promised delivery date?
+
+**Formula:**
+
+Days past promised date = reporting as-of date − `promised_delivery_date`, in whole calendar days.
+
+Calculated only for PO lines that meet KPI 4.4 (`open_qty` > 0 and `promised_delivery_date` earlier than the as-of date). Such lines always have 1 or more days past the promised date.
+
+**Ageing Buckets:**
+
+| Bucket | Days past promised date (inclusive) |
+|---|---|
+| 1–30 days | 1 to 30 |
+| 31–90 days | 31 to 90 |
+| 91–180 days | 91 to 180 |
+| Over 180 days | 181 or more |
+
+**Measures per bucket:** count of overdue open PO lines (KPI 4.4) and overdue open PO value (KPI 6.8).
+
+**Filters and Rules:**
+- Lines that are not overdue (promised date on or after the as-of date) are excluded. They are reported separately as "not yet due" open commitment.
+- Lines with no open quantity are excluded.
+- The reference date is the reporting as-of date (2026-10-31 for the current baseline) and must remain configurable.
+- Bucket totals must equal KPI 4.4 (line count) and KPI 6.8 (value).
+
+**Source Dataset:** `purchase_orders.csv`
+
+**Reporting Grain:** One PO line.
+
+**Current Dataset Reference:** 1–30 days: 4 lines; 31–90: 10; 91–180: 12; over 180: 25 (total 51).
+
+**Status:** Calculable with limitation.
+
+**Important Limitation:** Measured against the currently recorded promise date. Original promise dates and promise revisions are not available, so ageing may understate the delay from the first promise.
+
 ### 4.5 Complete PO-Line OTD
 
 **Business Question:** What percentage of PO lines were fulfilled in full by the required commitment date?
@@ -204,6 +241,34 @@ A PO line must reach its full required quantity by an agreed baseline commitment
 **Reason:** The current dataset does not preserve the original commitment baseline and complete schedule history required for a defensible historical OTIF calculation.
 
 **Important Rule:** Do not use Delivery Event OTD as a substitute for OTIF.
+
+### 4.7 Promise-to-Request Gap (Version 2.3, DEC-029)
+
+**Business Question:** Do suppliers' currently recorded delivery promises match the dates requested on the PO line?
+
+**Formula:**
+
+Promise-to-request gap (days) = `promised_delivery_date` − `requested_delivery_date`, per PO line.
+
+- Positive value: the supplier's current commitment is later than the requested date.
+- Zero: the commitment matches the requested date.
+- Negative value: the commitment is earlier than the requested date.
+
+**Summary measures:** count of PO lines with a positive, zero and negative gap; average gap in days (all lines with both dates); results may be grouped by supplier.
+
+**Source Dataset:** `purchase_orders.csv`
+
+**Reporting Grain:** One PO line.
+
+**Filters and Rules:**
+- Lines where either date is blank are excluded and counted separately.
+- All PO lines, including cancelled lines, carry a requested and promised date; the default population is all PO lines, and the view must state the population used.
+
+**Current Dataset Reference:** 66 lines later than requested, 5 on the requested date, 29 earlier; average +2.5 days; maximum +8 days.
+
+**Status:** Calculable with limitation. Supporting indicator.
+
+**Important Limitation:** Uses the currently recorded promised date. The dataset holds no original promise dates and no promise revisions, so this measure does not show whether or how often suppliers changed their commitments.
 
 ---
 
@@ -371,7 +436,7 @@ Rules:
 - All three use `purchase_orders.csv` at PO-line grain, with each line counted once.
 - Net Active PO Line Value includes received and open quantities; it excludes cancelled quantities only.
 - None of these measures represents invoiced, paid or accounting spend.
-- Where this document refers to "Total PO committed value" (6.3, 6.5 and section 10), it means 6.1 Gross PO Line Value. From Version 2.2, 6.4 Supplier Concentration uses Net Active PO Line Value (DEC-023).
+- Where this document refers to "Total PO committed value" (6.3, 6.5 and section 10), it means 6.1 Gross PO Line Value. From Version 2.3, 6.5 is labelled "Average Gross PO Line Value". From Version 2.2, 6.4 Supplier Concentration uses Net Active PO Line Value (DEC-023).
 
 ### 6.2 Open PO Commitment Value
 
@@ -446,9 +511,11 @@ This is the line-level form of 6.1.2. A fully cancelled PO line therefore contri
 
 **Superseded Definition (Version 2.1 and earlier):** (Supplier PO committed value ÷ Total PO committed value) × 100, using gross `line_total_usd` including cancelled value.
 
-### 6.5 Average PO Line Value
+### 6.5 Average Gross PO Line Value
 
-**Business Question:** What is the average monetary value of a purchase order line?
+**Business Question:** What is the average gross monetary value of a purchase order line?
+
+**Display Label (Version 2.3, DEC-030):** "Average Gross PO Line Value". The basis is gross line value, including cancelled quantities. No additional average KPI is defined.
 
 **Formula:**
 
@@ -469,6 +536,60 @@ Sum of `line_total_usd` ÷ Count of PO-line records.
 **Reason:** No invoice dataset is currently implemented.
 
 **Future Requirement:** Add invoice records, invoice dates, invoice values, currency and PO-line references.
+
+### 6.7 Received PO Line Value (Version 2.3, DEC-026)
+
+**Business Question:** What value of PO line quantity has been received?
+
+**Formula:**
+
+Received PO Line Value = Sum of (`received_qty` × `unit_price_usd`)
+
+**Source Dataset:** `purchase_orders.csv`
+
+**Reporting Grain:** PO line. Each line is counted once; no join to delivery data is used.
+
+**Current Dataset Reference:** $2,621,523.29.
+
+**Status:** Calculable.
+
+**Important Limitation:** Value of received quantity at the PO unit price. It is not invoiced or paid value. It includes receipts from delivery events dated after the reporting snapshot (DEC-017), because those receipts are already reflected in `received_qty`.
+
+### 6.8 Overdue Open PO Value (Version 2.3, DEC-026)
+
+**Business Question:** What value of open PO commitment is past its recorded promised delivery date?
+
+**Formula:**
+
+Overdue Open PO Value = Sum of (`open_qty` × `unit_price_usd`) for PO lines where:
+- `open_qty` > 0
+- `promised_delivery_date` is earlier than the reporting as-of date
+
+**Not-Yet-Due Open PO Value** = Sum of (`open_qty` × `unit_price_usd`) for PO lines where `open_qty` > 0 and `promised_delivery_date` is on or after the as-of date. This is the remainder of KPI 6.2 and is displayed alongside 6.8.
+
+**Source Dataset:** `purchase_orders.csv`
+
+**Reporting Grain:** PO line.
+
+**Reporting As-of Date:** 2026-10-31 for the current baseline; configurable.
+
+**Current Dataset Reference:** $6,898,446.46 (51 lines), which is 77.9% of open PO commitment. Not yet due: $1,958,039.45 (12 lines).
+
+**Status:** Calculable with limitation.
+
+**Important Limitation:** Measured against the currently recorded promise date (same limitation as KPI 4.4). Not an invoice liability.
+
+### 6.9 PO Value Bridge – Reconciliation Rules (Version 2.3)
+
+The PO value measures must reconcile exactly at PO-line grain:
+
+| Identity | Current dataset |
+|---|---|
+| 6.1 Gross − 6.1.1 Cancelled = 6.1.2 Net Active | $12,550,378.20 − $1,072,369.00 = $11,478,009.20 |
+| 6.1.2 Net Active = 6.7 Received + 6.2 Open | $11,478,009.20 = $2,621,523.29 + $8,856,485.91 |
+| 6.2 Open = 6.8 Overdue Open + Not-Yet-Due Open | $8,856,485.91 = $6,898,446.46 + $1,958,039.45 |
+
+These identities follow from Data Model v2.0 (`ordered_qty` = `received_qty` + `cancelled_qty` + `open_qty`; `line_total_usd` = `ordered_qty` × `unit_price_usd`) and must be verified whenever the data is refreshed.
 
 ---
 
@@ -755,8 +876,10 @@ Before implementation, define:
 | Late Delivery Event Count | `delivery_transactions.csv` | Calculable |
 | Average Delivery Variance | `delivery_transactions.csv` | Calculable |
 | Overdue Open PO Line Count | `purchase_orders.csv` | Calculable with limitation |
+| Overdue Open PO Line Ageing (4.4.1, v2.3) | `purchase_orders.csv` | Calculable with limitation |
 | Complete PO-Line OTD | PO and delivery data | Not supported |
 | OTIF | PO and delivery data | Not supported |
+| Promise-to-Request Gap (4.7, v2.3) | `purchase_orders.csv` | Calculable with limitation |
 | Inspection Rejection Rate | `supplier_quality.csv` | Calculable |
 | Total Rejected Quantity | `supplier_quality.csv` | Calculable |
 | Nonconformance Inspection Count | `supplier_quality.csv` | Calculable |
@@ -770,8 +893,10 @@ Before implementation, define:
 | Open PO Commitment Value | `purchase_orders.csv` | Calculable |
 | Supplier PO Commitment Value | PO and supplier data | Calculable |
 | Supplier Spend Concentration (net active basis, v2.2) | PO and supplier data | Calculable |
-| Average PO Line Value | `purchase_orders.csv` | Calculable |
+| Average Gross PO Line Value (6.5) | `purchase_orders.csv` | Calculable |
 | Actual Invoiced Spend | Not available | Not supported |
+| Received PO Line Value (6.7, v2.3) | `purchase_orders.csv` | Calculable |
+| Overdue Open PO Value (6.8, v2.3) | `purchase_orders.csv` | Calculable with limitation |
 | Total On-Hand Inventory Value | `inventory_snapshot.csv` | Calculable |
 | Available Inventory Value | `inventory_snapshot.csv` | Calculable |
 | Materials Below Reorder Point | `inventory_snapshot.csv` | Calculable |
@@ -815,7 +940,9 @@ The following implementation sequence is recommended.
 
 - Supplier PO commitment value.
 - Supplier commitment concentration.
-- Average PO line value.
+- Average gross PO line value.
+- Received PO line value and overdue open PO value (v2.3).
+- Overdue open PO line ageing and promise-to-request gap (v2.3).
 - Open PO commitment value.
 - Overdue open PO line count.
 
@@ -884,8 +1011,12 @@ These are future enhancements and must not be represented as existing capabiliti
 | 2.1 | 2026-11-13 | Clarified Delivery Event OTD reporting bases (4.1) | DEC-017 |
 | 2.1 | 2026-11-13 | Defined Gross, Cancelled and Net Active PO Line Value (6.1, 6.1.1, 6.1.2) | DEC-019 |
 | 2.2 | 2026-11-13 | Supplier Concentration (6.4) changed to Net Active PO Line Value in both numerator and denominator | DEC-023 |
+| 2.3 | 2026-11-14 | Added 6.7 Received PO Line Value and 6.8 Overdue Open PO Value (with not-yet-due remainder); added 6.9 PO value bridge reconciliation rules | DEC-026 |
+| 2.3 | 2026-11-14 | Added 4.4.1 Overdue Open PO Line Ageing with buckets 1–30, 31–90, 91–180 and over 180 days | DEC-027 |
+| 2.3 | 2026-11-14 | Added 4.7 Promise-to-Request Gap (supporting indicator, current promise dates only) | DEC-029 |
+| 2.3 | 2026-11-14 | 6.5 relabelled "Average Gross PO Line Value"; formula unchanged | DEC-030 |
 
-Version 2.1 added clarifications only. Version 2.2 changes the 6.4 formula basis from gross to net active PO line value. No other KPI formula, filter or grain was changed.
+Version 2.1 added clarifications only. Version 2.2 changed the 6.4 formula basis from gross to net active PO line value. Version 2.3 adds new measures (4.4.1, 4.7, 6.7, 6.8, 6.9) and relabels 6.5; no existing formula, filter or grain was changed. HHI was considered and not adopted (DEC-028).
 
 This document is the Phase 1 KPI definition baseline for the six implemented CSV datasets.
 
@@ -899,7 +1030,7 @@ All implemented dashboard KPIs must remain traceable to this document.
 
 **Project:** Aerospace Supplier Intelligence Platform  
 **Document:** KPI Dictionary  
-**Version:** 2.2  
-**Status:** Phase 1 KPI Definition Baseline with approved 2.1 and 2.2 clarifications  
+**Version:** 2.3  
+**Status:** Phase 1 KPI Definition Baseline with approved 2.1, 2.2 and 2.3 changes  
 **Data Classification:** Synthetic Demonstration Data  
 **Reporting Currency:** USD
