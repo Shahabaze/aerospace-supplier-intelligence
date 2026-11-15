@@ -1,7 +1,7 @@
 # Project Decision Log
 ## Aerospace Supplier Intelligence Platform
 
-**Document Version:** 2.6  
+**Document Version:** 2.7  
 **Project Stage:** Phase 2 – Application Development  
 **Repository:** aerospace-supplier-intelligence  
 **Last Updated:** 2026-11-15
@@ -53,6 +53,7 @@ Earlier decisions are never deleted. When a decision is replaced, its status cha
 | DEC-031 | Defer CSV export of the expediting register | Keeps Stage 6 focused; revisit after the core modules are complete | Deferred (Project Owner, 2026-11-14) – D6-6 |
 | DEC-032 | Supplier commitment table shows gross (KPI 6.3) and net active PO value side by side; default sort net active value, descending | Gross is the defined KPI; net active is the active commitment (DEC-019, DEC-023) | Approved (Project Owner, 2026-11-14) – D6-7 |
 | DEC-033 | Approve the Command Centre as the executive overview and navigation layer; it is not a sixth operational module (see section 7.9) | One-screen visual summary for executives and portfolio reviewers, built on the validated KPI engine without changing the five-module architecture | Approved (Project Owner, 2026-11-15) |
+| DEC-034 | Release Stage 7 – Inventory Intelligence, subject to seven confirmed conditions (see section 7.10) | Project Owner reviewed the live module; each condition was verified on the live site before recording | Approved (Project Owner, 2026-11-15) – Stage 7 closed |
 
 ## 3. Technology Decisions Pending Validation
 
@@ -286,7 +287,27 @@ Approved by the Project Owner on 2026-11-14 after review of the Stage 6 proposal
 
 **Not changed by this decision:** the six CSV files, Data Model v2.0, KPI Dictionary v2.3, and DEC-021.
 
+### 7.10 DEC-034 – Stage 7 Inventory Intelligence release approval
+
+**Decision (Project Owner, 2026-11-15).** Stage 7 – Inventory Intelligence is formally approved for release, and Stage 7 is closed. The Project Owner reviewed the live module, covering KPI presentation, the material inventory table, filters, stock classifications and responsive layout.
+
+The approval is subject to seven conditions. Each was confirmed on the live site on 2026-11-15 before this entry was recorded:
+
+| # | Condition | Confirmed by |
+|---|---|---|
+| 1 | Reorder-point and safety-stock checks use available stock (on-hand − allocated), per DEC-018 | Validation control "available quantity equals on-hand less allocated" passes for every row. An independent recount from the live CSVs gives 5 below safety stock and 10 below reorder point, which matches the page. |
+| 2 | The supplied inventory status stays labelled as an on-hand classification | The status chart is titled "Supplied status (on-hand basis)", and the filter and table column are labelled "Supplied status (on-hand)". |
+| 3 | SERVICE materials are excluded from physical inventory KPIs | MAT-018 and MAT-021 are excluded, leaving 23 physical materials. On-hand value is $2,634,675, the physical total; it would be $2,635,945 with SERVICE included. The table hides SERVICE rows unless the user turns them on. |
+| 4 | The single-snapshot limitation and the absence of trend data stay disclosed | A caution banner reads "Single inventory snapshot". The title block shows "Trend data: None (one snapshot)". KPI 7.8 Inventory trend is listed as unsupported. |
+| 5 | Days of supply is identified as using synthetic average daily demand, not a forecast | The KPI 7.5 card reads "Snapshot planning indicator using synthetic demand, not a forecast", and the unsupported-items list states that days of supply uses a synthetic average daily demand. |
+| 6 | Excess status is identified as supplied data because its threshold rule is undocumented | The KPI 7.6 card reads "Uses the supplied Excess classification; its rule is not documented". "Excess threshold logic" is listed as not recalculated. |
+| 7 | Existing inventory functionality, validation controls and the synthetic-data disclosure are preserved | 304 / 304 regression tests pass (inventory 23, data layer 54 with all 17 controls), and the synthetic-data footer is present. |
+
+**Scope.** This is a release sign-off only. It authorises no new features. It changes no CSV file, KPI calculation, Data Model v2.0, KPI Dictionary v2.3 or application code.
+
+**Ongoing obligation.** The seven conditions are release conditions. Any later change that would break one of them needs a new decision.
+
 ---
 
-**Document Status:** Decision Register – Version 2.6  
+**Document Status:** Decision Register – Version 2.7  
 **Approval Authority:** Project Owner

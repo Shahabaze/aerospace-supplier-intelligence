@@ -40,7 +40,29 @@ Engine addition: `inventoryRegister()` in `kpis.js`, one row per material. Exist
 
 **Not tested:** Firefox, Safari, real devices and the live site. These are covered in Stage 8 as far as possible.
 
-## 3. Screenshots
+## 3. Release Approval
+
+**Status: Approved for release, Stage 7 closed (DEC-034, Project Owner, 2026-11-15).**
+
+The Project Owner reviewed the live Inventory Intelligence module, covering KPI presentation, the material table, filters, stock classifications and responsive layout. Approval is subject to seven conditions, each confirmed on the live site on 2026-11-15:
+
+1. **Available stock:** reorder-point and safety-stock checks use available stock (on-hand − allocated).
+   - The validation control passes.
+   - An independent recount from the live CSVs gives 5 below safety stock and 10 below reorder point, matching the page.
+2. **Supplied status:** labelled as an on-hand classification in the chart, filter and table.
+3. **SERVICE exclusion:** SERVICE materials (MAT-018, MAT-021) are excluded from physical KPIs.
+   - On-hand value is $2,634,675 for the 23 physical materials.
+4. **Single snapshot:** the single-snapshot limitation and absence of trend data are disclosed in the banner, the title block and the unsupported-KPI list.
+5. **Days of supply:** labelled as using synthetic average daily demand, not a forecast.
+6. **Excess status:** identified as supplied data whose threshold rule is not documented.
+7. **Preservation:** functionality, validation controls and the synthetic-data disclosure are preserved.
+   - Regression: 304 / 304, including inventory 23 / 23 and data layer 54 / 54.
+
+The live-site gap noted in section 2 is closed. Stage 8 ran this suite from the public URL, and the inventory module has since gained 6 mobile tests (17 → 23).
+
+This is a release sign-off only. No CSV file, KPI calculation, Data Model, KPI Dictionary or application code was changed.
+
+## 4. Screenshots
 
 In `tests/reports/screenshots/stage-07/`:
 
