@@ -1,10 +1,10 @@
 # Project Decision Log
 ## Aerospace Supplier Intelligence Platform
 
-**Document Version:** 2.5  
+**Document Version:** 2.6  
 **Project Stage:** Phase 2 – Application Development  
 **Repository:** aerospace-supplier-intelligence  
-**Last Updated:** 2026-11-13
+**Last Updated:** 2026-11-15
 
 ---
 
@@ -52,6 +52,7 @@ Earlier decisions are never deleted. When a decision is replaced, its status cha
 | DEC-030 | Keep KPI 6.5 on the gross basis and label it "Average Gross PO Line Value"; no other average KPI | Consistent with the approved definition; avoids KPI proliferation | Approved (Project Owner, 2026-11-14) – D6-5 |
 | DEC-031 | Defer CSV export of the expediting register | Keeps Stage 6 focused; revisit after the core modules are complete | Deferred (Project Owner, 2026-11-14) – D6-6 |
 | DEC-032 | Supplier commitment table shows gross (KPI 6.3) and net active PO value side by side; default sort net active value, descending | Gross is the defined KPI; net active is the active commitment (DEC-019, DEC-023) | Approved (Project Owner, 2026-11-14) – D6-7 |
+| DEC-033 | Approve the Command Centre as the executive overview and navigation layer; it is not a sixth operational module (see section 7.9) | One-screen visual summary for executives and portfolio reviewers, built on the validated KPI engine without changing the five-module architecture | Approved (Project Owner, 2026-11-15) |
 
 ## 3. Technology Decisions Pending Validation
 
@@ -165,6 +166,8 @@ Replaces DEC-011. The application modules are:
 
 There is no standalone Supplier Risk Intelligence module. A composite supplier risk score is not introduced, consistent with KPI Dictionary 8.5.
 
+The Command Centre added on 2026-11-15 is an overview and navigation layer, not a module, so this five-module scope is unchanged (DEC-033).
+
 ### 7.5 DEC-023 – Supplier Concentration basis
 
 **Decision (Project Owner, 2026-11-13):**
@@ -260,7 +263,30 @@ Approved by the Project Owner on 2026-11-14 after review of the Stage 6 proposal
 - Overdue calculations use open quantity and the currently recorded promised date.
 - No AI or inventory functionality in Stage 6.
 
+### 7.9 DEC-033 – Command Centre
+
+**Decision (Project Owner, 2026-11-15).** The Command Centre (`#/overview`, released in commit `df9d8e7`) is approved as the executive overview and navigation layer of the application.
+
+**Classification.**
+
+- The Command Centre is **not** a sixth operational module. The five-module architecture approved in DEC-021 is unchanged: Executive Dashboard, Supplier Performance, Procurement Intelligence, Inventory Intelligence and the AI Procurement Assistant (future phase).
+- It summarises the four available modules on one screen and links into them. Definitions, bases, tables, filters and drill-down stay in the modules.
+- The Executive Dashboard remains the default landing page.
+
+**Rules.**
+
+- **KPI engine only.** Every Command Centre figure must come from the validated KPI engine (`src/js/kpis.js`). The view may group, sort and format engine results, but it must not calculate KPIs of its own.
+- **Tested against independent values.** The Command Centre test suite (`tests/overview-tests.html`) must continue to check every ring, figure and chart against the engine and the independent expected values.
+- **KPI references stay visible.** Each panel shows its KPI reference, and the existing bases apply: snapshot-period OTD (DEC-017), available stock for reorder and safety-stock status (DEC-018), and net active PO value for concentration (DEC-023). PO value is never presented as invoiced spend, and no concentration index is shown (DEC-028).
+- **Data-quality status.** The validation status (17 controls) is shown, and a failed control raises the same alert used by the modules.
+- **Map positions.** Supplier countries are plotted at approximate country centres and labelled as such. The world outline is decorative and carries no data.
+- **Scope of the dark theme.** The dark visual design is scoped to the Command Centre. The approved light design of the modules is unchanged.
+- **Preserve existing modules.** Existing module functionality must be preserved.
+- **Synthetic-data disclosure.** The disclosure must stay on the Command Centre and in the site footer.
+
+**Not changed by this decision:** the six CSV files, Data Model v2.0, KPI Dictionary v2.3, and DEC-021.
+
 ---
 
-**Document Status:** Decision Register – Version 2.5  
+**Document Status:** Decision Register – Version 2.6  
 **Approval Authority:** Project Owner

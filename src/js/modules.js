@@ -1,6 +1,6 @@
 /**
- * The five approved application modules (DEC-021), plus the Command centre overview
- * added at the Project Owner's request on 2026-11-14 (a chart-first view of the same KPIs).
+ * The five approved application modules (DEC-021), plus the Command centre: the executive
+ * overview and navigation layer approved in DEC-033, which is not an operational module.
  * `available: false` modules show a "planned" page with no figures.
  */
 

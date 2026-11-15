@@ -30,13 +30,20 @@
 
 ## Modules
 
+The application has **five modules** (DEC-021). Above them sits the **Command centre**, the executive overview and navigation layer approved in DEC-033. It is one dark, chart-first screen showing:
+
+- four ring gauges
+- six headline figures
+- a supplier map by country, the concentration curve, overdue ageing, promise gap, stock position, OTD of the largest suppliers, and value vs overdue by criticality
+
+Every value comes from the same validated KPI engine. The Command centre is not a sixth module: it adds no calculations of its own, and each ring and panel links to the module that holds the definitions, tables and drill-down. Screenshots: [desktop](assets/screenshots/12-command-centre.png), [phone](assets/screenshots/13-mobile-command-centre.png).
+
 | Module | Highlights | Screenshot |
 |---|---|---|
 | Executive dashboard | Six headline KPIs, data-quality panel, supplier concentration, unsupported-KPI register | [View](assets/screenshots/01-executive-dashboard.png) |
 | Supplier performance | Criticality segments, PO exposure vs delivery chart, sortable and filterable comparison of 25 suppliers, supplier detail with every delivery and inspection | [View](assets/screenshots/02-supplier-performance.png), [detail](assets/screenshots/03-supplier-detail.png) |
 | Procurement intelligence | PO value bridge, overdue ageing, Pareto concentration, supplier commitment table, expediting register | [View](assets/screenshots/04-procurement-intelligence.png), [register](assets/screenshots/05-expediting-register.png) |
 | Inventory intelligence | Six inventory KPIs, status on both stock bases, searchable material table with supplier and material criticality | [View](assets/screenshots/06-inventory-intelligence.png) |
-| Command centre | Dark, chart-first overview: four ring gauges, six headline figures, supplier footprint by country, concentration curve, ageing, promise gap, stock position, largest-supplier OTD and criticality. Every value comes from the same KPI engine, and each panel links to its module | [View](assets/screenshots/12-command-centre.png), [phone](assets/screenshots/13-mobile-command-centre.png) |
 | AI procurement assistant | Planned for a later phase, through a secure backend; not part of this release | — |
 
 Mobile layouts: [Executive](assets/screenshots/08-mobile-executive.png), [Procurement](assets/screenshots/09-mobile-procurement.png), [inventory table with fixed Material column](assets/screenshots/10-mobile-inventory-table.png), [module menu](assets/screenshots/11-mobile-menu-open.png). On phones the module menu collapses behind a menu button, controls are at least 44px tall, and wide tables keep their first column in place while scrolling sideways. Data quality: [View](assets/screenshots/07-data-quality.png).
@@ -44,7 +51,7 @@ Mobile layouts: [Executive](assets/screenshots/08-mobile-executive.png), [Procur
 ## How to use it
 
 1. Open the **live dashboard** link above in any modern browser. Nothing needs to be installed.
-2. Use the tabs at the top to move between modules. The **Command centre** gives the whole picture on one screen; select any ring or panel link to open the module behind it.
+2. Use the tabs at the top to move between modules. The **Command centre** tab shows the whole picture on one screen; select any ring or panel link to open the module behind it. The Executive dashboard remains the landing page.
 3. In **Supplier performance**, sort any column, filter by criticality, qualification or sample size, and select a supplier to see its deliveries and inspections. Each supplier has its own address, for example `#/suppliers/SUP-013`.
 4. In **Procurement intelligence**, use the expediting register filters, for example "Over 180 days" plus "Nothing received yet", to find the lines that need action first.
 5. In **Inventory intelligence**, filter by stock position or criticality, or search for a material.
@@ -97,7 +104,7 @@ Known, documented data conditions are shown on screen rather than corrected sile
 
 Each stage also included a mutation check: bugs were planted deliberately to confirm the tests catch them. Stage reports with screenshots are in [`tests/reports/`](tests/reports/).
 
-All 274 tests that existed at deployment also passed when run from the live site; the 6 mobile tests and 24 Command centre tests were added afterwards ([`tests/reports/stage-08-mobile-usability.md`](tests/reports/stage-08-mobile-usability.md)). Anyone can open the test pages above in a browser and run them.
+All 304 tests also pass when run from the live site (verified 2026-11-15; see [`tests/reports/stage-08-release.md`](tests/reports/stage-08-release.md)). Anyone can open the test pages above in a browser and run them.
 
 **Testing limits:** automated tests ran in Chrome. Firefox, Safari and physical devices were not part of the automated runs. Live-site checks are recorded in [`tests/reports/stage-08-deployment.md`](tests/reports/stage-08-deployment.md).
 
