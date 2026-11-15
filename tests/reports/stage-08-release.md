@@ -44,7 +44,19 @@ The live run used the deployed application at commit `6734dcd`. That application
 
 ## 4. Post-deployment Verification
 
-To be completed after this commit deploys; see section 5.
+Checked on 2026-11-15 against the public URL after commit `c9ebbd6` deployed. The deployed files contain the new `modules.js` comment and Decision Log v2.6 with DEC-033.
+
+- **Landing page:** the root URL opens the Executive dashboard.
+- **Menu:** Executive dashboard, Command centre, Supplier performance, Procurement intelligence, Inventory intelligence, AI procurement assistant.
+- **All 7 pages:** load with no `NaN` or `undefined` text; the synthetic-data disclosure is in the footer of each.
+  - Charts drawn: Executive 1, Supplier performance 1 on the list page and 2 on the SUP-013 detail, Procurement 3, Command centre 7.
+  - Only the Command centre uses the dark theme.
+- **Command centre values:**
+  - rings: 39.7%, 77.9%, 80.3%, 10/23
+  - figures: $11.48M, $8.86M, 38, 0.17%, $2.63M, 5
+  - status "17 of 17 data checks passed"; header "Synthetic data"
+- **Requests:** every request returned HTTP 200, all from `shahabaze.github.io`.
+- **Release report:** reachable on the live site.
 
 ## 5. Outstanding Limitations
 
