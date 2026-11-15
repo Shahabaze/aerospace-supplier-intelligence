@@ -19,6 +19,8 @@ A supplier intelligence dashboard that turns raw supplier, PO, delivery, quality
 
 ### 1. Executive dashboard (1 minute)
 
+- *Every page leads with charts, and the charts are controls (DEC-035). Select a supplier bar in the concentration chart to jump to that supplier, or open **Details** on any card for the supporting figures.*
+
 - Point to the **title block** at the top: reporting period, snapshot date, "17 of 17 controls passed", and the data model and KPI dictionary versions. *The data is validated in the browser before any number appears.*
 - **Delivery Event OTD 39.7%** is shown with 38.4% on the full dataset underneath. *Twelve events fall after the snapshot date. Rather than hide them, both bases are shown and the events are listed under Data quality.*
 - **Net active PO line value $11.48M** shows gross and cancelled value beneath it. *Cancelled value is not active commitment.*
@@ -43,6 +45,7 @@ A supplier intelligence dashboard that turns raw supplier, PO, delivery, quality
 ### 4. Inventory intelligence (1 minute)
 
 - **10 materials are below reorder point** on available stock (on hand minus allocated), which is stricter than the supplied on-hand status. *The two bases are shown side by side, and MAT-010 and MAT-020 differ.*
+- Select **Below safety stock** in the stock-position doughnut: the table filters to the 5 materials at risk. *The chart is the filter.*
 - In the material table, show **MAT-004**: a Critical material from a High-criticality supplier. Material and supplier criticality come from different sources and are shown separately.
 - Point to the **single-snapshot warning**. *There is no trend data, and the dashboard says so.*
 
@@ -51,7 +54,7 @@ A supplier intelligence dashboard that turns raw supplier, PO, delivery, quality
 | Question | Short answer |
 |---|---|
 | Is this real company data? | No. All data is synthetic and was designed for this project. |
-| How are the numbers checked? | 304 automated browser tests. KPI values are checked against a separate, independent calculation, and deliberate bugs were planted to prove the tests catch them. |
+| How are the numbers checked? | 324 automated browser tests. KPI values are checked against a separate, independent calculation, and deliberate bugs were planted to prove the tests catch them. |
 | Is the Command centre a sixth module? | No. It is the overview and navigation layer (DEC-033). Every ring, figure and chart is taken from the same validated KPI engine as the modules, a test suite checks them against independent values, and the definitions and tables stay in the five modules. |
 | Why no OTIF? | The data does not hold original commitment dates or promise history, so a defensible OTIF cannot be calculated. Delivery-event OTD is shown instead and labelled as such. |
 | Why not show spend? | There is no invoice data. All values are PO line values, and the dashboard labels them that way. |

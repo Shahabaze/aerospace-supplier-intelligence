@@ -1,7 +1,7 @@
 # Project Decision Log
 ## Aerospace Supplier Intelligence Platform
 
-**Document Version:** 2.7  
+**Document Version:** 2.8  
 **Project Stage:** Phase 2 – Application Development  
 **Repository:** aerospace-supplier-intelligence  
 **Last Updated:** 2026-11-15
@@ -54,6 +54,7 @@ Earlier decisions are never deleted. When a decision is replaced, its status cha
 | DEC-032 | Supplier commitment table shows gross (KPI 6.3) and net active PO value side by side; default sort net active value, descending | Gross is the defined KPI; net active is the active commitment (DEC-019, DEC-023) | Approved (Project Owner, 2026-11-14) – D6-7 |
 | DEC-033 | Approve the Command Centre as the executive overview and navigation layer; it is not a sixth operational module (see section 7.9) | One-screen visual summary for executives and portfolio reviewers, built on the validated KPI engine without changing the five-module architecture | Approved (Project Owner, 2026-11-15) |
 | DEC-034 | Release Stage 7 – Inventory Intelligence, subject to seven confirmed conditions (see section 7.10) | Project Owner reviewed the live module; each condition was verified on the live site before recording | Approved (Project Owner, 2026-11-15) – Stage 7 closed |
+| DEC-035 | Apply the dark HUD design and a chart-first presentation to all modules; replaces the DEC-033 rule that limited the dark theme to the Command Centre (see section 7.11) | Project Owner asked for every tab to match the Command Centre, with more graphics and less reading | Approved (Project Owner, 2026-11-15) |
 
 ## 3. Technology Decisions Pending Validation
 
@@ -307,7 +308,40 @@ The approval is subject to seven conditions. Each was confirmed on the live site
 
 **Ongoing obligation.** The seven conditions are release conditions. Any later change that would break one of them needs a new decision.
 
+### 7.11 DEC-035 – Dark HUD design and chart-first presentation for all modules
+
+**Decision (Project Owner, 2026-11-15).** Every module adopts the Command Centre's dark HUD design, with more charts and less text. The Project Owner chose this scope, and asked Claude to decide how details and caveats are presented. Released in commit `106e5e8`.
+
+**What changes.**
+
+- **Theme:** the dark theme applies to all pages. This replaces the DEC-033 rule that limited it to the Command Centre. All other DEC-033 rules stand: the Command Centre remains the overview and navigation layer, not a module, and the five-module architecture is unchanged.
+- **KPI cards:** each card gains a ring or split bar beside its value. Supporting lines fold under "Details"; their text stays in the page for screen readers and print.
+- **More charts:**
+  - supplier base doughnuts (Executive)
+  - OTD by criticality (Supplier Performance)
+  - segment value vs overdue (Procurement)
+  - supplied-status and stock-position doughnuts, and days of supply by material (Inventory)
+- **Interactive charts:** charts set the existing filters. Selecting a bar or segment filters the expediting register or the material table, finds a material, or opens a supplier.
+
+**Rules.**
+
+- **KPI engine only.** Visuals use KPI engine results, or engine values the views already write into the page. They never calculate KPIs and never read figures from page text.
+- **Caveats stay visible.** A required caveat is never folded. It appears as a visible label on the card or chart it qualifies. The Stage 7 conditions (DEC-034) apply in full:
+  - the on-hand label on the supplied-status chart
+  - the available-stock label on the stock-position chart
+  - "synthetic average daily demand, not a forecast" and "single snapshot" on the days-of-supply chart
+  - SERVICE materials excluded from every inventory chart
+- **Tables stay available.** Every table a chart replaces remains in the page under a toggle. If the chart library fails to load, nothing is folded.
+- **Same bases.** Visuals follow the existing bases: snapshot-period OTD (DEC-017), available stock (DEC-018), net active PO value (DEC-023), and no concentration index (DEC-028).
+- **Tested.** `tests/visual-tests.html` checks:
+  - the visuals against the engine and the independent expected values
+  - the caveats are visible
+  - chart-driven filtering
+  - the chart-library fallback
+
+**Not changed by this decision:** the six CSV files, Data Model v2.0, KPI Dictionary v2.3, the KPI engine, filters, sorting, validation controls, the synthetic-data disclosure, and DEC-034.
+
 ---
 
-**Document Status:** Decision Register – Version 2.7  
+**Document Status:** Decision Register – Version 2.8  
 **Approval Authority:** Project Owner

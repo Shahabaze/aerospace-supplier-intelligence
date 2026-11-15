@@ -40,11 +40,18 @@ Every value comes from the same validated KPI engine. The Command centre is not 
 
 | Module | Highlights | Screenshot |
 |---|---|---|
-| Executive dashboard | Six headline KPIs, data-quality panel, supplier concentration, unsupported-KPI register | [View](assets/screenshots/01-executive-dashboard.png) |
-| Supplier performance | Criticality segments, PO exposure vs delivery chart, sortable and filterable comparison of 25 suppliers, supplier detail with every delivery and inspection | [View](assets/screenshots/02-supplier-performance.png), [detail](assets/screenshots/03-supplier-detail.png) |
-| Procurement intelligence | PO value bridge, overdue ageing, Pareto concentration, supplier commitment table, expediting register | [View](assets/screenshots/04-procurement-intelligence.png), [register](assets/screenshots/05-expediting-register.png) |
-| Inventory intelligence | Six inventory KPIs, status on both stock bases, searchable material table with supplier and material criticality | [View](assets/screenshots/06-inventory-intelligence.png) |
+| Executive dashboard | Six headline KPIs with rings and split bars, data-quality panel, clickable supplier concentration chart, supplier-base doughnuts, unsupported-KPI register | [View](assets/screenshots/01-executive-dashboard.png) |
+| Supplier performance | OTD by criticality chart, PO exposure vs delivery chart, sortable and filterable comparison of 25 suppliers, supplier detail with every delivery and inspection | [View](assets/screenshots/02-supplier-performance.png), [detail](assets/screenshots/03-supplier-detail.png) |
+| Procurement intelligence | PO value bridge, overdue ageing chart that filters the expediting register, Pareto concentration, segment value vs overdue chart, supplier commitment table | [View](assets/screenshots/04-procurement-intelligence.png), [register](assets/screenshots/05-expediting-register.png) |
+| Inventory intelligence | Six inventory KPIs, clickable status doughnuts on both stock bases, days of supply by material, searchable material table with supplier and material criticality | [View](assets/screenshots/06-inventory-intelligence.png) |
 | AI procurement assistant | Planned for a later phase, through a secure backend; not part of this release | — |
+
+**Design (DEC-035).** Every page uses the dark HUD design of the Command centre and leads with charts:
+
+- KPI cards show a ring or split bar, with supporting lines under **Details**.
+- Required caveats stay visible on the chart they qualify, for example "synthetic average daily demand, not a forecast".
+- Each table a chart replaces is kept under a toggle.
+- Charts act as filters: select a bar or segment to filter the table beneath it or open a supplier.
 
 Mobile layouts: [Executive](assets/screenshots/08-mobile-executive.png), [Procurement](assets/screenshots/09-mobile-procurement.png), [inventory table with fixed Material column](assets/screenshots/10-mobile-inventory-table.png), [module menu](assets/screenshots/11-mobile-menu-open.png). On phones the module menu collapses behind a menu button, controls are at least 44px tall, and wide tables keep their first column in place while scrolling sideways. Data quality: [View](assets/screenshots/07-data-quality.png).
 
@@ -54,8 +61,8 @@ Mobile layouts: [Executive](assets/screenshots/08-mobile-executive.png), [Procur
 2. Use the tabs at the top to move between modules. The **Command centre** tab shows the whole picture on one screen; select any ring or panel link to open the module behind it. The Executive dashboard remains the landing page.
 3. In **Supplier performance**, sort any column, filter by criticality, qualification or sample size, and select a supplier to see its deliveries and inspections. Each supplier has its own address, for example `#/suppliers/SUP-013`.
 4. In **Procurement intelligence**, use the expediting register filters, for example "Over 180 days" plus "Nothing received yet", to find the lines that need action first.
-5. In **Inventory intelligence**, filter by stock position or criticality, or search for a material.
-6. Hover over rounded values for exact figures. Expand the data-quality notices on the Executive dashboard to see the records behind each warning.
+5. In **Inventory intelligence**, select a segment of either status doughnut, or a bar in the days-of-supply chart, to filter the material table. The filters and search work too.
+6. Select **Details** on any KPI card for the supporting figures. Hover over rounded values or chart elements for exact figures. Expand the data-quality notices on the Executive dashboard to see the records behind each warning.
 
 A five-minute walkthrough for reviewers is in the [Portfolio demonstration guide](docs/portfolio-guide.md).
 
@@ -90,7 +97,7 @@ Known, documented data conditions are shown on screen rather than corrected sile
 
 ## Quality assurance
 
-**304 automated browser tests**, all passing in Chrome at release. Each suite is an ordinary web page that shows pass or fail:
+**324 automated browser tests**, all passing in Chrome at release. Each suite is an ordinary web page that shows pass or fail:
 
 | Suite | Tests | Covers |
 |---|---:|---|
@@ -99,12 +106,13 @@ Known, documented data conditions are shown on screen rather than corrected sile
 | [`tests/dashboard-tests.html`](tests/dashboard-tests.html) | 38 | Executive dashboard, navigation, failure handling |
 | [`tests/supplier-tests.html`](tests/supplier-tests.html) | 44 | Supplier comparison, sorting, filtering, detail, sample-size rule |
 | [`tests/procurement-tests.html`](tests/procurement-tests.html) | 33 | Bridge, ageing, concentration, commitment table, expediting register |
-| [`tests/overview-tests.html`](tests/overview-tests.html) | 24 | Command centre: every ring, figure and chart against the engine and independent values, dark theme limited to this page, links, chart fallback, phone layout |
+| [`tests/overview-tests.html`](tests/overview-tests.html) | 24 | Command centre: every ring, figure and chart against the engine and independent values, dark theme, links, chart fallback, phone layout |
 | [`tests/inventory-tests.html`](tests/inventory-tests.html) | 23 | Inventory KPIs, stock bases, material table, mobile menu, touch targets and sideways scrolling at 375px |
+| [`tests/visual-tests.html`](tests/visual-tests.html) | 20 | Chart-first layer (DEC-035): card visuals against the engine and independent values, folded details keep their text, Stage 7 caveats visible, chart clicks drive the filters, chart-library fallback |
 
 Each stage also included a mutation check: bugs were planted deliberately to confirm the tests catch them. Stage reports with screenshots are in [`tests/reports/`](tests/reports/).
 
-All 304 tests also pass when run from the live site (verified 2026-11-15; see [`tests/reports/stage-08-release.md`](tests/reports/stage-08-release.md)). Anyone can open the test pages above in a browser and run them.
+All 324 tests pass locally. From the live site, 319 pass; the other 5 need a painting browser window and could not run in the hidden pane used for live checks. See [`tests/reports/stage-08-visual-refresh.md`](tests/reports/stage-08-visual-refresh.md). Anyone can open the test pages above in a browser and run them.
 
 **Testing limits:** automated tests ran in Chrome. Firefox, Safari and physical devices were not part of the automated runs. Live-site checks are recorded in [`tests/reports/stage-08-deployment.md`](tests/reports/stage-08-deployment.md).
 
