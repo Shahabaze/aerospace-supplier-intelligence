@@ -20,6 +20,7 @@ import { renderProcurement } from './views/procurement.js';
 import { renderInventory } from './views/inventory.js';
 import { renderOverview } from './views/overview.js';
 import { destroyAllCharts } from './charts.js';
+import { attachVisuals } from './visuals.js';
 import { esc, date } from './format.js';
 
 const main = document.getElementById('main');
@@ -131,6 +132,7 @@ function route() {
   } else if (model) {
     try {
       VIEWS[id](model);
+      if (id !== 'overview') attachVisuals(main, model);
     } catch (err) {
       showError('The dashboard could not be displayed', [`Display error: ${err.message}`], ['Reload the page. If the problem continues, report it with the message above.']);
       return;

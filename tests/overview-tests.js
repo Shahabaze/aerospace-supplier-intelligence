@@ -186,15 +186,13 @@ test('Links', 'Every panel and ring links to an available module', async () => {
   assert(await waitFor(() => doc.querySelector('[data-table="register"]')), 'procurement not opened');
 });
 
-test('Theme', 'Dark theme applies to the Command centre only; other modules keep the approved light design', async () => {
+test('Theme', 'The dark HUD theme applies to every page (DEC-035)', async () => {
   const bg = () => frame.contentWindow.getComputedStyle(doc.body).backgroundImage;
-  assert(!bg().includes('gradient'), 'procurement page is dark');
-  frame.contentWindow.location.hash = '#/overview';
-  assert(await waitFor(() => doc.querySelector('[data-overview]') && chart('map')));
-  assert(bg().includes('radial-gradient'), 'overview is not dark');
-  frame.contentWindow.location.hash = '#/executive';
-  assert(await waitFor(() => doc.querySelector('[data-card="otd"]')));
-  assert(!bg().includes('gradient'), 'executive page stayed dark');
+  for (const r of ['procurement', 'overview', 'executive']) {
+    frame.contentWindow.location.hash = `#/${r}`;
+    assert(await waitFor(() => doc.querySelector('main').dataset.module === r && doc.querySelector('#page-title')));
+    assert(bg().includes('radial-gradient'), `${r} is not dark`);
+  }
   frame.remove();
 });
 

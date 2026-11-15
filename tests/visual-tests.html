@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Running – Visuals tests</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="test-page.css">
+</head>
+<body>
+  <header>
+    <h1>Visuals Tests</h1>
+    <p>Aerospace Supplier Intelligence Platform · Chart-first module layer (DEC-035): card visuals match the KPI engine, details fold without losing text, required caveats stay visible, and charts drive the existing filters.</p>
+    <p class="note">Synthetic demonstration data. These tests read the CSV files in <code>data/</code> and never change them.</p>
+  </header>
+  <main id="results"><p>Running tests…</p></main>
+  <script src="../src/vendor/papaparse-5.7.1.min.js"></script>
+  <script src="../src/vendor/chart-4.6.1.umd.min.js"></script>
+  <script type="module" src="visual-tests.js"></script>
+</body>
+</html>

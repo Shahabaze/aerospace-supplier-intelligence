@@ -4,13 +4,34 @@
  * if Chart.js fails to load or for screen-reader users.
  */
 
+// Dark HUD palette for every chart (DEC-035).
 const COLORS = {
-  signal: '#1d5fa8',
-  signalMuted: '#9db6d3',
-  ink: '#13263c',
-  steel: '#56677b',
-  rule: '#dfe5ec',
+  signal: '#3fd4ff',
+  signalMuted: 'rgba(63, 212, 255, 0.35)',
+  ink: '#d9e8f6',
+  steel: '#8fa9c8',
+  rule: 'rgba(63, 212, 255, 0.09)',
 };
+const AMBER = '#ffb547';
+
+// Soft glow behind every dataset, and dark tooltips, on all charts.
+if (globalThis.Chart) {
+  globalThis.Chart.register({
+    id: 'hudGlow',
+    beforeDatasetsDraw(chart) {
+      chart.ctx.save();
+      chart.ctx.shadowColor = 'rgba(63, 212, 255, 0.5)';
+      chart.ctx.shadowBlur = 10;
+    },
+    afterDatasetsDraw(chart) {
+      chart.ctx.restore();
+    },
+  });
+  const d = globalThis.Chart.defaults;
+  d.color = COLORS.steel;
+  d.borderColor = COLORS.rule;
+  Object.assign(d.plugins.tooltip, { backgroundColor: '#04101d', borderColor: '#1a4f9c', borderWidth: 1, titleColor: COLORS.ink, bodyColor: COLORS.ink });
+}
 
 const charts = new Map();
 
@@ -179,7 +200,7 @@ export function drawVarianceTimeline(canvas, points, { asOfMs, startMs }) {
     data: {
       datasets: [
         { label: 'On time or early', data: points.filter((p) => p.onTime), backgroundColor: COLORS.signal, pointRadius: 5, pointStyle: 'circle' },
-        { label: 'Late', data: points.filter((p) => !p.onTime), backgroundColor: '#b26a00', pointRadius: 6, pointStyle: 'rectRot' },
+        { label: 'Late', data: points.filter((p) => !p.onTime), backgroundColor: AMBER, pointRadius: 6, pointStyle: 'rectRot' },
       ].map((ds) => ({ ...ds, data: ds.data.map((p) => ({ x: p.t, y: p.y, id: p.id, inPeriod: p.inPeriod })) })),
     },
     options: {
@@ -222,7 +243,7 @@ export function drawAgeingChart(canvas, buckets) {
     type: 'bar',
     data: {
       labels: buckets.map((b) => [b.label, `${b.lines} line${b.lines === 1 ? '' : 's'}`]),
-      datasets: [{ data: buckets.map((b) => b.value), backgroundColor: ['#9db6d3', '#5f8cc0', '#1d5fa8', '#13263c'], borderWidth: 0, barPercentage: 0.7 }],
+      datasets: [{ data: buckets.map((b) => b.value), backgroundColor: ['rgba(63, 212, 255, 0.3)', 'rgba(63, 212, 255, 0.55)', '#2b7de9', AMBER], borderWidth: 0, barPercentage: 0.7 }],
     },
     options: {
       maintainAspectRatio: false,
@@ -288,7 +309,7 @@ export function drawGapChart(canvas, dist) {
     type: 'bar',
     data: {
       labels: dist.map((x) => (x.days > 0 ? `+${x.days}` : `${x.days}`)),
-      datasets: [{ data: dist.map((x) => x.lines), backgroundColor: dist.map((x) => (x.days > 0 ? '#b26a00' : x.days === 0 ? COLORS.steel : COLORS.signal)), borderWidth: 0, barPercentage: 0.85 }],
+      datasets: [{ data: dist.map((x) => x.lines), backgroundColor: dist.map((x) => (x.days > 0 ? AMBER : x.days === 0 ? COLORS.steel : COLORS.signal)), borderWidth: 0, barPercentage: 0.85 }],
     },
     options: {
       maintainAspectRatio: false,
@@ -317,20 +338,6 @@ export const HUD = Object.freeze({
   grid: 'rgba(63, 212, 255, 0.09)',
 });
 
-/** Plugin: soft glow behind every dataset, the HUD's signature. */
-const hudGlow = {
-  id: 'hudGlow',
-  beforeDatasetsDraw(chart) {
-    const { ctx } = chart;
-    ctx.save();
-    ctx.shadowColor = 'rgba(63, 212, 255, 0.55)';
-    ctx.shadowBlur = 10;
-  },
-  afterDatasetsDraw(chart) {
-    chart.ctx.restore();
-  },
-};
-
 const hudTick = { family: 'Barlow Semi Condensed', size: 11 };
 
 function hudChart(canvas, config) {
@@ -348,7 +355,7 @@ function hudChart(canvas, config) {
       ...(config.options?.plugins || {}),
     },
   };
-  config.plugins = [hudGlow, referenceLines, ...(config.plugins || [])];
+  config.plugins = [referenceLines, ...(config.plugins || [])];
   charts.set(canvas.id, new Chart(canvas, config));
   return true;
 }
@@ -514,6 +521,7 @@ export function drawHudBars(canvas, spec) {
     data: { labels: spec.labels, datasets: [{ data: spec.values, backgroundColor: spec.colors || HUD.blue, borderColor: HUD.cyan, borderWidth: { top: spec.horizontal ? 0 : 1, right: spec.horizontal ? 1 : 0 }, borderSkipped: false, barPercentage: 0.7 }] },
     options: {
       indexAxis: spec.horizontal ? 'y' : 'x',
+      ...(spec.onSelect ? { onClick: (_e, els) => { if (els.length) spec.onSelect(els[0].index); }, onHover: (e, els) => { e.native.target.style.cursor = els.length ? 'pointer' : 'default'; } } : {}),
       plugins: {
         tooltip: { callbacks: { label: (ctx) => ` ${fmt(spec.horizontal ? ctx.parsed.x : ctx.parsed.y)}` } },
         referenceLines: spec.reference ? { lines: [{ axis: spec.horizontal ? 'x' : 'y', value: spec.reference.value, label: spec.reference.label, color: HUD.amber }] } : {},
@@ -535,7 +543,7 @@ export function drawHudPairedBars(canvas, labels, series, format = (v) => `${v.t
         tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${format(ctx.parsed.x)}` } },
       },
       scales: {
-        x: hudAxis({ beginAtZero: true, max: 100, ticks: { color: HUD.muted, font: hudTick, stepSize: 25, callback: (v) => `${v}%` } }),
+        x: hudAxis({ beginAtZero: true, ticks: { color: HUD.muted, font: hudTick, maxTicksLimit: 6, callback: (v) => `${v}%` } }),
         y: hudAxis({ grid: { display: false }, ticks: { color: HUD.text, font: { family: 'Barlow', size: 12 } } }),
       },
     },
@@ -543,12 +551,13 @@ export function drawHudPairedBars(canvas, labels, series, format = (v) => `${v.t
 }
 
 /** Ring chart for category counts. */
-export function drawHudDoughnut(canvas, labels, values, colors) {
+export function drawHudDoughnut(canvas, labels, values, colors, onSelect) {
   return hudChart(canvas, {
     type: 'doughnut',
     data: { labels, datasets: [{ data: values, backgroundColor: colors, borderColor: '#0a1a2d', borderWidth: 3, hoverOffset: 4 }] },
     options: {
       cutout: '68%',
+      ...(onSelect ? { onClick: (_e, els) => { if (els.length) onSelect(els[0].index); }, onHover: (e, els) => { e.native.target.style.cursor = els.length ? 'pointer' : 'default'; } } : {}),
       plugins: {
         legend: { display: true, position: 'bottom', labels: { color: HUD.text, font: { family: 'Barlow', size: 12 }, boxWidth: 12, boxHeight: 12, padding: 10 } },
         tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.parsed}` } },
